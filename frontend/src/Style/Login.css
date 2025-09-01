@@ -1,0 +1,85 @@
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: whitesmoke;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 320px;
+  margin: 10vh auto;
+  padding: 20px;
+  border-radius: 15px;
+  background: rgb(235, 151, 235);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo{
+  border-radius: 50%;
+  border: solid;
+  border-color: gray;
+  object-fit: cover;
+  margin-left: 7px;
+}
+
+.head h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.inputs {
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;   
+}
+
+.input input {
+  width: 100%;           
+  max-width: 200px;    
+  margin: 0 auto;        
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+}
+
+.Sub-Cont {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.Submit {
+  padding: 10px 20px;
+  background: linear-gradient(to bottom,rgb(174, 0, 209), rgb(204, 87, 228) );
+  color: white;
+  width: 100px;
+  border: solid, 2px;
+  border-color: rgb(105, 105, 105);
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Submit:hover {
+  background: rgb(177, 10, 163);
+}
