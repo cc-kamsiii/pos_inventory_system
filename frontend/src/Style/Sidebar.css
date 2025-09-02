@@ -1,0 +1,65 @@
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: #5620B4 ;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 30px;
+}
+
+.sidebar .logo {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  cursor: pointer;
+}
+
+.sidebar ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: block;  
+  padding: 8px 12px;
+  transition: .1s;
+}
+
+.sidebar ul li:hover {
+  background-color: #BA92DB;
+  transition: .1s;
+}
+
+.sidebar ul li:hover a {
+  color: white;  
+}
+
+.log-in-button{
+  padding: 10px 45px;  
+  font-weight: 600;
+  color: black;
+  border: none;
+  cursor: pointer;
+  transition: .1s;
+  background-color: white;
+}
+
+.log-in-button:hover{
+    color: white;
+    background-color: #BA92DB;
+}
+
+.bottom-log-out{
+  position: fixed;
+  bottom: 0;
+  margin-bottom: 50px;
+}

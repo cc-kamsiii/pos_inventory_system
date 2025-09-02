@@ -1,0 +1,32 @@
+.title-search-create {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  gap: 1rem;
+}
+
+.title-search-create h2 {
+  font-size: 30x;
+  margin: 0;
+}
+
+.title-search-create form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+}
+
+.title-search-create input {
+  padding: 10px 15px 8px;
+  border: 1px solid gray;
+  outline: none;
+  width: 350px; 
+}
+
+.title-search-create button {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #A640FA ;
+  border: none;
+}

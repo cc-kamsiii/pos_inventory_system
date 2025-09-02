@@ -1,0 +1,26 @@
+.layout {
+  display: flex;        /* sidebar + content side by side */
+  height: 100vh;        /* full height of screen */
+  width: 100vw;
+  margin: 0;
+}
+
+/* Sidebar stays on the left */
+.sidebar {
+  width: 250px;         /* fixed width */
+  flex-shrink: 0;       /* don’t let it shrink */
+  height: 100vh;        /* full height */
+  background:#A640FA;     /* keep your original sidebar color */
+  color: white;
+  position: relative;   /* no overlap */
+  z-index: 1;
+}
+
+/* Content fills the rest of the screen */
+.content {
+  flex: 1;              /* take all remaining space */
+  height: 100vh;  /* just for testing */
+  overflow-y: auto;     /* scrollable if content is tall */
+  padding: 20px;
+  box-sizing: border-box;
+}
