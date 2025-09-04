@@ -2,6 +2,9 @@
   margin-top: 20px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  text-align: center;
   font-weight: 600;
   gap: 1rem;
 }
@@ -14,6 +17,7 @@
 .title-search-create form {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem; 
 }
 
@@ -29,4 +33,46 @@
   cursor: pointer;
   background-color: #A640FA ;
   border: none;
+  color: white;
 }
+
+
+
+.table {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+.table table {
+  border-collapse: collapse; 
+  width: 100%;
+  max-width: 1500px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
+.table th {
+  background-color: #A640FA;
+  color: white;
+  text-align: center;
+  padding: 12px 15px;
+  font-weight: 600;
+  border: 1px solid #ccc; 
+}
+
+.table td {
+  padding: 12px 15px;
+  border: 1px solid #ccc; 
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table tr:hover {
+  background-color: #f1f1f1;
+}
+
