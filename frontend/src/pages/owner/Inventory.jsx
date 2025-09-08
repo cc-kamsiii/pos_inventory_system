@@ -1,4 +1,5 @@
  import { useEffect } from "react";
+ import {Link} from 'react-router-dom';
  import { useState } from "react";
 import "../../Style/Inventory.css"
 import axios from 'axios';
@@ -15,7 +16,15 @@ function Inventory () {
 
   function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB"); 
+    return date.toLocaleDateString("en-US"); 
+  }
+
+  const handleDelete = (id) =>{
+    axios.delete(`http://localhost:8081/inventory/${id}`)
+    .then(res =>{
+      setData(data.filter(item => item.id != id));
+    })
+    .catch(err => console.log(err));
   }
 
 
@@ -31,7 +40,7 @@ function Inventory () {
                 <input type="text" placeholder="Search inventory"/>
               </form>
               <div>
-                <button>Add Inventory</button>
+                <Link to='/add'><button>Add Inventory</button></Link>
               </div>
           </div>
 
@@ -44,6 +53,7 @@ function Inventory () {
                     <th>Quantity</th>
                     <th>Unit</th>
                     <th>Last Update</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -54,8 +64,25 @@ function Inventory () {
                           <td>{inventory.quantity}</td>
                           <td>{inventory.unit}</td>
                           <td>{formatDate(inventory.last_update)}</td>
+                          <td>
+                            <div className="action-button">
+                             <Link to={`/read/${inventory.id}`}> <button>Read</button> </Link> 
+                              <Link to={`/edit/${inventory.id}`}><button>Edit</button> </Link>
+                              <button 
+                                  onClick={() => {
+                                    if (window.confirm("Are you sure you want to delete this item?")) {
+                                      handleDelete(inventory.id);
+                                    }
+                                  }}
+                                >
+                                  Delete
+                              </button>
+                            </div>
+                          </td>
                       </tr>
                     })}
+
+                    
                 </tbody>
               </table>
             </div>

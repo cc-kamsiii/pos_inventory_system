@@ -4,6 +4,9 @@ import Sidebar from "./components/Sidebar/Sidebar.jsx";
 import Dashboard from "./pages/owner/Dashboard.jsx";
 import Login from "./pages/Login.jsx";
 import Inventory from "./pages/owner/Inventory.jsx";
+import Add from './pages/owner/crud/add.jsx';
+import Read from './pages/owner/crud/Read.jsx';
+import Edit from './pages/owner/crud/Edit.jsx';
 import "./Style/App.css";
 
 function Layout() {
@@ -29,6 +32,9 @@ function Layout() {
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path="/add" element={<Add />} />
+          <Route path="/read/:id" element = {<Read/>}/>
+          <Route path='/edit/:id' element = {<Edit/>}/>
         </Routes>
       </div>
     </div>

@@ -41,6 +41,7 @@
 .table {
   display: flex;
   justify-content: center;
+  text-align: center;
   align-items: center;
   margin: 0 auto;
   margin-top: 40px;
@@ -74,5 +75,23 @@
 
 .table tr:hover {
   background-color: #f1f1f1;
+}
+
+.action-button{
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  gap: 1rem;
+  flex: 1;
+  width: 100%;
+}
+
+.action-button button{
+  color: white;
+  border: none;
+  background-color: #BA92DB;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
 }
 
