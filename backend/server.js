@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 
 import authRoutes from "./routes/auth.js";
 import inventoryRoutes from "./routes/inventory.js";
+import menuRoutes from "./routes/menu.js";  
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/inventory", inventoryRoutes);
+app.use("/menu", menuRoutes);
 
 app.listen(8081, () => {
     console.log("Server running on port 8081");
