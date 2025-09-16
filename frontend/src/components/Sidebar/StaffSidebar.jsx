@@ -5,9 +5,12 @@ import "../../Style/Sidebar.css";
 function StaffSidebar({ name, onLogout }) {
   return (
     <div className="sidebar">
-      <h2>POS System</h2>
-      <p style={{ fontSize: "14px", color: "lightgray" }}>Name: {name}</p>
-      <p style={{ fontSize: "12px", color: "gray" }}>Role: Staff</p>
+      <div className="nameAndRole">
+        <div className="b-border">
+          <p>Role: Staff</p>
+          <p>{name}</p>
+        </div>
+      </div>
 
       <ul>
         <li><Link to="/dashboard">Dashboard</Link></li>

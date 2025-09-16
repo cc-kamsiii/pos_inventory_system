@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { ShoppingCart, Plus, Minus, Trash2, Search, RefreshCw } from 'lucide-react';
 import "../../Style/POS.css";
 
@@ -15,7 +16,7 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
           <Search className="search-icon" />
           <input type="text" placeholder="Search Menu" className="search-input" />
         </div>
-        <button className="refresh-btn">
+        <button className="refresh-btn" onClick={() => window.location.reload()}>
           <RefreshCw className="refresh-icon" />
           Refresh
         </button>
@@ -25,12 +26,12 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
         {filteredProducts.map((product) => (
           <div key={product.id} className="product-card">
             <div className="product-image">
-              <span className="product-emoji">{product.emoji}</span>
+              <span className="product-emoji">🍽️</span> {/* Default emoji, since DB has no emoji */}
               <button className="available-badge">Available</button>
             </div>
             <div className="product-info">
-              <h3 className="product-name">{product.name}</h3>
-              <p className="product-price">₱{product.price.toFixed(2)}</p>
+              <h3 className="product-name">{product.item_name}</h3>
+              <p className="product-price">₱{parseFloat(product.price).toFixed(2)}</p>
               <button 
                 className="add-to-cart-btn"
                 onClick={() => onAddToCart(product)}
@@ -78,10 +79,10 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
         {cart.map((item) => (
           <div key={item.id} className="order-item">
             <div className="item-image">
-              <span className="item-emoji">{item.emoji}</span>
+              <span className="item-emoji">🍽️</span>
             </div>
             <div className="item-details">
-              <h4 className="item-name">{item.name}</h4>
+              <h4 className="item-name">{item.item_name}</h4>
               <div className="item-controls">
                 <button
                   onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
@@ -122,39 +123,31 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
   );
 };
 
-
-//POS
+// POS
 function POS() {
-  const [categories] = useState([
-    { name: 'All', count: 43 },
-    { name: 'Beverages', count: 11 },
-    { name: 'Main Course', count: 16 },
-    { name: 'Dessert', count: 8 },
-    { name: 'Appetizer', count: 8 }
-  ]);
-
-  const [products] = useState([
-    { id: 1, name: 'Coffee', price: 3.50, emoji: '☕', category: 'Beverages' },
-    { id: 2, name: 'Sandwich', price: 8.99, emoji: '🥪', category: 'Main Course' },
-    { id: 3, name: 'Salad', price: 12.50, emoji: '🥗', category: 'Appetizer' },
-    { id: 4, name: 'Pizza Slice', price: 4.25, emoji: '🍕', category: 'Main Course' },
-    { id: 5, name: 'Burger', price: 11.99, emoji: '🍔', category: 'Main Course' },
-    { id: 6, name: 'French Fries', price: 4.50, emoji: '🍟', category: 'Appetizer' },
-    { id: 7, name: 'Soda', price: 2.25, emoji: '🥤', category: 'Beverages' },
-    { id: 8, name: 'Ice Cream', price: 5.75, emoji: '🍦', category: 'Dessert' },
-    { id: 9, name: 'Donut', price: 2.99, emoji: '🍩', category: 'Dessert' },
-    { id: 10, name: 'Cookie', price: 1.99, emoji: '🍪', category: 'Dessert' },
-    { id: 11, name: 'Cake', price: 6.50, emoji: '🍰', category: 'Dessert' },
-    { id: 12, name: 'Tea', price: 2.75, emoji: '🍵', category: 'Beverages' },
-    { id: 13, name: 'Wagyu Steak', price: 31.17, emoji: '🥩', category: 'Main Course' },
-    { id: 14, name: 'Chicken Ramen', price: 17.70, emoji: '🍜', category: 'Main Course' },
-    { id: 15, name: 'Fish and Chips', price: 23.05, emoji: '🐟', category: 'Main Course' }
-  ]);
-
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
+
+  // Fetch from backend
+  useEffect(() => {
+    axios.get("http://localhost:8081/menu")        
+      .then(res => setProducts(res.data))
+      .catch(err => console.error(err));
+
+    axios.get("http://localhost:8081/menu/categories") 
+      .then(res => {
+        const allCount = res.data.reduce((sum, c) => sum + c.count, 0);
+        setCategories([
+          { name: "All", count: allCount },
+          ...res.data.map(c => ({ name: c.category, count: c.count }))
+        ]);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   const addToCart = (product) => {
     setCart(prevCart => {
@@ -175,7 +168,6 @@ function POS() {
       removeFromCart(id);
       return;
     }
-    
     setCart(prevCart =>
       prevCart.map(item =>
         item.id === id ? { ...item, quantity: newQuantity } : item
@@ -203,8 +195,6 @@ function POS() {
 
   return (
     <div className="pos-system">
-      <div className="pos-header"></div> {/* Cleared header */}
-
       <div className="pos-main">
         <div className="pos-left">
           <Categories 
@@ -230,7 +220,7 @@ function POS() {
         </div>
       </div>
 
-      {/* Modal (parang card na nag popop up) */}
+      {/* Modal */}
       {showCheckoutModal && (
         <div className="modal-overlay">
           <div className="modal-content">
