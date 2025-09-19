@@ -21,7 +21,7 @@ function OwnerSidebar({ name, onLogout }) {
 
       <ul>
         <li><Link to="/dashboard">Dashboard</Link></li>
-        <li><Link to="/transaction">Transactions (History)</Link></li>
+        <li><Link to="/ownertransactions">Transactions (History)</Link></li>
         <li><Link to="/inventory">Inventory</Link></li>
         <li><Link to="/settings">Settings</Link></li>
       </ul>

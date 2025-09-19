@@ -1,42 +1,58 @@
 .title-search-create {
-  margin-top: 20px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 0 auto;
-  text-align: center;
-  font-weight: 600;
-  gap: 1rem;
+  flex-direction: column;  
+  max-width: 1500px;
+  margin: 0 auto 20px auto;
+  padding: 0 10px;
+  gap: 10px; 
 }
 
 .title-search-create h2 {
-  font-size: 30x;
+  font-size: 30px;
   margin: 0;
+  text-align: left; 
 }
 
-.title-search-create form {
+.title-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem; 
 }
 
-.title-search-create input {
-  padding: 10px 15px 8px;
-  border: 1px solid gray;
-  outline: none;
-  width: 350px; 
-}
-
-.title-search-create button {
+.title-row .add-btn {
   padding: 10px 20px;
   cursor: pointer;
-  background-color: #A640FA ;
+  background-color: #A640FA;
   border: none;
   color: white;
+  font-size: 14px;
+  border-radius: 5px;
+  width: fit-content;
 }
 
+.title-row form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
+}
+
+.title-row input {
+  padding: 10px 15px 8px;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  outline: none;
+  width: 300px;
+}
+
+.title-row button {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #A640FA;
+  border: none;
+  color: white;
+  border-radius: 5px;
+}
 
 .table {
   display: flex;
@@ -77,21 +93,27 @@
   background-color: #f1f1f1;
 }
 
-.action-button{
-  display: flex;
+
+.table th:last-child,
+.table td:last-child {
+  width: 180px;  
   text-align: center;
-  justify-content: center;
-  gap: 1rem;
-  flex: 1;
-  width: 100%;
 }
 
-.action-button button{
+
+.action-button {
+  display: inline-flex;  
+  justify-content: center;
+  gap: 0.4rem;          
+  margin: 0 auto;
+}
+
+.action-button button {
   color: white;
   border: none;
   background-color: #BA92DB;
   border-radius: 5px;
-  padding: 10px 15px;
+  padding: 6px 12px;     
+  font-size: 13px;
   cursor: pointer;
 }
-

@@ -7,12 +7,14 @@ import Inventory from "./pages/owner/Inventory.jsx";
 import Add from './pages/owner/crud/add.jsx';
 import Read from './pages/owner/crud/Read.jsx';
 import Edit from './pages/owner/crud/Edit.jsx';
-import POS from "./pages/Staff/POS.jsx"; // Correct path for Staff folder
+import POS from "./pages/Staff/POS.jsx";
+import StaffTransactions from './pages/staff/StaffTransactions.jsx';
+import OwnerTransactions from './pages/owner/OwnerTransactions.jsx';
 import "./Style/App.css";
 
 function Layout() {
   const location = useLocation();
-  const hideSidebar = location.pathname === "/"; // Fixed: should be pathname, not path.name
+  const hideSidebar = location.pathname === "/"; 
   
   if (hideSidebar) {
     return (
@@ -37,6 +39,8 @@ function Layout() {
           <Route path="/read/:id" element={<Read />} />
           <Route path='/edit/:id' element={<Edit />} />
           <Route path="/pos" element={<POS />} />
+          <Route path="/stafftransactions" element={<StaffTransactions />} />
+          <Route path="/ownertransactions" element={<OwnerTransactions />} />
         </Routes>
       </div>
     </div>

@@ -14,7 +14,7 @@ function StaffSidebar({ name, onLogout }) {
 
       <ul>
         <li><Link to="/dashboard">Dashboard</Link></li>
-        <li><Link to="/transaction-today">Transactions (Today)</Link></li>
+        <li><Link to="/stafftransactions">Transactions (Today)</Link></li>
         <li><Link to="/pos">POS</Link></li>
       </ul>
 

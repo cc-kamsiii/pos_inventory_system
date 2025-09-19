@@ -1,7 +1,7 @@
  import { useEffect } from "react";
  import {Link} from 'react-router-dom';
  import { useState } from "react";
-import "../../Style/Inventory.css"
+import "../../Style/ownerTransactions.css"
 import axios from 'axios';
 
 function Inventory () {
@@ -33,7 +33,7 @@ function Inventory () {
     <div className="inventory">
         <div className="inventory-container">
           <div className="title-search-create">
-            <h2>Inventory Management</h2>
+            <h2>TRANSACTIONS HISTORY</h2>
 
             <div className="title-row">
               <Link to="/add"><button className="add-btn">Add Inventory</button></Link>
@@ -50,36 +50,25 @@ function Inventory () {
                     <th>ID</th>
                     <th>Item Name</th>
                     <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Last Update</th>
-                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Order Type</th>
+                    <th>Payment Method</th>
+                    <th>Total Payment</th>
+                    <th>Remarks</th>
+                    <th>Order Date</th>
                   </tr>
                 </thead>
                 <tbody>
-                    {data.map((inventory, index) =>{
-                      return <tr key={index}>
-                          <td>{inventory.id}</td>
-                          <td>{inventory.item}</td>
-                          <td>{inventory.quantity}</td>
-                          <td>{inventory.unit}</td>
-                          <td>{formatDate(inventory.last_update)}</td>
-                          <td>
-                            <div className="action-button">
-                             <Link to={`/read/${inventory.id}`}> <button>Read</button> </Link> 
-                              <Link to={`/edit/${inventory.id}`}><button>Edit</button> </Link>
-                              <button 
-                                  onClick={() => {
-                                    if (window.confirm("Are you sure you want to delete this item?")) {
-                                      handleDelete(inventory.id);
-                                    }
-                                  }}
-                                >
-                                  Delete
-                              </button>
-                            </div>
-                          </td>
-                      </tr>
-                    })}
+                    <td>1</td>
+                    <td>TAPSILOG</td>
+                    <td>2</td>
+                    <td>95</td>
+                    <td>Dine-in</td>
+                    <td>Cash</td>
+                    <td>190</td>
+                    <td>Herald Cañaveral</td>
+                    <td>9/19/2025</td>
+                    
 
                     
                 </tbody>
