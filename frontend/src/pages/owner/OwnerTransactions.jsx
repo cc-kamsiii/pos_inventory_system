@@ -4,7 +4,7 @@
 import "../../Style/ownerTransactions.css"
 import axios from 'axios';
 
-function Inventory () {
+function OwnerTransactions () {
 
   const [data, setData] = useState([]);
 
@@ -36,9 +36,9 @@ function Inventory () {
             <h2>TRANSACTIONS HISTORY</h2>
 
             <div className="title-row">
-              <Link to="/add"><button className="add-btn">Add Inventory</button></Link>
+              <Link to="/add"><button className="add-btn">Range</button></Link>
               <form>
-                <input type="text" placeholder="Search inventory" />
+                <input type="text" placeholder="Search transactions" />
               </form>
             </div>
           </div>
@@ -81,4 +81,4 @@ function Inventory () {
 
 };
 
-export default Inventory;
+export default OwnerTransactions;
