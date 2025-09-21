@@ -23,6 +23,13 @@ function Login() {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("name", res.data.name);
         localStorage.setItem("role", res.data.role);
+        localStorage.setItem("user_id", res.data.user_id); 
+
+        console.log("Stored in localStorage:", {
+          name: res.data.name,
+          role: res.data.role,
+          user_id: res.data.user_id
+        });
         navigate("/Dashboard");
       } else {
         alert(res.data.message);

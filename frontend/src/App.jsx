@@ -7,8 +7,8 @@ import Inventory from "./pages/owner/Inventory.jsx";
 import Add from './pages/owner/crud/add.jsx';
 import Read from './pages/owner/crud/Read.jsx';
 import Edit from './pages/owner/crud/Edit.jsx';
-import POS from "./pages/Staff/POS.jsx";
-import StaffTransactions from './pages/staff/StaffTransactions.jsx';
+import POS from './pages/staff/POS.jsx'
+import StaffTransactions from './pages/staff/Stafftransactions.jsx';
 import OwnerTransactions from './pages/owner/OwnerTransactions.jsx';
 import "./Style/App.css";
 

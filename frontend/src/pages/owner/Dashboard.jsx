@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 
 function Dashboard() {
-  const [name, setName] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const userName = localStorage.getItem("name");
-    setName(userName || "Unknown");
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <p>Welcome, your role is <strong>{name}</strong></p>
+      {user ? (
+        <p>
+          Welcome <strong>{user.name}</strong>, your role is{" "}
+          <strong>{user.role}</strong>
+        </p>
+      ) : (
+        <p>No user logged in</p>
+      )}
     </div>
   );
 }

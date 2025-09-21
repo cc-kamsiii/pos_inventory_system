@@ -56,7 +56,13 @@ function StaffTransactions () {
                       <td>{row.payment_method}</td>
                       <td>{row.total_payment}</td>
                       <td>{row.cashier_name}</td>
-                      <td>{new Date(row.order_date).toLocaleDateString()}</td>
+                      <td>
+                        {new Date(row.order_date).toLocaleDateString("en-US", {
+                          year: "2-digit",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

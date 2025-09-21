@@ -14,7 +14,10 @@ function POS() {
   const [showModal, setShowModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
 
-  // Fetch from backend
+
+
+  
+
   useEffect(() => {
     axios.get("http://localhost:8081/menu")        
       .then(res => setProducts(res.data))
@@ -66,9 +69,48 @@ function POS() {
   };
 
   const checkout = (total) => {
-    setLastTransaction({ total, paymentMethod: 'cash' });
-    setShowModal(true);
-    setCart([]);
+    
+  const cashierName = localStorage.getItem("name");
+  const userId = localStorage.getItem("user_id");
+  console.log("Cashier:", cashierName, "User ID:", userId);
+
+
+    if (!cart.length) {
+      alert("Cart is empty!");
+      return;
+    }
+
+    if (!cashierName || !userId) {
+      alert("User not logged in!");
+      return;
+    }
+    
+    const transactionData = {
+      cart,
+      payment_method: "Cash",
+      total_payment: total,
+      cashier_name: cashierName,
+      order_type: "Dine-in",
+      user_id: userId 
+    };
+
+    axios.post("http://localhost:8081/staffTransactions", transactionData)
+      .then(res => {
+        console.log("Transaction saved:", res.data);
+
+        setLastTransaction({
+          total_payment: total,
+          payment_method: "Cash",
+          cashier_name: cashierName, 
+          order_type: "Dine-in",
+          user_id: userId
+          
+        });
+
+        setShowModal(true);
+        setCart([]);
+      })
+      .catch(err => console.log(err));
   };
 
   const closeModal = () => {
