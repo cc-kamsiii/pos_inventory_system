@@ -1,5 +1,5 @@
 import express from "express";
-import {getTransactions, addTransactions} from "../controllers/transactionsControllers.js";
+import {getTransactions, addTransactions} from "../controllers/staffTransactionsControllers.js";
 
 const router = express.Router();
 

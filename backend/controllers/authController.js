@@ -9,7 +9,7 @@ exports.login = async (req, res) => {
         if (err) return res.json({ error: err });
 
         if (result.length === 0) 
-            return res.json({ success: false, message: "User not found" });
+            return res.json({ success: false});
 
         const user = result[0];
         const isMatch = await bcrypt.compare(password, user.password);
