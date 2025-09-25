@@ -4,10 +4,12 @@ import sisig from "../assets/sisig.jpg"
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import UserNotLoggedIn from "./UserNotLoggedIn";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -32,13 +34,20 @@ function Login() {
         });
         navigate("/Dashboard");
       } else {
-        alert(res.data.message);
+        setShowModal(true);
       }
     } catch (err) {
       console.log(err);
       alert("SERVER ERROR");
     }
   };
+
+  const closeLogin = () =>{
+    setShowModal(false);
+    
+  }
+
+  
 
   return (
     <div className="login-container">
@@ -71,7 +80,13 @@ function Login() {
           </button>
         </form>
       </div>
+          <UserNotLoggedIn
+              isVisible={showModal}
+              onClose={closeLogin}
+          />
     </div>
+
+    
   );
 }
 

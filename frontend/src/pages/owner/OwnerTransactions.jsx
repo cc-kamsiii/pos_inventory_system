@@ -1,32 +1,19 @@
  import { useEffect } from "react";
  import {Link} from 'react-router-dom';
  import { useState } from "react";
-import "../../Style/ownerTransactions.css"
+import "../../Style/staffTransactions.css"
 import axios from 'axios';
 
-function OwnerTransactions () {
+function StaffTransactions () {
 
+  
   const [data, setData] = useState([]);
 
-  useEffect(() =>{
-    axios.get('http://localhost:8081/inventory')
+  useEffect(()=>{
+    axios.get("http://localhost:8081/ownerTransactions")
     .then(res => setData(res.data))
-    .catch(err => console.log(err));
-  })
-
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US"); 
-  }
-
-  const handleDelete = (id) =>{
-    axios.delete(`http://localhost:8081/inventory/${id}`)
-    .then(res =>{
-      setData(data.filter(item => item.id != id));
-    })
-    .catch(err => console.log(err));
-  }
-
+    .catch(err => console.log(err))
+  },[]);
 
 
   return (
@@ -36,7 +23,7 @@ function OwnerTransactions () {
             <h2>TRANSACTIONS HISTORY</h2>
 
             <div className="title-row">
-              <Link to="/add"><button className="add-btn">Range</button></Link>
+              <input type="date"/>
               <form>
                 <input type="text" placeholder="Search transactions" />
               </form>
@@ -54,23 +41,30 @@ function OwnerTransactions () {
                     <th>Order Type</th>
                     <th>Payment Method</th>
                     <th>Total Payment</th>
-                    <th>Remarks</th>
+                    <th>Cashier</th>
                     <th>Order Date</th>
                   </tr>
                 </thead>
                 <tbody>
-                    <td>1</td>
-                    <td>TAPSILOG</td>
-                    <td>2</td>
-                    <td>95</td>
-                    <td>Dine-in</td>
-                    <td>Cash</td>
-                    <td>190</td>
-                    <td>Herald Cañaveral</td>
-                    <td>9/19/2025</td>
-                    
-
-                    
+                  {data.map((row, index) =>(
+                    <tr key={index}>
+                      <td>{row.transaction_id}</td>
+                      <td>{row.item_name}</td>
+                      <td>{row.quantity}</td>
+                      <td>{row.price}</td>
+                      <td>{row.order_type}</td>
+                      <td>{row.payment_method}</td>
+                      <td>{row.total_payment}</td>
+                      <td>{row.cashier_name}</td>
+                      <td>
+                        {new Date(row.order_date).toLocaleDateString("en-US", {
+                          year: "2-digit",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -81,4 +75,4 @@ function OwnerTransactions () {
 
 };
 
-export default OwnerTransactions;
+export default StaffTransactions;

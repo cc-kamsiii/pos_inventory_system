@@ -100,6 +100,7 @@ html, body {
   border: 1px solid #4d4d4d;
   border-radius: 8px;
   color: #fff;
+  outline: none;
   font-size: 0.875rem;
 }
 
@@ -436,7 +437,6 @@ html, body {
   color: #ecf0f1;
 }
 
-/* Scrollbar sa added cart */
 .order-items-section::-webkit-scrollbar {
   width: 4px;
 }

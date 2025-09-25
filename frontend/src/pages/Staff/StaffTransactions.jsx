@@ -20,10 +20,9 @@ function StaffTransactions () {
     <div className="inventory">
         <div className="inventory-container">
           <div className="title-search-create">
-            <h2>TRANSACTIONS HISTORY</h2>
+            <h2>TRANSACTIONS TODAY</h2>
 
             <div className="title-row">
-              <button className="add-btn">Range</button>
               <form>
                 <input type="text" placeholder="Search transactions" />
               </form>

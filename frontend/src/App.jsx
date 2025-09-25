@@ -10,7 +10,7 @@ import Edit from './pages/owner/crud/Edit.jsx';
 import POS from './pages/staff/POS.jsx'
 import StaffTransactions from './pages/staff/Stafftransactions.jsx';
 import OwnerTransactions from './pages/owner/OwnerTransactions.jsx';
-import "./Style/App.css";
+import './Style/App.css';  
 
 function Layout() {
   const location = useLocation();
