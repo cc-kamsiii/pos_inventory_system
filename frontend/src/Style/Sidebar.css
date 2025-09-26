@@ -26,21 +26,34 @@
 
 .sidebar ul li a {
   text-decoration: none;
-  color: white;
+  color: black;         
   font-size: 1.1rem;
   font-weight: bold;
-  display: block;  
+  display: flex;
+  align-items: center;
+  gap: 10px;            
   padding: 8px 12px;
-  transition: .1s;
+  transition: color 0.2s;
 }
 
+.icon-side {
+  color: #8e24e4;      
+  transition: color 0.2s;
+}
+
+
 .sidebar ul li:hover {
-  background-color: #BA92DB;
-  transition: .1s;
+  background-color: #8e24e4;
+  border-radius: 5px;
+  transition: background-color 0.2s;
 }
 
 .sidebar ul li:hover a {
-  color: white;  
+  color: white;        
+}
+
+.sidebar ul li:hover .icon-side {
+  color: white;       
 }
 
 .log-in-button{
@@ -55,7 +68,8 @@
 
 .log-in-button:hover{
     color: white;
-    background-color: #BA92DB;
+    background-color: #8e24e4;
+    border-radius: 5px;
 }
 
 .bottom-log-out{

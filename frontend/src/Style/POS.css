@@ -41,7 +41,7 @@ html, body {
 }
 
 .category-btn {
-  background: #A640FA;
+  background:#5e239d;
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -59,7 +59,7 @@ html, body {
 }
 
 .category-btn.active {
-  background: #802e75;
+  background: #a04acb;
   color: #fff;
 }
 
@@ -90,26 +90,25 @@ html, body {
   transform: translateY(-50%);
   width: 1rem;
   height: 1rem;
-  color: #55128b;
+  color:black;
 }
 
 .search-input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  background: #A640FA;
-  border: 1px solid #4d4d4d;
+  border: 1px solid lightgray;
   border-radius: 8px;
-  color: #fff;
+  color: black;
   outline: none;
   font-size: 0.875rem;
 }
 
 .search-input::placeholder {
-  color: #55128b;
+  color: black;
 }
 
 .refresh-btn {
-  background: #007bff;
+  background:#55128b;
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -147,11 +146,12 @@ html, body {
 }
 
 .product-card {
-  background: #cbb0e0;
+  background: white;
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
   min-width: 0;
+  cursor: pointer;
 }
 
 .product-card:hover {
@@ -195,7 +195,7 @@ html, body {
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: #fff;
+  color: black;
 }
 
 .product-price {
@@ -207,7 +207,7 @@ html, body {
 
 .add-to-cart-btn {
   width: 100%;
-  background: #802e75;
+  background:#4a404f;
   border: none;
   padding: 0.75rem;
   border-radius: 6px;
@@ -222,7 +222,7 @@ html, body {
 }
 
 .add-to-cart-btn:hover {
-  background: #c066b4;
+  background:#746979;
 }
 
 .plus-icon {
@@ -231,8 +231,9 @@ html, body {
 }
 
 .order-summary {
-  background: #cbb0e0;
-  color: #ffffff;
+  background: white;
+  border-radius: 10px;
+  color: black;
   padding: 1rem;
   height: 100vh;
   display: flex;
@@ -245,7 +246,7 @@ html, body {
 }
 
 .order-summary .summary-header h2 {
-  color: #ffffff;
+  color: black;
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
@@ -273,8 +274,8 @@ html, body {
 .item-info .item-name {
   display: block;
   font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-  color: #ffffff;
+  margin-bottom: 1rem;
+  color: black;
 }
 
 .item-info .item-controls {
@@ -285,11 +286,11 @@ html, body {
 }
 
 .qty-btn {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+  height: 35px;
   border: 1px solid #7f8c8d;
-  background: #802e75;
-  color: #ffffff;
+  background: #8e24e4;
+  color: white;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -306,15 +307,16 @@ html, body {
   font-size: 0.9rem;
   min-width: 20px;
   text-align: center;
-  color: #ffffff;
+  color: black;
 }
 
 .remove-btn {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+  height: 35px;
   border: none;
-  background: #e74c3c;
+  background: red;
   color: #ffffff;
+  font-weight: bold;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -353,7 +355,7 @@ html, body {
 }
 
 .calc-btn {
-  background: #802e75;
+  background: #383842;
   border: none;
   color: #ffffff;
   padding: 0.75rem;
@@ -364,7 +366,7 @@ html, body {
 }
 
 .calc-btn:hover {
-  background: #c066b4;
+  background: #383536;
 }
 
 .clear-btn {
@@ -388,12 +390,10 @@ html, body {
 }
 
 .enter {
-  background: #3498db;
+  background:#343a40;
 }
 
-.enter:hover {
-  background: #2980b9;
-}
+
 
 .checkout-btn {
   background: #27ae60;
@@ -408,11 +408,11 @@ html, body {
 }
 
 .checkout-btn:hover:not(:disabled) {
-  background: #00ff6a;
+  background: #28804d;
 }
 
 .checkout-btn:disabled {
-  background: #a289b6;
+  background: rgb(159, 157, 157);
   cursor: not-allowed;
 }
 

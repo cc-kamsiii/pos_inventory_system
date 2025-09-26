@@ -1,5 +1,5 @@
 import "../Style/Login.css";
-import logo from "../assets/logo.jpg"; 
+import logo from "../assets/logo.jpg"
 import sisig from "../assets/sisig.jpg"
 import { useState } from "react";
 import axios from "axios";

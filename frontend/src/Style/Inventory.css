@@ -34,7 +34,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-
 }
 
 .title-row input {
@@ -43,15 +42,6 @@
   border-radius: 4px;
   outline: none;
   width: 300px;
-}
-
-.title-row button {
-  padding: 10px 20px;
-  cursor: pointer;
-  background-color: #A640FA;
-  border: none;
-  color: white;
-  border-radius: 5px;
 }
 
 .table {
@@ -93,14 +83,13 @@
   background-color: #f1f1f1;
 }
 
-
 .table th:last-child,
 .table td:last-child {
   width: 180px;  
   text-align: center;
 }
 
-
+/* Action buttons */
 .action-button {
   display: inline-flex;  
   justify-content: center;
@@ -109,11 +98,42 @@
 }
 
 .action-button button {
-  color: white;
   border: none;
-  background-color: #BA92DB;
   border-radius: 5px;
   padding: 6px 12px;     
   font-size: 13px;
   cursor: pointer;
+  transition: 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+
+.eye-button {
+  color: #2563eb; 
+}
+.eye-button:hover {
+  background-color: #2563eb;
+  color: white;
+  transform: scale(1.1);
+}
+
+.edit-button {
+  color: #ca8a04; 
+}
+.edit-button:hover {
+  background-color: #ca8a04;
+  color: white;
+  transform: scale(1.1);
+}
+
+.delete-button {
+  color: #dc2626; 
+}
+.delete-button:hover {
+  background-color: #dc2626;
+  color: white;
+  transform: scale(1.1);
 }

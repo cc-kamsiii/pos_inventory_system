@@ -1,4 +1,5 @@
 import React from "react";
+import { LayoutDashboard, ArrowLeftRight, Box, Settings } from "lucide-react"; 
 import { Link } from "react-router-dom";
 import "../../Style/Sidebar.css";
 
@@ -20,10 +21,30 @@ function OwnerSidebar({ name, onLogout }) {
       </div>
 
       <ul>
-        <li><Link to="/dashboard">Dashboard</Link></li>
-        <li><Link to="/ownertransactions">Transactions (History)</Link></li>
-        <li><Link to="/inventory">Inventory</Link></li>
-        <li><Link to="/settings">Settings</Link></li>
+        <li>
+          <Link to="/dashboard">
+            <LayoutDashboard size={20} className="icon-side"  />
+            Dashboard
+          </Link>
+        </li>
+        <li>
+          <Link to="/ownertransactions">
+            <ArrowLeftRight size={20} className="icon-side" />
+            Transaction (History)
+          </Link>
+        </li>
+        <li>
+          <Link to="/inventory">
+            <Box size={20} className="icon-side"  />
+             Inventory
+          </Link>
+        </li>
+        <li>
+          <Link to="/settings">
+            <Settings size={20} className="icon-side" />
+             Settings
+          </Link>
+        </li>
       </ul>
 
       <div className="bottom-log-out">

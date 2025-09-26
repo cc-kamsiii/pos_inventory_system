@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { LayoutDashboard, ArrowLeftRight, Box, UtensilsCrossed } from "lucide-react"; 
 import "../../Style/Sidebar.css";
 
 function StaffSidebar({ name, onLogout }) {
@@ -13,9 +14,24 @@ function StaffSidebar({ name, onLogout }) {
       </div>
 
       <ul>
-        <li><Link to="/dashboard">Dashboard</Link></li>
-        <li><Link to="/stafftransactions">Transactions (Today)</Link></li>
-        <li><Link to="/pos">POS</Link></li>
+        <li>
+          <Link to="/dashboard">
+            <LayoutDashboard size={20} className="icon-side" />
+            Dashboard
+          </Link>
+        </li>
+        <li>
+          <Link to="/stafftransactions">
+            <ArrowLeftRight size={20} className="icon-side" />
+            Transaction (History)
+          </Link>
+        </li>
+        <li>
+          <Link to="/pos">
+            < UtensilsCrossed size={20} className="icon-side" />
+             POS
+          </Link>
+        </li>
       </ul>
 
       <div className="bottom-log-out">

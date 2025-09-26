@@ -1,6 +1,7 @@
  import { useEffect } from "react";
  import {Link} from 'react-router-dom';
  import { useState } from "react";
+ import { Eye, Pencil, Trash} from 'lucide-react';
 import "../../Style/Inventory.css"
 import axios from 'axios';
 
@@ -65,16 +66,20 @@ function Inventory () {
                           <td>{formatDate(inventory.last_update)}</td>
                           <td>
                             <div className="action-button">
-                             <Link to={`/read/${inventory.id}`}> <button>Read</button> </Link> 
-                              <Link to={`/edit/${inventory.id}`}><button>Edit</button> </Link>
-                              <button 
+                             <Link to={`/read/${inventory.id}`}> 
+                                <button className="eye-button"><Eye/></button> 
+                             </Link> 
+                              <Link to={`/edit/${inventory.id}`}>
+                                <button className="edit-button"><Pencil/></button> 
+                              </Link>
+                              <button className="delete-button" 
                                   onClick={() => {
                                     if (window.confirm("Are you sure you want to delete this item?")) {
                                       handleDelete(inventory.id);
                                     }
                                   }}
                                 >
-                                  Delete
+                                  <Trash/>
                               </button>
                             </div>
                           </td>
