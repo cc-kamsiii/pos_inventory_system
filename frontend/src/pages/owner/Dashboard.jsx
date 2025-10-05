@@ -37,8 +37,7 @@ const Dashboard = () => {
   const formatTime = (date) => {
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      minute: '2-digit'
     });
   };
 
@@ -205,7 +204,6 @@ const Dashboard = () => {
                 </svg>
               </div>
 
-              {/* Pie Charts moved here */}
               <div className="pie-charts">
                 <div className="pie-chart">
                   <svg className="pie-svg" viewBox="0 0 42 42">

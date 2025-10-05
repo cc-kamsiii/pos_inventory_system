@@ -10,6 +10,7 @@ import Edit from './pages/owner/crud/Edit.jsx';
 import POS from './pages/staff/POS.jsx'
 import StaffTransactions from './pages/staff/Stafftransactions.jsx';
 import OwnerTransactions from './pages/owner/OwnerTransactions.jsx';
+import Settings from './pages/owner/Settings.jsx';
 import './Style/App.css';  
 
 function Layout() {
@@ -35,6 +36,7 @@ function Layout() {
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path='/settings' element={<Settings/>}/>
           <Route path="/add" element={<Add />} />
           <Route path="/read/:id" element={<Read />} />
           <Route path='/edit/:id' element={<Edit />} />

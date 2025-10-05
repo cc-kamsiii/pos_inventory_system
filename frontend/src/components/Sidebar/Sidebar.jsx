@@ -20,7 +20,7 @@ function Sidebar() {
       setName(userName);
       setRole(userRole);
     }
-  }, [navigate]);
+  }, [navigate]); 
 
   const handleLogout = () => {
     localStorage.clear();

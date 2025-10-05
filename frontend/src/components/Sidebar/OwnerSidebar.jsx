@@ -1,55 +1,61 @@
-import React from "react";
-import { LayoutDashboard, ArrowLeftRight, Box, Settings } from "lucide-react"; 
+import React, { useState } from "react";
+import { LayoutDashboard, ArrowLeftRight, Box, Settings, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import "../../Style/Sidebar.css";
 
 function OwnerSidebar({ name, onLogout }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <button className="toggle-btn" onClick={toggleSidebar}>
+        {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+      </button>
 
-
-      {/* 
-      <p style={{ fontSize: "14px", color: "lightgray" }}>Name: {name}</p>
-      <p style={{ fontSize: "12px", color: "lightgray" }}>Role: Owner</p>*/
-      }
-
-      <div className="nameAndRole">
-        <div className="b-border">
-          <p>Role: Owner</p>
-          <p>{name}</p>
+      {!isCollapsed && (
+        <div className="nameAndRole">
+          <div className="b-border">
+            <p>Role: Owner</p>
+            <p>{name}</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <ul>
         <li>
-          <Link to="/dashboard">
-            <LayoutDashboard size={20} className="icon-side"  />
-            Dashboard
+          <Link to="/dashboard" title="Dashboard">
+            <LayoutDashboard size={20} className="icon-side" />
+            {!isCollapsed && <span>Dashboard</span>}
           </Link>
         </li>
         <li>
-          <Link to="/ownertransactions">
+          <Link to="/ownertransactions" title="Transaction History">
             <ArrowLeftRight size={20} className="icon-side" />
-            Transaction (History)
+            {!isCollapsed && <span>Transaction History</span>}
           </Link>
         </li>
         <li>
-          <Link to="/inventory">
-            <Box size={20} className="icon-side"  />
-             Inventory
+          <Link to="/inventory" title="Inventory">
+            <Box size={20} className="icon-side" />
+            {!isCollapsed && <span>Inventory</span>}
           </Link>
         </li>
         <li>
-          <Link to="/settings">
+          <Link to="/settings" title="Settings">
             <Settings size={20} className="icon-side" />
-             Settings
+            {!isCollapsed && <span>Settings</span>}
           </Link>
         </li>
       </ul>
 
       <div className="bottom-log-out">
-        <button onClick={onLogout} className="log-in-button">
-          Logout
+        <button onClick={onLogout} className="log-in-button" title="Logout">
+          <LogOut size={20} className="icon-side"/>
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
     </div>
