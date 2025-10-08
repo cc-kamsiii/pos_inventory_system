@@ -19,7 +19,8 @@
 .toggle-btn {
   position: absolute;
   top: 20px;
-  right: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   background: #8e24e4;
   border: none;
   color: white;
@@ -74,6 +75,10 @@
 .icon-side {
   color: #8e24e4;
   transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   flex-shrink: 0;
 }
 
@@ -92,22 +97,24 @@
 }
 
 .log-in-button {
-  padding: 10px 45px;
+  padding: 8px 12px;
   font-weight: 600;
   color: black;
   border: none;
   cursor: pointer;
-  transition: .1s;
+  transition: 0.2s;
   background-color: white;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  white-space: nowrap;
+  border-radius: 5px;
 }
 
 .sidebar.collapsed .log-in-button {
   padding: 10px;
   justify-content: center;
+  width: auto;
 }
 
 .log-in-button:hover {
@@ -126,6 +133,9 @@
   margin-bottom: 50px;
   left: 30px;
   transition: left 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar.collapsed .bottom-log-out {

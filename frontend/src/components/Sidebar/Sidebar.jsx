@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import OwnerSidebar from "./OwnerSidebar";
 import StaffSidebar from "./StaffSidebar";
 import "../../Style/Sidebar.css";
 
 function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
 
@@ -17,10 +18,10 @@ function Sidebar() {
     if (!token) {
       navigate("/");
     } else {
-      setName(userName);
-      setRole(userRole);
+      setName(userName || "");
+      setRole(userRole || "");
     }
-  }, [navigate]); 
+  }, [navigate, location.pathname]); 
 
   const handleLogout = () => {
     localStorage.clear();

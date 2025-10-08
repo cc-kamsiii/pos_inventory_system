@@ -48,7 +48,6 @@ function Inventory () {
               <table>
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Unit</th>
@@ -59,7 +58,6 @@ function Inventory () {
                 <tbody>
                     {data.map((inventory, index) =>{
                       return <tr key={index}>
-                          <td>{inventory.id}</td>
                           <td>{inventory.item}</td>
                           <td>{inventory.quantity}</td>
                           <td>{inventory.unit}</td>

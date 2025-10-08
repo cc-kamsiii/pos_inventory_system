@@ -1,6 +1,5 @@
 import "../Style/Login.css";
 import logo from "../assets/logo.jpg"
-import sisig from "../assets/sisig.jpg"
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -22,18 +21,24 @@ function Login() {
       });
 
       if (res.data.success) {
+        const role = (res.data.role || '').toLowerCase();
+
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("name", res.data.name);
-        localStorage.setItem("role", res.data.role);
-        localStorage.setItem("user_id", res.data.user_id); 
+        localStorage.setItem("role", role);
+        localStorage.setItem("user_id", res.data.user_id);
 
-        console.log("Stored in localStorage:", {
-          name: res.data.name,
-          role: res.data.role,
-          user_id: res.data.user_id
-        });
-        navigate("/Dashboard");
-      } else {
+        if (role === "owner") {
+          navigate("/dashboard", { replace: true });
+        } else if (role === "staff") {
+          navigate("/stafftransactions", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
+      }
+
+
+      else {
         setShowModal(true);
       }
     } catch (err) {
@@ -42,12 +47,12 @@ function Login() {
     }
   };
 
-  const closeLogin = () =>{
+  const closeLogin = () => {
     setShowModal(false);
-    
+
   }
 
-  
+
 
   return (
     <div className="login-container">
@@ -80,13 +85,13 @@ function Login() {
           </button>
         </form>
       </div>
-          <UserNotLoggedIn
-              isVisible={showModal}
-              onClose={closeLogin}
-          />
+      <UserNotLoggedIn
+        isVisible={showModal}
+        onClose={closeLogin}
+      />
     </div>
 
-    
+
   );
 }
 

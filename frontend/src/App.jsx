@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar/Sidebar.jsx";
 import Dashboard from "./pages/owner/Dashboard.jsx";
 import Login from "./pages/Login.jsx";
 import Inventory from "./pages/owner/Inventory.jsx";
-import Add from './pages/owner/crud/add.jsx';
-import Read from './pages/owner/crud/Read.jsx';
-import Edit from './pages/owner/crud/Edit.jsx';
-import POS from './pages/staff/POS.jsx'
-import StaffTransactions from './pages/staff/Stafftransactions.jsx';
-import OwnerTransactions from './pages/owner/OwnerTransactions.jsx';
-import Settings from './pages/owner/Settings.jsx';
-import './Style/App.css';  
+import Add from "./pages/owner/crud/Add.jsx";
+import Read from "./pages/owner/crud/Read.jsx";
+import Edit from "./pages/owner/crud/Edit.jsx";
+import POS from "./pages/staff/POS.jsx";
+import StaffTransactions from "./pages/staff/Stafftransactions.jsx";
+import OwnerTransactions from "./pages/owner/OwnerTransactions.jsx";
+import Settings from "./pages/owner/Settings.jsx";
+import "./Style/App.css";
 
 function Layout() {
   const location = useLocation();
-  const hideSidebar = location.pathname === "/"; 
-  
+
+  // Hide sidebar only on login page
+  const hideSidebar = location.pathname === "/";
+
   if (hideSidebar) {
     return (
       <div className="full-layout">
@@ -33,16 +35,20 @@ function Layout() {
     <div className="layout">
       <Sidebar />
       <div className="content">
+        {/* ✅ Removed key={location.pathname} to prevent remounting and route freeze */}
         <Routes>
+          {/* OWNER ROUTES */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
-          <Route path='/settings' element={<Settings/>}/>
           <Route path="/add" element={<Add />} />
           <Route path="/read/:id" element={<Read />} />
-          <Route path='/edit/:id' element={<Edit />} />
+          <Route path="/edit/:id" element={<Edit />} />
+          <Route path="/ownertransactions" element={<OwnerTransactions />} />
+          <Route path="/settings" element={<Settings />} />
+
+          {/* STAFF ROUTES */}
           <Route path="/pos" element={<POS />} />
           <Route path="/stafftransactions" element={<StaffTransactions />} />
-          <Route path="/ownertransactions" element={<OwnerTransactions />} />
         </Routes>
       </div>
     </div>
