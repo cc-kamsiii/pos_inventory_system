@@ -7,14 +7,29 @@ export const getItems = (req, res) =>{
     })
 }
 
-export const addItems = (req, res) =>{
-    const {item, quantity, unit} = req.body
-    const sql = "INSERT INTO inventory (`item`, `quantity`, `unit`, `last_update`) VALUES (?, ? ,?, NOW())";
-    db.query(sql, [item, quantity, unit], (err, results) =>{
-        if(err) return res.status(500).json({error: err});
-        res.json({message: "Item added", id: results.insertId });
-    })
-}
+export const addItems = (req, res) => {
+  const { item, quantity, unit } = req.body;
+
+  const sql = `
+    INSERT INTO inventory (item, quantity, unit, last_update)
+    VALUES (?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [item, quantity, unit], (err, results) => {
+    if (err) {
+      console.error("Error inserting item:", err);
+      return res.status(500).json({ success: false, message: "Database error", error: err });
+    }
+
+    console.log("Item inserted:", results.insertId);
+    return res.status(200).json({
+      success: true,
+      message: "Item added successfully",
+      id: results.insertId
+    });
+  });
+};
+
 
 export const readItems = (req, res) =>{
     const id = req.params.id;
