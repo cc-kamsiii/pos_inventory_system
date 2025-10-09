@@ -1,35 +1,38 @@
-import React, { useState } from 'react'
-import axios from 'axios'
-import "../../../Style/Add.css"
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import "../../../Style/Add.css";
 
 function Add() {
   const [values, setValues] = useState({
     item: "",
     quantity: "",
     unit: "",
-  })
+  });
 
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:8081/inventory', values)
+    setLoading(true);
+    setMessage("");
+
+    axios.post("http://localhost:8081/inventory", values)
       .then(res => {
-        console.log("Response:", res.data);
-        if (res.data.success) {
-          alert("Item added successfully!");
-          navigate('/inventory', { replace: true });
-        } else {
-          alert("Failed to add item. Try again.");
-        }
+        console.log(res.data);
+        setMessage("Adding item...");
+        setTimeout(() => {
+          setLoading(false);
+          navigate("/inventory");
+        }, 1000);
       })
       .catch(err => {
-        console.error("Error:", err);
-        alert("Server error. Please check backend logs.");
+        console.error(err);
+        setMessage("Failed to add item.");
+        setLoading(false);
       });
   };
-
 
   return (
     <div className="add-inventory">
@@ -41,7 +44,6 @@ function Add() {
             <input
               type="text"
               placeholder="Enter Item Name"
-              className="form-control"
               required
               onChange={e => setValues({ ...values, item: e.target.value })}
             />
@@ -51,7 +53,6 @@ function Add() {
             <input
               type="number"
               placeholder="Enter Quantity"
-              className="form-control"
               required
               onChange={e => setValues({ ...values, quantity: e.target.value })}
             />
@@ -59,8 +60,6 @@ function Add() {
 
           <div className="inventory-input">
             <select
-              name="unit"
-              className="form-control"
               required
               onChange={e => setValues({ ...values, unit: e.target.value })}
             >
@@ -68,7 +67,7 @@ function Add() {
               <option value="kg">kg</option>
               <option value="pcs">pcs</option>
               <option value="packs">packs</option>
-              <option value="L">L </option>
+              <option value="L">L</option>
               <option value="bottles">bottles</option>
               <option value="cans">cans</option>
               <option value="sachets">sachets</option>
@@ -78,11 +77,21 @@ function Add() {
             </select>
           </div>
 
-          <button className="btn btn-success">Submit</button>
+
+          <button className="btn btn-success" disabled={loading}>
+            {loading ? "Submitting..." : "Submit"}
+          </button>
         </form>
+
+
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
 
-export default Add
+export default Add;

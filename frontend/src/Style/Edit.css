@@ -1,64 +1,105 @@
-.edit{
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 65vh;
-    font-size: 18px;
+.edit {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 65vh;
+  font-size: 18px;
 }
 
-.edit-container{
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 450px;
-    padding: 30px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
+.edit-container {
+  position: relative; 
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
 }
 
-.edit-container h2{
-    margin-top: 10px;
-    margin-bottom: 10px;
+.edit-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  width: 100%;
+  align-items: center; 
 }
 
-.edit-container form{
-    display: flex;
-    flex-direction: column;
-    gap: .9rem;
-}
-
-.edit-container button{
-    padding: 10px;
-    background-color: #A640FA;
-    color: white;
-    cursor: pointer;
-    margin-top: 10px;
-    border: none;
-    font-size: 15px;
-}
-
-.edit-input{
-    display: flex;
-    flex-direction: column;
-}
-
-.edit-input select{
-    cursor: pointer;
+.edit-input {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 340px; 
 }
 
 .edit-input input,
 .edit-input select {
-    margin-top: 5px;
-    width: 300px;
-    padding: 10px 10px;
-    outline: none;
-    font-size: 18px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: white;
-    box-sizing: border-box;
+  margin-top: 5px;
+  width: 100%;
+  padding: 10px;
+  outline: none;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  box-sizing: border-box;
 }
 
+
+.edit-container button {
+  padding: 10px;
+  background-color: #A640FA;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+  border: none;
+  font-size: 15px;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 340px;
+}
+
+
+.status-message {
+  margin-top: 12px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  font-weight: 500;
+  color: #333;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  z-index: 9999;
+}
+
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ddd;
+  border-top: 5px solid #8e24e4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

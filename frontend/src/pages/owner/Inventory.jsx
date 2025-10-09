@@ -1,98 +1,164 @@
- import { useEffect } from "react";
- import {Link} from 'react-router-dom';
- import { useState } from "react";
- import { Eye, Pencil, Trash} from 'lucide-react';
-import "../../Style/Inventory.css"
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Eye, Pencil, Trash, AlertTriangle } from "lucide-react";
+import "../../Style/Inventory.css";
+import axios from "axios";
 
-function Inventory () {
-
+function Inventory() {
   const [data, setData] = useState([]);
 
-  useEffect(() =>{
-    axios.get('http://localhost:8081/inventory')
-    .then(res => setData(res.data))
-    .catch(err => console.log(err));
-  })
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/inventory")
+      .then((res) => setData(res.data))
+      .catch((err) => console.log(err));
+  }, []);
 
   function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US"); 
+    return date.toLocaleDateString("en-US");
   }
 
-  const handleDelete = (id) =>{
-    axios.delete(`http://localhost:8081/inventory/${id}`)
-    .then(res =>{
-      setData(data.filter(item => item.id != id));
-    })
-    .catch(err => console.log(err));
+  const handleDelete = (id) => {
+    axios
+      .delete(`http://localhost:8081/inventory/${id}`)
+      .then(() => {
+        setData(data.filter((item) => item.id !== id));
+      })
+      .catch((err) => console.log(err));
+  };
+
+  function isLowStock(item, quantity, unit) {
+    const lower = item.toLowerCase();
+
+    if (
+      lower.includes("rice") ||
+      lower.includes("tapa") ||
+      lower.includes("bangus") ||
+      lower.includes("chicken") ||
+      lower.includes("lechon") ||
+      lower.includes("pulpo") ||
+      lower.includes("beef") ||
+      lower.includes("pork") ||
+      lower.includes("broccoli") ||
+      lower.includes("vegetable") ||
+      lower.includes("garlic") ||
+      lower.includes("onion")
+    ) {
+      return quantity < 10;
+    } else if (
+      lower.includes("syrup") ||
+      lower.includes("mix") ||
+      lower.includes("sauce") ||
+      lower.includes("mayonnaise") ||
+      lower.includes("ketchup") ||
+      lower.includes("gravy") ||
+      lower.includes("juice") ||
+      lower.includes("lemonade")
+    ) {
+      return quantity < 5;
+    } else if (unit === "pcs" && quantity < 20) {
+      return true;
+    } else if (unit === "cans" && quantity < 20) {
+      return true;
+    } else if (unit === "bottles" && quantity < 20) {
+      return true;
+    }
+    return false;
   }
-
-
 
   return (
     <div className="inventory">
-        <div className="inventory-container">
-          <div className="title-search-create">
-            <h2>Inventory Management</h2>
+      <div className="inventory-container">
+        <div className="title-search-create">
+          <h2>Inventory Management</h2>
 
-            <div className="title-row">
-              <Link to="/add"><button className="add-btn">Add Inventory</button></Link>
-              <form>
-                <input type="text" placeholder="Search inventory" />
-              </form>
-            </div>
+          <div className="title-row">
+            <Link to="/add">
+              <button className="add-btn">Add Inventory</button>
+            </Link>
+            <form>
+              <input type="text" placeholder="Search inventory" />
+            </form>
           </div>
-
-            <div className="table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Last Update</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                    {data.map((inventory, index) =>{
-                      return <tr key={index}>
-                          <td>{inventory.item}</td>
-                          <td>{inventory.quantity}</td>
-                          <td>{inventory.unit}</td>
-                          <td>{formatDate(inventory.last_update)}</td>
-                          <td>
-                            <div className="action-button">
-                             <Link to={`/read/${inventory.id}`}> 
-                                <button className="eye-button"><Eye/></button> 
-                             </Link> 
-                              <Link to={`/edit/${inventory.id}`}>
-                                <button className="edit-button"><Pencil/></button> 
-                              </Link>
-                              <button className="delete-button" 
-                                  onClick={() => {
-                                    if (window.confirm("Are you sure you want to delete this item?")) {
-                                      handleDelete(inventory.id);
-                                    }
-                                  }}
-                                >
-                                  <Trash/>
-                              </button>
-                            </div>
-                          </td>
-                      </tr>
-                    })}
-
-                    
-                </tbody>
-              </table>
-            </div>
-
         </div>
+
+        <div className="table">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Last Update</th>
+                <th>Alert</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((inventory, index) => {
+                const low = isLowStock(
+                  inventory.item,
+                  inventory.quantity,
+                  inventory.unit
+                );
+                return (
+                  <tr
+                    key={index}
+                    className={low ? "low-stock" : ""}
+                    title={low ? "Low stock alert!" : ""}
+                  >
+                    <td>{inventory.item}</td>
+                    <td>{inventory.quantity}</td>
+                    <td>{inventory.unit}</td>
+                    <td>{formatDate(inventory.last_update)}</td>
+                    <td>
+                      {low ? (
+                        <div className="low-alert">
+                          <AlertTriangle size={20} />
+                          <span>Low Stock!</span>
+                        </div>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td>
+                      <div className="action-button">
+                        <Link to={`/read/${inventory.id}`}>
+                          <button className="eye-button">
+                            <Eye />
+                          </button>
+                        </Link>
+                        <Link to={`/edit/${inventory.id}`}>
+                          <button className="edit-button">
+                            <Pencil />
+                          </button>
+                        </Link>
+                        <button
+                          className="delete-button"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Are you sure you want to delete this item?"
+                              )
+                            ) {
+                              handleDelete(inventory.id);
+                            }
+                          }}
+                        >
+                          <Trash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
-
-};
+}
 
 export default Inventory;
