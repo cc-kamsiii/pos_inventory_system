@@ -8,6 +8,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  HamburgerIcon,
 } from "lucide-react";
 import "../../Style/Sidebar.css";
 
