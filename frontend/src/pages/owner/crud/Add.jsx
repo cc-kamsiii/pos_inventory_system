@@ -16,12 +16,10 @@ function Add() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     axios.post("http://localhost:8081/inventory", values)
       .then(res => {
         console.log(res.data);
-        setMessage("Adding item...");
         setTimeout(() => {
           setLoading(false);
           navigate("/inventory");
@@ -29,7 +27,6 @@ function Add() {
       })
       .catch(err => {
         console.error(err);
-        setMessage("Failed to add item.");
         setLoading(false);
       });
   };

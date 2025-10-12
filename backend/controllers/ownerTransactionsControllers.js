@@ -66,3 +66,15 @@ export const addTransactions = (req, res) => {
     });
   });
 };
+
+
+export const getTotalSales = (req, res) => {
+  const sql = "SELECT SUM(total_payment) AS total_sales FROM transactions"; 
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error fetching total sales:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(result[0]);
+  });
+};

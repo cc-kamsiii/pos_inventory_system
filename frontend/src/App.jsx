@@ -16,10 +16,9 @@ import "./Style/App.css";
 function Layout() {
   const location = useLocation();
 
-  // Hide sidebar only on login page
   const hideSidebar = location.pathname === "/";
 
-  if (hideSidebar) {
+  if (hideSidebar) {  
     return (
       <div className="full-layout">
         <div className="full-content">
@@ -35,9 +34,7 @@ function Layout() {
     <div className="layout">
       <Sidebar />
       <div className="content">
-        {/* ✅ Removed key={location.pathname} to prevent remounting and route freeze */}
         <Routes>
-          {/* OWNER ROUTES */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/add" element={<Add />} />
@@ -46,7 +43,6 @@ function Layout() {
           <Route path="/ownertransactions" element={<OwnerTransactions />} />
           <Route path="/settings" element={<Settings />} />
 
-          {/* STAFF ROUTES */}
           <Route path="/pos" element={<POS />} />
           <Route path="/stafftransactions" element={<StaffTransactions />} />
         </Routes>

@@ -14,10 +14,6 @@ function POS() {
   const [showModal, setShowModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
 
-
-
-  
-
   useEffect(() => {
     axios.get("http://localhost:8081/menu")        
       .then(res => setProducts(res.data))
@@ -104,7 +100,6 @@ function POS() {
           cashier_name: cashierName, 
           order_type: "Dine-in",
           user_id: userId
-          
         });
 
         setShowModal(true);

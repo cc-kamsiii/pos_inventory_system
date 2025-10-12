@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Eye, Pencil, Trash, AlertTriangle } from "lucide-react";
-import "../../Style/Inventory.css";
 import axios from "axios";
+import "../../Style/Inventory.css";
+
 
 function Inventory() {
   const [data, setData] = useState([]);
