@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, Search, RefreshCw } from 'lucide-react';
 
 const Menu = ({ products, onAddToCart, selectedCategory }) => {
-  const filteredProducts = selectedCategory === 'All' 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    const matchesSearch = product.item_name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="menu-section">
       <div className="menu-header">
         <div className="search-bar">
           <Search className="search-icon" />
-          <input type="text" placeholder="Search Menu" className="search-input" />
+          <input 
+            type="text" 
+            placeholder="Search Menu" 
+            className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         <button className="refresh-btn" onClick={() => window.location.reload()}>
           <RefreshCw className="refresh-icon" />
