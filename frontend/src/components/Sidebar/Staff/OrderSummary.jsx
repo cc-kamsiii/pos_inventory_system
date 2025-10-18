@@ -6,6 +6,8 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
   const [display, setDisplay] = useState('0');
   const [payment, setPayment] = useState(0);
   const [change, setChange] = useState(0);
+  const [orderType, setOrderType] = useState('dine-in');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
 
   const handleNumberClick = (num) => {
     if (display === '0') {
@@ -89,6 +91,38 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
       </div>
       
       <div className="number-pad">
+        {/* Order Type */}
+        <div className="OT-section">
+          <button 
+            className={`OTPM-btn ${orderType === 'dine-in' ? 'active' : ''}`}
+            onClick={() => setOrderType('dine-in')}
+          >
+            Dine In
+          </button>
+          <button 
+            className={`OTPM-btn ${orderType === 'takeout' ? 'active' : ''}`}
+            onClick={() => setOrderType('takeout')}
+          >
+            Takeout
+          </button>
+        </div>
+
+        {/* Payment Method */}
+        <div className="PM-section">
+          <button 
+            className={`OTPM-btn ${paymentMethod === 'cash' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('cash')}
+          >
+            Cash
+          </button>
+          <button 
+            className={`OTPM-btn ${paymentMethod === 'gcash' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('gcash')}
+          >
+            GCash
+          </button>
+        </div>
+
         <div className="calculator-grid">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '.'].map((num, index) => (
             <button 
@@ -115,7 +149,7 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
       
       <button 
         className="checkout-btn"
-        onClick={() => onCheckout(total, payment, change)}
+        onClick={() => onCheckout(total, payment, change, orderType, paymentMethod)}
         disabled={cart.length === 0}
       >
         CHECKOUT
