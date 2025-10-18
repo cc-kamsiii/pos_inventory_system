@@ -11,6 +11,8 @@ import POS from "./pages/staff/POS.jsx";
 import StaffTransactions from "./pages/staff/Stafftransactions.jsx";
 import OwnerTransactions from "./pages/owner/OwnerTransactions.jsx";
 import Settings from "./pages/owner/Settings.jsx";
+import EditAcc from "./pages/owner/EditAcc.jsx";
+import EditMenu from "./pages/owner/EditMenu.jsx";
 import "./Style/App.css";
 
 function Layout() {
@@ -41,7 +43,9 @@ function Layout() {
           <Route path="/read/:id" element={<Read />} />
           <Route path="/edit/:id" element={<Edit />} />
           <Route path="/ownertransactions" element={<OwnerTransactions />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<Settings />} /> 
+          <Route path="/editacc" element={<EditAcc />} />
+          <Route path="/editmenu" element={<EditMenu />} />
 
           <Route path="/pos" element={<POS />} />
           <Route path="/stafftransactions" element={<StaffTransactions />} />
