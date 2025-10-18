@@ -4,14 +4,18 @@ import { Eye, Pencil, Trash, AlertTriangle } from "lucide-react";
 import axios from "axios";
 import "../../Style/Inventory.css";
 
-
 function Inventory() {
   const [data, setData] = useState([]);
+  const [search, setSearch] = useState(""); // 🔍 for search input
+  const [filteredData, setFilteredData] = useState([]); // for displaying filtered items
 
   useEffect(() => {
     axios
       .get("http://localhost:8081/inventory")
-      .then((res) => setData(res.data))
+      .then((res) => {
+        setData(res.data);
+        setFilteredData(res.data);
+      })
       .catch((err) => console.log(err));
   }, []);
 
@@ -24,7 +28,9 @@ function Inventory() {
     axios
       .delete(`http://localhost:8081/inventory/${id}`)
       .then(() => {
-        setData(data.filter((item) => item.id !== id));
+        const updatedData = data.filter((item) => item.id !== id);
+        setData(updatedData);
+        setFilteredData(updatedData);
       })
       .catch((err) => console.log(err));
   };
@@ -68,6 +74,16 @@ function Inventory() {
     return false;
   }
 
+  // 🔍 Filter items when search input changes
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearch(value);
+    const filtered = data.filter((item) =>
+      item.item.toLowerCase().includes(value)
+    );
+    setFilteredData(filtered);
+  };
+
   return (
     <div className="inventory">
       <div className="inventory-container">
@@ -78,8 +94,13 @@ function Inventory() {
             <Link to="/add">
               <button className="add-btn">Add Inventory</button>
             </Link>
-            <form>
-              <input type="text" placeholder="Search inventory" />
+            <form onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="text"
+                placeholder="Search inventory"
+                value={search}
+                onChange={handleSearch}
+              />
             </form>
           </div>
         </div>
@@ -97,63 +118,71 @@ function Inventory() {
               </tr>
             </thead>
             <tbody>
-              {data.map((inventory, index) => {
-                const low = isLowStock(
-                  inventory.item,
-                  inventory.quantity,
-                  inventory.unit
-                );
-                return (
-                  <tr
-                    key={index}
-                    className={low ? "low-stock" : ""}
-                    title={low ? "Low stock alert!" : ""}
-                  >
-                    <td>{inventory.item}</td>
-                    <td>{inventory.quantity}</td>
-                    <td>{inventory.unit}</td>
-                    <td>{formatDate(inventory.last_update)}</td>
-                    <td>
-                      {low ? (
-                        <div className="low-alert">
-                          <AlertTriangle size={20} />
-                          <span>Low Stock!</span>
+              {filteredData.length > 0 ? (
+                filteredData.map((inventory, index) => {
+                  const low = isLowStock(
+                    inventory.item,
+                    inventory.quantity,
+                    inventory.unit
+                  );
+                  return (
+                    <tr
+                      key={index}
+                      className={low ? "low-stock" : ""}
+                      title={low ? "Low stock alert!" : ""}
+                    >
+                      <td>{inventory.item}</td>
+                      <td>{inventory.quantity}</td>
+                      <td>{inventory.unit}</td>
+                      <td>{formatDate(inventory.last_update)}</td>
+                      <td>
+                        {low ? (
+                          <div className="low-alert">
+                            <AlertTriangle size={20} />
+                            <span>Low Stock!</span>
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td>
+                        <div className="action-button">
+                          <Link to={`/read/${inventory.id}`}>
+                            <button className="eye-button">
+                              <Eye />
+                            </button>
+                          </Link>
+                          <Link to={`/edit/${inventory.id}`}>
+                            <button className="edit-button">
+                              <Pencil />
+                            </button>
+                          </Link>
+                          <button
+                            className="delete-button"
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  "Are you sure you want to delete this item?"
+                                )
+                              ) {
+                                handleDelete(inventory.id);
+                              }
+                            }}
+                          >
+                            <Trash />
+                          </button>
                         </div>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td>
-                      <div className="action-button">
-                        <Link to={`/read/${inventory.id}`}>
-                          <button className="eye-button">
-                            <Eye />
-                          </button>
-                        </Link>
-                        <Link to={`/edit/${inventory.id}`}>
-                          <button className="edit-button">
-                            <Pencil />
-                          </button>
-                        </Link>
-                        <button
-                          className="delete-button"
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                "Are you sure you want to delete this item?"
-                              )
-                            ) {
-                              handleDelete(inventory.id);
-                            }
-                          }}
-                        >
-                          <Trash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: "center" }}>
+                    No items found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
