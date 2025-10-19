@@ -120,7 +120,7 @@ const Dashboard = () => {
             <p className="stat-value">
               {loading ? "Loading..." : `₱ ${totalSales.toLocaleString()}`}
             </p>
-            <PhilippinePesoIcon className="stat-icon" size={32} />
+            <PhilippinePesoIcon className="stat-icon" size={32} /> 
           </div>
 
           <div className="stat-card blue-gradient">

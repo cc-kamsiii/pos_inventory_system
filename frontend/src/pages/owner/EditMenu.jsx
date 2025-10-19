@@ -1,147 +1,181 @@
-import { useState } from "react";
 import { Trash2 } from "lucide-react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import "../../Style/EditMenu.css";
 
 function EditMenu() {
   const [menuItems, setMenuItems] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const [formData, setFormData] = useState({ name: "", price: "" });
+  const [isNewCategory, setIsNewCategory] = useState(false);
+  const [formData, setFormData] = useState({
+    item_name: "",
+    price: "",
+    category: "",
+    size: "",
+  });
 
-  const handleAddItem = (e) => {
-    e.preventDefault();
-    if (formData.name && formData.price) {
-      const newItem = {
-        id: Date.now(),
-        name: formData.name,
-        price: parseFloat(formData.price).toFixed(2),
-        createdAt: new Date().toLocaleDateString(),
-      };
-      setMenuItems([...menuItems, newItem]);
-      setFormData({ name: "", price: "" });
-      setShowAddModal(false);
+  const fetchData = async () => {
+    try {
+      const [menuRes, catRes] = await Promise.all([
+        axios.get("http://localhost:8081/menu"),
+        axios.get("http://localhost:8081/menu/categories"),
+      ]);
+
+      setMenuItems(menuRes.data);
+
+      const categoryList = catRes.data.map((c) =>
+        typeof c === "object" ? c.category : c
+      );
+
+      setCategories(categoryList);
+    } catch (err) {
+      console.error("Error fetching data:", err);
     }
   };
 
-  const handleDeleteClick = (item) => {
-    setItemToDelete(item);
-    setShowDeleteModal(true);
-  };
 
-  const confirmDelete = () => {
-    setMenuItems(menuItems.filter((m) => m.id !== itemToDelete.id));
-    setItemToDelete(null);
-    setShowDeleteModal(false);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    try {
+      if (isNewCategory) {
+        await axios.post("http://localhost:8081/menu/add-category", {
+          category: formData.category,
+        });
+        alert("Category created successfully!");
+      } else {
+        await axios.post("http://localhost:8081/menu/add-item", formData);
+        alert("Item added successfully!");
+      }
+
+      setShowAddModal(false);
+      setFormData({ item_name: "", price: "", category: "", size: "" });
+      fetchData();
+    } catch (err) {
+      console.error("Error adding:", err);
+      alert("Failed to add item or category.");
+    }
   };
 
   return (
     <div className="editmenu-container">
       <div className="editmenu-header">
-        <h2>Edit Menu</h2>
-        <p className="editmenu-subtitle">Add or remove items from your menu</p>
-      </div>
-
-      <div className="editmenu-option">
+        <h2>🍴 Edit Menu</h2>
         <button className="btn-add" onClick={() => setShowAddModal(true)}>
-          Add Menu Item
+          + Add Item / Category
         </button>
       </div>
 
-      {/* Menu List */}
       <div className="menu-list">
-        <h3>Current Menu Items ({menuItems.length})</h3>
-        {menuItems.length === 0 ? (
-          <p className="no-items">No menu items added yet</p>
-        ) : (
-          <div className="menu-cards">
-            {menuItems.map((item) => (
-              <div key={item.id} className="menu-card">
-                <div className="menu-info">
-                  <strong>{item.name}</strong>
-                  <small>₱{item.price}</small>
-                  <small>Added: {item.createdAt}</small>
-                </div>
-                <Trash2
-                  className="trash-icon"
-                  size={20}
-                  onClick={() => handleDeleteClick(item)}
-                />
-              </div>
-            ))}
+        {categories.map((cat) => (
+          <div key={cat} className="menu-category">
+            <h3>{cat}</h3>
+            <ul>
+              {menuItems
+                .filter((item) => item.category === cat && item.item_name !== "")
+                .map((item) => (
+                  <li key={item.id}>
+                    {item.item_name} — ₱{item.price} ({item.size})
+                  </li>
+                ))}
+            </ul>
           </div>
-        )}
+        ))}
       </div>
 
-      {/* Add Item Modal */}
       {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Add Menu Item</h3>
-            <form onSubmit={handleAddItem}>
-              <div className="form-group">
-                <label>Item Name</label>
+            <h3>{isNewCategory ? "Create New Category" : "Add New Menu Item"}</h3>
+            <form onSubmit={handleAdd}>
+              <label className="checkbox-label">
                 <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Enter item name"
-                  required
+                  type="checkbox"
+                  checked={isNewCategory}
+                  onChange={(e) => setIsNewCategory(e.target.checked)}
                 />
-              </div>
-              <div className="form-group">
-                <label>Price (₱)</label>
-                <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: e.target.value })
-                  }
-                  placeholder="Enter price"
-                  step="0.01"
-                  required
-                />
-              </div>
+                Create new category
+              </label>
+
+
+              {!isNewCategory ? (
+                <>
+                  <label>Item Name:</label>
+                  <input
+                    type="text"
+                    value={formData.item_name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, item_name: e.target.value })
+                    }
+                    required
+                  />
+
+                  <label>Price:</label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
+                    required
+                  />
+
+                  <label>Category:</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) =>
+                      setFormData({ ...formData, category: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((cat, i) => (
+                      <option key={i} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+
+                  <label>Size:</label>
+                  <input
+                    type="text"
+                    value={formData.size}
+                    onChange={(e) =>
+                      setFormData({ ...formData, size: e.target.value })
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <label>Category Name:</label>
+                  <input
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) =>
+                      setFormData({ ...formData, category: e.target.value })
+                    }
+                    required
+                  />
+                </>
+              )}
+
               <div className="modal-actions">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
                   className="btn-cancel"
+                  onClick={() => setShowAddModal(false)}
                 >
                   Cancel
                 </button>
                 <button type="submit" className="btn-submit">
-                  Add
+                  {isNewCategory ? "Create Category" : "Add Item"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirm Delete</h3>
-            <p>
-              Are you sure you want to delete{" "}
-              <strong>{itemToDelete?.name}</strong>?
-            </p>
-            <div className="warning-text">⚠️ This action cannot be undone.</div>
-            <div className="modal-actions">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="btn-cancel"
-              >
-                Cancel
-              </button>
-              <button onClick={confirmDelete} className="btn-delete-confirm">
-                Delete
-              </button>
-            </div>
           </div>
         </div>
       )}

@@ -65,7 +65,7 @@ export const addTransactions = (req, res) => {
       res.json({ message: "Transaction saved successfully", transactionId });
     });
   });
-};
+}; 
 
 
 export const getTotalSales = (req, res) => {

@@ -33,3 +33,49 @@ exports.login = async (req, res) => {
 
     });
 };
+
+exports.register = async (req, res) => {
+  const { username, password, role, name } = req.body;
+
+  if (!username || !password || !role) {
+    return res.json({ success: false, message: "All fields are required" });
+  }
+
+  db.query("SELECT * FROM users WHERE username = ?", [username], async (err, result) => {
+    if (err) return res.status(500).json({ error: err });
+
+    if (result.length > 0) {
+      return res.json({ success: false, message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql = "INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)";
+
+    db.query(sql, [username, hashedPassword, role, name], (err, result) => {
+      if (err) return res.status(400).json({ error: err });
+      res.json({ success: true, message: "Account created successfully!" });
+    });
+  });
+};
+
+
+exports.deleteUser = async(req, res) => {
+    const {id} = req.params;
+
+    db.query("DELETE FROM users WHERE id = ?", [id], (err,result) =>{
+        if(err) return res.status(500).json({error: err});
+
+        if(result.affectedRows === 0)
+            return res.status(400).json({success: false, message: "user not found"});
+        res.json({success: true, message:"account deleted successfully!"});
+    });
+};
+
+
+exports.getAllUsers = async (req, res) =>{
+    const sql = "SELECT id, username, role, name FROM users";
+        db.query(sql, (err, result) =>{
+            if(err) return res.status(500).json({error: err});
+            res.json(result);
+        });
+}
