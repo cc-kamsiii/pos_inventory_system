@@ -198,3 +198,9 @@
 .btn-submit:hover {
   background: #a14fe5;
 }
+
+.no-items {
+  color: #999;
+  font-style: italic;
+  padding-left: 10px;
+}

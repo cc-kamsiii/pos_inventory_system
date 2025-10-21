@@ -34,7 +34,6 @@ function EditMenu() {
     }
   };
 
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -75,13 +74,20 @@ function EditMenu() {
           <div key={cat} className="menu-category">
             <h3>{cat}</h3>
             <ul>
-              {menuItems
-                .filter((item) => item.category === cat && item.item_name !== "")
-                .map((item) => (
-                  <li key={item.id}>
-                    {item.item_name} — ₱{item.price} ({item.size})
-                  </li>
-                ))}
+              {menuItems.some((item) => item.category === cat && item.item_name && item.item_name.trim() !== "")
+                ? menuItems
+                  .filter((item) => item.category === cat && item.item_name && item.item_name.trim() !== "")
+                  .map((item) => (
+                    <li key={item.id}>
+                      {item.item_name} — ₱{item.price} ({item.size})
+                    </li>
+                  ))
+                : (
+                  <li className="no-items">No items available</li>
+                )
+              }
+
+
             </ul>
           </div>
         ))}
@@ -100,7 +106,6 @@ function EditMenu() {
                 />
                 Create new category
               </label>
-
 
               {!isNewCategory ? (
                 <>

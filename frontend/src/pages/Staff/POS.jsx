@@ -64,7 +64,7 @@ function POS() {
     setCart([]);
   };
 
-  const checkout = (total) => {
+  const checkout = (total, payment, change, orderType, paymentMethod) => {
     
   const cashierName = localStorage.getItem("name");
   const userId = localStorage.getItem("user_id");
@@ -83,10 +83,10 @@ function POS() {
     
     const transactionData = {
       cart,
-      payment_method: "Cash",
+      payment_method: paymentMethod,
       total_payment: total,
       cashier_name: cashierName,
-      order_type: "Dine-in",
+      order_type: orderType,
       user_id: userId 
     };
 
