@@ -2,39 +2,53 @@ import db from "../config/db.js";
 
 
 export const getMenu = (req, res) => {
-    db.query("SELECT * FROM menu", (err, results) => {
-        if (err) return res.status(500).json({ error: err })
-        res.json(results);
-    });
+  db.query(
+    "SELECT * FROM menu WHERE item_name IS NOT NULL AND item_name <> ''",
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err });
+      res.json(results);
+    }
+  );
 };
+
 
 export const getCategories = (req, res) => {
-    db.query("SELECT category, COUNT(*) as count FROM menu GROUP BY category", (err, results) => {
-        if (err) return res.status(500).json({ error: err })
-        res.json(results);
-    });
+  const sql = `
+    SELECT category, 
+           COUNT(CASE WHEN item_name IS NOT NULL AND item_name <> '' THEN 1 END) AS count
+    FROM menu
+    GROUP BY category
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
+  });
 };
 
+
 export const addCategory = (req, res) => {
-    const { category } = req.body;
+  const { category } = req.body;
 
-    if (!category) return res.status(400).json({ message: "category name required" });
+  if (!category) return res.status(400).json({ message: "Category name required" });
 
+  const checkSql = "SELECT DISTINCT category FROM menu WHERE category = ?";
+  db.query(checkSql, [category], (err, existing) => {
+    if (err) return res.status(500).json({ error: err });
 
-    const checkSql = "SELECT * FROM menu WHERE category = ?"
+    if (existing.length > 0) {
+      return res.status(400).json({ message: "Category already exists" });
+    }
 
-    db.query(checkSql, [category], (err, existing) => {
-        if (err) return res.status(500).json({ error: err });
-        if (existing.length > 0) {
-            return res.status(400).json({ message: "category already exist" });
-        }
-
-        const sql = "INSERT INTO menu (item_name, price, category, size) VALUES (?,?,?,?)";
-        db.query(sql, ["", 0, category, ""], (err) => {
-            if (err) return res.status(500).json({ message: "error in adding category", err })
-            res.json({ message: "category added successfully" });
-        });
+    const sql = "INSERT INTO menu (category) VALUES (?)";
+    db.query(sql, [category], (err) => {
+      if (err) {
+        console.error("SQL ERROR:", err);
+        return res.status(500).json({ message: "Error adding category", err });
+      }
+      res.json({ message: "Category added successfully" });
     });
+  });
 };
 
 export const addMenuItem = (req, res) => {
