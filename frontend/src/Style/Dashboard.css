@@ -1,4 +1,4 @@
-/* ===== DASHBOARD MAIN LAYOUT ===== */
+/*DASHBOARD MAIN LAYOUT*/
 .dashboard-container {
   min-height: 100vh;
   background: #f8fafc;
@@ -14,7 +14,7 @@
   max-width: 1300px;
 }
 
-/* ===== HEADER SECTION ===== */
+/*HEADER SECTION*/
 .header {
   background: white;
   border-radius: 20px;
@@ -174,3 +174,24 @@
   border: 1px solid #ccc;
 }
 
+/*DROP DOWN BTN SA INCOME*/
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sales-period-select {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: rgb(0, 0, 0);
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sales-period-select:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.3);
+}
