@@ -118,7 +118,6 @@ const Dashboard = () => {
         </div>
 
         <div className="stats-grid">
-          {/* === Total Sales Card with its own dropdown === */}
           <div className="stat-card yellow-gradient">
             <div className="stat-card-header">
               <p className="stat-label">Income</p>
