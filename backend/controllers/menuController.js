@@ -65,3 +65,30 @@ export const addMenuItem = (req, res) => {
         }
     );
 }
+
+export const getSalesByCategory = (req, res) => {
+  const sql = `
+    SELECT 
+      COALESCE(m.category, 'Uncategorized') AS category, 
+      SUM(COALESCE(ti.quantity, 0) * COALESCE(ti.price, 0)) AS amount
+    FROM transaction_items ti
+    JOIN menu m ON ti.menu_id = m.id
+    JOIN transactions t ON ti.transaction_id = t.id
+    GROUP BY m.category
+    ORDER BY amount DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching sales by category:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const data = [["Category", "Amount"]];
+    results.forEach(row => {
+      data.push([row.category, Number(row.amount) || 0]);
+    });
+
+    res.json(data);
+  });
+};

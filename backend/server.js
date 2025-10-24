@@ -8,6 +8,7 @@ import menuRoutes from "./routes/menu.js";
 import staffTransactionsRoutes from "./routes/staffTransactions.js"
 import ownerTransactionRoutes from "./routes/ownerTransactions.js"
 
+
 const app = express();
 
 app.use(cors());
@@ -21,6 +22,7 @@ app.use("/menu", menuRoutes);
 
 app.use("/staffTransactions", staffTransactionsRoutes);
 app.use("/ownerTransactions", ownerTransactionRoutes);
+
 
 app.listen(8081, () => {
     console.log("Server running on port 8081");

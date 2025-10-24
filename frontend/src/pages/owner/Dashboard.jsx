@@ -13,23 +13,65 @@ import "../../Style/Dashboard.css";
 
 const Dashboard = () => {
   const [totalSales, setTotalSales] = useState(0);
+  const [cashSales, setCashSales] = useState(0);
+  const [gcashSales, setGcashSales] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [dineInOrders, setDineInOrders] = useState(0);
+  const [takeoutOrders, setTakeoutOrders] = useState(0);
+  const [totalInventory, setTotalInventory] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("monthly");
+  const [barData, setBarData] = useState([
+    ["Period", "Sales", { role: "style" }],
+  ]); // Default empty data
+  const [pieData, setPieData] = useState([["Category", "Amount"]]); // Default empty data
 
   useEffect(() => {
-    const fetchTotalSales = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const res = await axios.get(
-          "http://localhost:8081/ownerTransactions/total_sales"
-        );
-        setTotalSales(res.data.total_sales);
+        const [salesRes, ordersRes, inventoryRes] = await Promise.all([
+          axios.get(
+            "http://localhost:8081/ownerTransactions/total_sales_breakdown"
+          ),
+          axios.get("http://localhost:8081/ownerTransactions/orders_summary"),
+          axios.get("http://localhost:8081/inventory/summary"),
+        ]);
+
+        setTotalSales(salesRes.data?.total_sales || 0);
+        setCashSales(salesRes.data?.cash_sales || 0);
+        setGcashSales(salesRes.data?.gcash_sales || 0);
+        setTotalOrders(ordersRes.data?.total_orders || 0);
+        setDineInOrders(ordersRes.data?.dine_in || 0);
+        setTakeoutOrders(ordersRes.data?.takeout || 0);
+        setTotalInventory(inventoryRes.data?.total_inventory || 0);
+        setLowStockCount(inventoryRes.data?.low_stock || 0);
+
+        await fetchChartData(period);
       } catch (error) {
-        console.error("Error fetching total sales:", error);
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchTotalSales();
-  }, []);
+    fetchData();
+  }, [period]);
+
+  const fetchChartData = async (selectedPeriod) => {
+    try {
+      const [barRes, pieRes] = await Promise.all([
+        axios.get(
+          `http://localhost:8081/ownerTransactions/sales_chart?period=${selectedPeriod}`
+        ),
+        axios.get("http://localhost:8081/menu/sales_by_category"),
+      ]);
+      setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
+      setPieData(pieRes.data || [["Category", "Amount"]]);
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    }
+  };
 
   const currentDate = new Date();
 
@@ -49,32 +91,11 @@ const Dashboard = () => {
     });
   };
 
-  const salesData = [
-    ["Month", "Sales"],
-    ["Jan", 12000],
-    ["Feb", 19000],
-    ["Mar", 15000],
-    ["Apr", 17000],
-    ["May", 12000],
-    ["Jun", 25000],
-    ["Jul", 18000],
-    ["Aug", 30000],
-  ];
-
-  const salesOptions = {
-    title: "Sales Analytics",
-    curveType: "function",
-    legend: { position: "bottom" },
-    colors: ["#8b5cf6"],
+  const barOptions = {
+    title: `${period.charAt(0).toUpperCase() + period.slice(1)} Sales`,
     backgroundColor: "transparent",
+    legend: { position: "none" },
   };
-
-  const categoryData = [
-    ["Category", "Amount"],
-    ["Monthly Billing", 65],
-    ["Previous Month", 25],
-    ["Other", 10],
-  ];
 
   const categoryOptions = {
     title: "Sales by Product Category",
@@ -84,27 +105,11 @@ const Dashboard = () => {
     legend: { position: "right" },
   };
 
-  const barData = [
-    ["Month", "Revenue", { role: "style" }],
-    ["Jan", 8000, "#8b5cf6"],
-    ["Feb", 11000, "#3b82f6"],
-    ["Mar", 9500, "#f472b6"],
-    ["Apr", 15000, "#f59e0b"],
-    ["May", 20000, "#10b981"],
-  ];
-
-  const barOptions = {
-    title: "Monthly Revenue",
-    backgroundColor: "transparent",
-    legend: { position: "none" },
-  };
-
   return (
     <div className="dashboard-container">
       <div className="main-content">
         <div className="header">
           <div className="header-content">
-
             <div className="header-right">
               <div className="dashboard-info">
                 <p className="dashboard-title">Dashboard</p>
@@ -120,43 +125,48 @@ const Dashboard = () => {
             <p className="stat-value">
               {loading ? "Loading..." : `₱ ${totalSales.toLocaleString()}`}
             </p>
-            <PhilippinePesoIcon className="stat-icon" size={32} /> 
+            <div className="stat-breakdown">
+              <p>Cash: ₱ {cashSales.toLocaleString()}</p>
+              <p>GCash: ₱ {gcashSales.toLocaleString()}</p>
+            </div>
+            <PhilippinePesoIcon className="stat-icon" size={32} />
           </div>
 
           <div className="stat-card blue-gradient">
             <p className="stat-label">Orders</p>
-            <p className="stat-value">103</p>
+            <p className="stat-value">{loading ? "Loading..." : totalOrders}</p>
+            <div className="stat-breakdown">
+              <p>Dine In: {dineInOrders}</p>
+              <p>Takeout: {takeoutOrders}</p>
+            </div>
             <ShoppingCart className="stat-icon" size={32} />
           </div>
 
-          <div className="stat-card pink-gradient">
-            <p className="stat-label">Revenue</p>
-            <p className="stat-value">₱ 501,200</p>
-            <TrendingUp className="stat-icon" size={32} />
-          </div>
-
           <div className="stat-card gray-gradient">
-            <p className="stat-label">Inventory</p>
-            <p className="stat-value">1,247</p>
+            <p className="stat-label">Inventory Overview</p>
+            <p className="stat-value">
+              {loading ? "Loading..." : `${totalInventory} items`}
+            </p>
+            <p className="stat-subvalue">
+              {loading ? "" : `Low Stock: ${lowStockCount}`}
+            </p>
             <Package className="stat-icon" size={32} />
           </div>
+        </div>
+
+        <div className="dashboard-controls">
+          <select value={period} onChange={(e) => setPeriod(e.target.value)}>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
         </div>
 
         <div className="charts-grid">
           <div className="chart-card">
             <Chart
-              chartType="LineChart"
-              data={salesData}
-              options={salesOptions}
-              width="100%"
-              height="300px"
-            />
-          </div>
-
-          <div className="chart-card">
-            <Chart
               chartType="PieChart"
-              data={categoryData}
+              data={pieData}
               options={categoryOptions}
               width="100%"
               height="300px"

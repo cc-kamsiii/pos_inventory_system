@@ -158,3 +158,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+.stat-breakdown {
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.dashboard-controls {
+  margin: 20px 0;
+}
+
+.dashboard-controls select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
