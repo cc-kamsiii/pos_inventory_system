@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  TrendingUp,
   Package,
   ShoppingCart,
-  PieChart,
-  Clock,
   PhilippinePesoIcon,
 } from "lucide-react";
 import { Chart } from "react-google-charts";
@@ -21,19 +18,25 @@ const Dashboard = () => {
   const [totalInventory, setTotalInventory] = useState(0);
   const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState("monthly");
+
+  // Period for total sales card
+  const [salesPeriod, setSalesPeriod] = useState("monthly");
+
+  // Period for charts
+  const [chartPeriod, setChartPeriod] = useState("monthly");
+
   const [barData, setBarData] = useState([
     ["Period", "Sales", { role: "style" }],
-  ]); // Default empty data
+  ]);
   const [pieData, setPieData] = useState([["Category", "Amount"]]); // Default empty data
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboardData = async () => {
       setLoading(true);
       try {
         const [salesRes, ordersRes, inventoryRes] = await Promise.all([
           axios.get(
-            "http://localhost:8081/ownerTransactions/total_sales_breakdown"
+            `http://localhost:8081/ownerTransactions/total_sales_breakdown?period=${salesPeriod}`
           ),
           axios.get("http://localhost:8081/ownerTransactions/orders_summary"),
           axios.get("http://localhost:8081/inventory/summary"),
@@ -47,16 +50,18 @@ const Dashboard = () => {
         setTakeoutOrders(ordersRes.data?.takeout || 0);
         setTotalInventory(inventoryRes.data?.total_inventory || 0);
         setLowStockCount(inventoryRes.data?.low_stock || 0);
-
-        await fetchChartData(period);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [period]);
+    fetchDashboardData();
+  }, [salesPeriod]);
+
+  useEffect(() => {
+    fetchChartData(chartPeriod);
+  }, [chartPeriod]);
 
   const fetchChartData = async (selectedPeriod) => {
     try {
@@ -84,21 +89,14 @@ const Dashboard = () => {
     });
   };
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const barOptions = {
-    title: `${period.charAt(0).toUpperCase() + period.slice(1)} Sales`,
+    title: `${chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)} Sales`,
     backgroundColor: "transparent",
     legend: { position: "none" },
   };
 
   const categoryOptions = {
-    title: "Sales by Product Category",
+    title: "Most Selling Menu",
     pieHole: 0.4,
     colors: ["#8b5cf6", "#3b82f6", "#f59e0b"],
     backgroundColor: "transparent",
@@ -120,8 +118,20 @@ const Dashboard = () => {
         </div>
 
         <div className="stats-grid">
+          {/* === Total Sales Card with its own dropdown === */}
           <div className="stat-card yellow-gradient">
-            <p className="stat-label">Total Sales</p>
+            <div className="stat-card-header">
+              <p className="stat-label">Income</p>
+              <select
+                className="sales-period-select"
+                value={salesPeriod}
+                onChange={(e) => setSalesPeriod(e.target.value)}
+              >
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
             <p className="stat-value">
               {loading ? "Loading..." : `₱ ${totalSales.toLocaleString()}`}
             </p>
@@ -132,6 +142,7 @@ const Dashboard = () => {
             <PhilippinePesoIcon className="stat-icon" size={32} />
           </div>
 
+          {/* === Orders Card === */}
           <div className="stat-card blue-gradient">
             <p className="stat-label">Orders</p>
             <p className="stat-value">{loading ? "Loading..." : totalOrders}</p>
@@ -142,6 +153,7 @@ const Dashboard = () => {
             <ShoppingCart className="stat-icon" size={32} />
           </div>
 
+          {/* === Inventory Card === */}
           <div className="stat-card gray-gradient">
             <p className="stat-label">Inventory Overview</p>
             <p className="stat-value">
@@ -154,14 +166,19 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* === Chart period dropdown === */}
         <div className="dashboard-controls">
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}>
+          <select
+            value={chartPeriod}
+            onChange={(e) => setChartPeriod(e.target.value)}
+          >
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
         </div>
 
+        {/* === Charts === */}
         <div className="charts-grid">
           <div className="chart-card">
             <Chart
