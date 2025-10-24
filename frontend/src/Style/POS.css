@@ -151,7 +151,7 @@ html, body {
 }
 
 .product-card {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -160,13 +160,13 @@ html, body {
 }
 
 .product-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.562);
 }
 
 .product-image {
   position: relative;
-  height: 150px;
+  height: 25px;
   background-color: white;
   border-style: solid 1px black;
   display: flex;
@@ -175,9 +175,9 @@ html, body {
   padding-bottom: 10px;
 }
 
-.product-emoji {
+ /*.product-emoji {
   font-size: 3rem;
-}
+} */
 
 .available-badge {
   position: absolute;
@@ -201,6 +201,7 @@ html, body {
   font-weight: 600;
   margin: 0 0 0.5rem 0;
   color: black;
+  text-align: center;
 }
 
 .product-price {
@@ -208,6 +209,7 @@ html, body {
   font-weight: 700;
   color: rgb(78, 72, 72);
   margin: 0 0 1rem 0;
+  text-align: center;
 }
 
 .add-to-cart-btn {
