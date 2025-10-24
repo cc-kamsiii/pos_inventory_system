@@ -1,34 +1,65 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  TrendingUp,
-  Package,
-  ShoppingCart,
-  PieChart,
-  Clock,
-  PhilippinePesoIcon,
-} from "lucide-react";
+import { Package, ShoppingCart, Clock, PhilippinePesoIcon } from "lucide-react";
 import { Chart } from "react-google-charts";
 import "../../Style/Dashboard.css";
 
 const Dashboard = () => {
-  const [totalSales, setTotalSales] = useState(0);
-  const [loading, setLoading] = useState(true);
+  // Period filter: weekly | monthly | yearly
+  const [period, setPeriod] = useState("weekly");
+
+  // Metrics from backend dashboard endpoint
+  const [metrics, setMetrics] = useState({
+    totalSales: 0,
+    ordersCount: 0,
+    paymentBreakdown: { cash: 0, gcash: 0 },
+    orderBreakdown: { dine_in: 0, takeout: 0 },
+    barSeries: [["Period", "Sales"]],
+    pieSeries: [["Category", "Sales"]],
+  });
+  const [metricsLoading, setMetricsLoading] = useState(true);
+
+  // Inventory summary (items count and low stock)
+  const [inventorySummary, setInventorySummary] = useState({ totalItems: 0, lowStock: 0 });
+  const [inventoryLoading, setInventoryLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTotalSales = async () => {
+    const fetchMetrics = async () => {
+      setMetricsLoading(true);
       try {
         const res = await axios.get(
-          "http://localhost:8081/ownerTransactions/total_sales"
+          `http://localhost:8081/ownerTransactions/dashboard?period=${period}`
         );
-        setTotalSales(res.data.total_sales);
+        setMetrics(res.data);
       } catch (error) {
-        console.error("Error fetching total sales:", error);
+        console.error("Error fetching dashboard metrics:", error);
       } finally {
-        setLoading(false);
+        setMetricsLoading(false);
       }
     };
-    fetchTotalSales();
+    fetchMetrics();
+  }, [period]);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      setInventoryLoading(true);
+      try {
+        const res = await axios.get("http://localhost:8081/inventory");
+        const items = Array.isArray(res.data) ? res.data : [];
+
+        const lowStockCount = items.reduce((acc, it) => {
+          return acc + (isLowStock(it.item, Number(it.quantity), it.unit) ? 1 : 0);
+        }, 0);
+
+        setInventorySummary({ totalItems: items.length, lowStock: lowStockCount });
+      } catch (err) {
+        console.error("Error fetching inventory:", err);
+        setInventorySummary({ totalItems: 0, lowStock: 0 });
+      } finally {
+        setInventoryLoading(false);
+      }
+    };
+    fetchInventory();
   }, []);
 
   const currentDate = new Date();
@@ -49,55 +80,59 @@ const Dashboard = () => {
     });
   };
 
-  const salesData = [
-    ["Month", "Sales"],
-    ["Jan", 12000],
-    ["Feb", 19000],
-    ["Mar", 15000],
-    ["Apr", 17000],
-    ["May", 12000],
-    ["Jun", 25000],
-    ["Jul", 18000],
-    ["Aug", 30000],
-  ];
-
-  const salesOptions = {
-    title: "Sales Analytics",
-    curveType: "function",
-    legend: { position: "bottom" },
-    colors: ["#8b5cf6"],
-    backgroundColor: "transparent",
-  };
-
-  const categoryData = [
-    ["Category", "Amount"],
-    ["Monthly Billing", 65],
-    ["Previous Month", 25],
-    ["Other", 10],
-  ];
-
   const categoryOptions = {
     title: "Sales by Product Category",
     pieHole: 0.4,
-    colors: ["#8b5cf6", "#3b82f6", "#f59e0b"],
     backgroundColor: "transparent",
     legend: { position: "right" },
   };
 
-  const barData = [
-    ["Month", "Revenue", { role: "style" }],
-    ["Jan", 8000, "#8b5cf6"],
-    ["Feb", 11000, "#3b82f6"],
-    ["Mar", 9500, "#f472b6"],
-    ["Apr", 15000, "#f59e0b"],
-    ["May", 20000, "#10b981"],
-  ];
-
   const barOptions = {
-    title: "Monthly Revenue",
+    title: "Sales Over Time",
     backgroundColor: "transparent",
     legend: { position: "none" },
+    colors: ["#8b5cf6"],
+    hAxis: { textStyle: { color: "#6b7280" } },
+    vAxis: { textStyle: { color: "#6b7280" } },
   };
+
+  function isLowStock(item, quantity, unit) {
+    const lower = String(item || "").toLowerCase();
+    if (
+      lower.includes("rice") ||
+      lower.includes("tapa") ||
+      lower.includes("bangus") ||
+      lower.includes("chicken") ||
+      lower.includes("lechon") ||
+      lower.includes("pulpo") ||
+      lower.includes("beef") ||
+      lower.includes("pork") ||
+      lower.includes("broccoli") ||
+      lower.includes("vegetable") ||
+      lower.includes("garlic") ||
+      lower.includes("onion")
+    ) {
+      return quantity < 10;
+    } else if (
+      lower.includes("syrup") ||
+      lower.includes("mix") ||
+      lower.includes("sauce") ||
+      lower.includes("mayonnaise") ||
+      lower.includes("ketchup") ||
+      lower.includes("gravy") ||
+      lower.includes("juice") ||
+      lower.includes("lemonade")
+    ) {
+      return quantity < 5;
+    } else if (unit === "pcs" && quantity < 20) {
+      return true;
+    } else if (unit === "cans" && quantity < 20) {
+      return true;
+    } else if (unit === "bottles" && quantity < 20) {
+      return true;
+    }
+    return false;
+  }
 
   return (
     <div className="dashboard-container">
@@ -118,56 +153,72 @@ const Dashboard = () => {
           <div className="stat-card yellow-gradient">
             <p className="stat-label">Total Sales</p>
             <p className="stat-value">
-              {loading ? "Loading..." : `₱ ${totalSales.toLocaleString()}`}
+              {metricsLoading ? "Loading..." : `₱ ${Number(metrics.totalSales || 0).toLocaleString()}`}
             </p>
-            <PhilippinePesoIcon className="stat-icon" size={32} /> 
+            <div className="stat-subdetails">
+              <span>Cash: ₱ {Number(metrics.paymentBreakdown?.cash || 0).toLocaleString()}</span>
+              <span>GCash: ₱ {Number(metrics.paymentBreakdown?.gcash || 0).toLocaleString()}</span>
+            </div>
+            <PhilippinePesoIcon className="stat-icon" size={32} />
           </div>
 
           <div className="stat-card blue-gradient">
             <p className="stat-label">Orders</p>
-            <p className="stat-value">103</p>
+            <p className="stat-value">
+              {metricsLoading ? "Loading..." : Number(metrics.ordersCount || 0).toLocaleString()}
+            </p>
+            <div className="stat-subdetails">
+              <span>Dine-in: {Number(metrics.orderBreakdown?.dine_in || 0).toLocaleString()}</span>
+              <span>Takeout: {Number(metrics.orderBreakdown?.takeout || 0).toLocaleString()}</span>
+            </div>
             <ShoppingCart className="stat-icon" size={32} />
-          </div>
-
-          <div className="stat-card pink-gradient">
-            <p className="stat-label">Revenue</p>
-            <p className="stat-value">₱ 501,200</p>
-            <TrendingUp className="stat-icon" size={32} />
           </div>
 
           <div className="stat-card gray-gradient">
             <p className="stat-label">Inventory</p>
-            <p className="stat-value">1,247</p>
+            <p className="stat-value">
+              {inventoryLoading
+                ? "Loading..."
+                : `${inventorySummary.totalItems} items`}
+            </p>
+            <div className="stat-subdetails">
+              <span>Low stock: {inventorySummary.lowStock}</span>
+            </div>
             <Package className="stat-icon" size={32} />
           </div>
         </div>
 
         <div className="charts-grid">
           <div className="chart-card">
-            <Chart
-              chartType="LineChart"
-              data={salesData}
-              options={salesOptions}
-              width="100%"
-              height="300px"
-            />
-          </div>
-
-          <div className="chart-card">
-            <Chart
-              chartType="PieChart"
-              data={categoryData}
-              options={categoryOptions}
-              width="100%"
-              height="300px"
-            />
-          </div>
-
-          <div className="chart-card">
+            <div className="chart-header">
+              <p className="chart-title">Sales Over Time</p>
+              <select
+                className="period-select"
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+              >
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
             <Chart
               chartType="ColumnChart"
-              data={barData}
+              data={metrics.barSeries}
               options={barOptions}
+              width="100%"
+              height="300px"
+            />
+          </div>
+
+          <div className="chart-card">
+            <div className="chart-header">
+              <p className="chart-title">Sales by Category</p>
+            </div>
+            <Chart
+              chartType="PieChart"
+              data={metrics.pieSeries}
+              options={categoryOptions}
               width="100%"
               height="300px"
             />
