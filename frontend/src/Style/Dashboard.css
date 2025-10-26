@@ -1,4 +1,3 @@
-/*DASHBOARD MAIN LAYOUT*/
 .dashboard-container {
   min-height: 100vh;
   background: #f8fafc;
@@ -14,7 +13,6 @@
   max-width: 1300px;
 }
 
-/*HEADER SECTION*/
 .header {
   background: white;
   border-radius: 20px;
