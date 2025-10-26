@@ -34,7 +34,7 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
           filteredProducts.map((product) => (
             <div key={product.id} className="product-card">
               <div className="product-image">
-                <span className="product-emoji">🍽️</span>
+                
                 <button className="available-badge">Available</button>
               </div>
               <div className="product-info">
