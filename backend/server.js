@@ -24,6 +24,7 @@ app.use("/staffTransactions", staffTransactionsRoutes);
 app.use("/ownerTransactions", ownerTransactionRoutes);
 
 
-app.listen(8081, () => {
-    console.log("Server running on port 8081");
+app.listen(8081, "0.0.0.0", () => {
+  console.log("Server running on http://192.168.1.59:8081");
 });
+

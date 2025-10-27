@@ -75,7 +75,6 @@ export const getInventorySummary = (req, res) => {
       const qty = inv.quantity;
       const unit = inv.unit;
 
-      // Same logic as frontend
       if (
         item.includes("rice") ||
         item.includes("tapa") ||
