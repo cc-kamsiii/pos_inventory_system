@@ -8,11 +8,18 @@ function EditAcc() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
-  const [formData, setFormData] = useState({ username: "", password: "", name, role: "staff" });
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    name: "",
+    role: "staff",
+  });
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   const fetchAccounts = async () => {
     try {
-      const res = await axios.get("http://localhost:8081/auth/users");
+      const res = await axios.get(`${API_BASE}/auth/users`);
       setAccounts(res.data);
     } catch (err) {
       console.log("Error fetching accounts:", err);
@@ -21,9 +28,8 @@ function EditAcc() {
 
   const handleCreateAccount = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await axios.post("http://localhost:8081/auth/register", formData);
+      const res = await axios.post(`${API_BASE}/auth/register`, formData);
       if (res.data.success) {
         setFormData({ username: "", password: "", role: "staff", name: "" });
         setShowCreateModal(false);
@@ -48,7 +54,7 @@ function EditAcc() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8081/auth/${accountToDelete.id}`);
+      await axios.delete(`${API_BASE}/auth/${accountToDelete.id}`);
       setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
       setShowDeleteModal(false);
       setAccountToDelete(null);
@@ -96,7 +102,10 @@ function EditAcc() {
       </div>
 
       {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCreateModal(false)}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>Create New Account</h3>
             <form onSubmit={handleCreateAccount}>
@@ -105,7 +114,9 @@ function EditAcc() {
                 <input
                   type="text"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
                   placeholder="Enter username"
                   required
                 />
@@ -115,7 +126,9 @@ function EditAcc() {
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   placeholder="Enter password"
                   required
                 />
@@ -125,7 +138,9 @@ function EditAcc() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Enter name"
                   required
                 />
@@ -134,7 +149,9 @@ function EditAcc() {
                 <label>Select Role</label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
                   required
                 >
                   <option value="owner">Owner</option>
@@ -159,7 +176,10 @@ function EditAcc() {
       )}
 
       {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowDeleteModal(false)}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>Confirm Delete</h3>
             <p>

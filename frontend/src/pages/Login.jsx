@@ -1,5 +1,5 @@
 import "../Style/Login.css";
-import logo from "../assets/logo.jpg"
+import logo from "../assets/logo.jpg";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -11,17 +11,19 @@ function Login() {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:8081/auth/login", {
+      const res = await axios.post(`${API_BASE}/auth/login`, {
         username,
         password,
       });
 
       if (res.data.success) {
-        const role = (res.data.role || '').toLowerCase();
+        const role = (res.data.role || "").toLowerCase();
 
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("name", res.data.name);
@@ -35,10 +37,7 @@ function Login() {
         } else {
           navigate("/", { replace: true });
         }
-      }
-
-
-      else {
+      } else {
         setShowModal(true);
       }
     } catch (err) {
@@ -49,10 +48,7 @@ function Login() {
 
   const closeLogin = () => {
     setShowModal(false);
-
-  }
-
-
+  };
 
   return (
     <div className="login-container">
@@ -85,13 +81,8 @@ function Login() {
           </button>
         </form>
       </div>
-      <UserNotLoggedIn
-        isVisible={showModal}
-        onClose={closeLogin}
-      />
+      <UserNotLoggedIn isVisible={showModal} onClose={closeLogin} />
     </div>
-
-
   );
 }
 
