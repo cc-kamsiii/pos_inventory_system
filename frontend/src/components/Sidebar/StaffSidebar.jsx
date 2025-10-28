@@ -6,10 +6,10 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
+} from "lucide-react";  
 import "../../Style/Sidebar.css";
 
-function StaffSidebar({ name, onLogout }) {
+function StaffSidebar({ name, onLogout, first_name }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -35,8 +35,8 @@ function StaffSidebar({ name, onLogout }) {
         {!isCollapsed && (
           <div className="nameAndRole">
             <div className="b-border">
+              <p>Hi, {first_name}!</p>
               <p>Role: Staff</p>
-              <p>{name}</p>
             </div>
           </div>
         )}
@@ -71,6 +71,7 @@ function StaffSidebar({ name, onLogout }) {
           <p className="loading-text">Logging out...</p>
         </div>
       )}
+      
     </>
   );
 }
