@@ -34,6 +34,35 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
     <div className="order-summary">
       <div className="summary-header">
         <h2>Order Summary</h2>
+        <div className="OT-section">
+          <button 
+            className={`OTPM-btn ${orderType === 'Dine-in' ? 'active' : ''}`}
+            onClick={() => setOrderType('Dine-in')}
+          >
+            Dine In
+          </button>
+          <button 
+            className={`OTPM-btn ${orderType === 'Takeout' ? 'active' : ''}`}
+            onClick={() => setOrderType('Takeout')}
+          >
+            Takeout
+          </button>
+        </div>
+
+        <div className="PM-section">
+          <button 
+            className={`OTPM-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('Cash')}
+          >
+            Cash
+          </button>
+          <button 
+            className={`OTPM-btn ${paymentMethod === 'Gcash' ? 'active' : ''}`}
+            onClick={() => setPaymentMethod('Gcash')}
+          >
+            GCash
+          </button>
+        </div>
       </div>
 
       <div className="order-items-section">
@@ -88,35 +117,7 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
       </div>
       
       <div className="number-pad">
-        <div className="OT-section">
-          <button 
-            className={`OTPM-btn ${orderType === 'Dine-in' ? 'active' : ''}`}
-            onClick={() => setOrderType('Dine-in')}
-          >
-            Dine In
-          </button>
-          <button 
-            className={`OTPM-btn ${orderType === 'Takeout' ? 'active' : ''}`}
-            onClick={() => setOrderType('Takeout')}
-          >
-            Takeout
-          </button>
-        </div>
-
-        <div className="PM-section">
-          <button 
-            className={`OTPM-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
-            onClick={() => setPaymentMethod('Cash')}
-          >
-            Cash
-          </button>
-          <button 
-            className={`OTPM-btn ${paymentMethod === 'Gcash' ? 'active' : ''}`}
-            onClick={() => setPaymentMethod('Gcash')}
-          >
-            GCash
-          </button>
-        </div>
+        
 
         <div className="calculator-grid">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '.'].map((num, index) => (
