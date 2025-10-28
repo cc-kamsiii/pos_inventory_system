@@ -1,0 +1,18 @@
+.exclamation{
+    width: 80px;
+    height: auto;
+}
+
+.user-not-found{
+    margin:20px;
+}
+
+.close-not-found{
+    color: white;
+    background-color: rgb(179, 39, 39);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 500;
+}

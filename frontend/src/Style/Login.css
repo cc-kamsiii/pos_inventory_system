@@ -127,7 +127,6 @@ body {
   color: #7a1ed2;
 }
 
-/* Modal Styling */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -156,6 +155,7 @@ body {
   justify-content: space-between;
   margin-top: 20px;
 }
+
 
 .cancel-btn {
   padding: 14px;

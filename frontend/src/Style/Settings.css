@@ -29,11 +29,11 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
 .settings-option:hover {
-  background: #e2d8f5;
+  background: #ddd0f5;
   transform: scale(1.02);
 }
 
