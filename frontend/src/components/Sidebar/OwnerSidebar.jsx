@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import "../../Style/Sidebar.css";
 
-function OwnerSidebar({ name, onLogout }) {
+function OwnerSidebar({ name, onLogout, first_name }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -38,8 +38,8 @@ function OwnerSidebar({ name, onLogout }) {
         {!isCollapsed && (
           <div className="nameAndRole">
             <div className="b-border">
+              <p>Hi, {first_name}!</p>
               <p>Role: Owner</p>
-              <p>{name}</p>
             </div>
           </div>
         )}

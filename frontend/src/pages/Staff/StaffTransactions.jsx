@@ -9,8 +9,10 @@ function StaffTransactions () {
   
   const [data, setData] = useState([]);
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(()=>{
-    axios.get("http://localhost:8081/staffTransactions")
+    axios.get(`${API_BASE}/staffTransactions`)
     .then(res => setData(res.data))
     .catch(err => console.log(err))
   },[]);

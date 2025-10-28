@@ -15,11 +15,13 @@ function EditMenu() {
     size: "",
   });
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
   const fetchData = async () => {
     try {
       const [menuRes, catRes] = await Promise.all([
-        axios.get("http://localhost:8081/menu"),
-        axios.get("http://localhost:8081/menu/categories"),
+        axios.get(`${API_BASE}/menu`),
+        axios.get(`${API_BASE}/menu/categories`),
       ]);
 
       setMenuItems(menuRes.data);
@@ -42,12 +44,12 @@ function EditMenu() {
     e.preventDefault();
     try {
       if (isNewCategory) {
-        await axios.post("http://localhost:8081/menu/add-category", {
+        await axios.post(`${API_BASE}/menu/add-category`, {
           category: formData.category,
         });
         alert("Category created successfully!");
       } else {
-        await axios.post("http://localhost:8081/menu/add-item", formData);
+        await axios.post(`${API_BASE}/menu/add-item`, formData);
         alert("Item added successfully!");
       }
 

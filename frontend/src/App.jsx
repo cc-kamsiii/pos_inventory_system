@@ -1,5 +1,11 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import Sidebar from "./components/Sidebar/Sidebar.jsx";
 import Dashboard from "./pages/owner/Dashboard.jsx";
 import Login from "./pages/Login.jsx";
@@ -13,14 +19,25 @@ import OwnerTransactions from "./pages/owner/OwnerTransactions.jsx";
 import Settings from "./pages/owner/Settings.jsx";
 import EditAcc from "./pages/owner/EditAcc.jsx";
 import EditMenu from "./pages/owner/EditMenu.jsx";
+import LockScreen from "./components/LockScreen.jsx";
 import "./Style/App.css";
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (!token || !allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 function Layout() {
   const location = useLocation();
-
   const hideSidebar = location.pathname === "/";
 
-  if (hideSidebar) {  
+  if (hideSidebar) {
     return (
       <div className="full-layout">
         <div className="full-content">
@@ -37,18 +54,95 @@ function Layout() {
       <Sidebar />
       <div className="content">
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/add" element={<Add />} />
-          <Route path="/read/:id" element={<Read />} />
-          <Route path="/edit/:id" element={<Edit />} />
-          <Route path="/ownertransactions" element={<OwnerTransactions />} />
-          <Route path="/settings" element={<Settings />} /> 
-          <Route path="/editacc" element={<EditAcc />} />
-          <Route path="/editmenu" element={<EditMenu />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Inventory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Add />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/read/:id"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Read />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Edit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ownertransactions"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <OwnerTransactions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editacc"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <EditAcc />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editmenu"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <EditMenu />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/pos" element={<POS />} />
-          <Route path="/stafftransactions" element={<StaffTransactions />} />
+          <Route
+            path="/pos"
+            element={
+              <ProtectedRoute allowedRoles={["staff"]}>
+                <POS />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stafftransactions"
+            element={
+              <ProtectedRoute allowedRoles={["staff"]}>
+                <StaffTransactions />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>
@@ -56,6 +150,51 @@ function Layout() {
 }
 
 function App() {
+  const [isLocked, setIsLocked] = useState(
+    localStorage.getItem("isLocked") === "true"
+  );
+
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role !== "staff") return;
+
+    let timer;
+
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIsLocked(true);
+        localStorage.setItem("isLocked", "true"); 
+      }, 2 * 60 * 1000); 
+    };
+
+    const events = ["mousemove", "keypress", "click"];
+    events.forEach((e) => window.addEventListener(e, resetTimer));
+
+    resetTimer();
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = () => {
+      window.history.go(1);
+    };
+  }, []);
+
+  const handleUnlock = () => {
+    setIsLocked(false);
+    localStorage.removeItem("isLocked");
+  };
+
+  if (isLocked) {
+    return <LockScreen onUnlock={handleUnlock} />;
+  }
+
   return (
     <Router>
       <Layout />

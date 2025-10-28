@@ -10,9 +10,11 @@ function Read() {
     const {id} = useParams();
     const [item, setItem] = useState(null);
 
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() =>{
         if(!id) return;
-        axios.get(`http://localhost:8081/inventory/${id}`)
+        axios.get(`${API_BASE}/inventory/${id}`)
         .then(res =>{
             console.log(res);
             setItem(res.data[0]);

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Package,
-  ShoppingCart,
-  PhilippinePesoIcon,
-} from "lucide-react";
+import { Package, ShoppingCart, PhilippinePesoIcon } from "lucide-react";
 import { Chart } from "react-google-charts";
 import "../../Style/Dashboard.css";
 
@@ -19,27 +15,25 @@ const Dashboard = () => {
   const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Period for total sales card
   const [salesPeriod, setSalesPeriod] = useState("monthly");
 
-  // Period for charts
   const [chartPeriod, setChartPeriod] = useState("monthly");
 
   const [barData, setBarData] = useState([
     ["Period", "Sales", { role: "style" }],
   ]);
-  const [pieData, setPieData] = useState([["Category", "Amount"]]); // Default empty data
+  const [pieData, setPieData] = useState([["Category", "Amount"]]); 
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
         const [salesRes, ordersRes, inventoryRes] = await Promise.all([
-          axios.get(
-            `http://localhost:8081/ownerTransactions/total_sales_breakdown?period=${salesPeriod}`
-          ),
-          axios.get("http://localhost:8081/ownerTransactions/orders_summary"),
-          axios.get("http://localhost:8081/inventory/summary"),
+          axios.get(`${API_BASE}/ownerTransactions/total_sales_breakdown?period=${salesPeriod}`),
+          axios.get(`${API_BASE}/ownerTransactions/orders_summary`),
+          axios.get(`${API_BASE}/inventory/summary`),
         ]);
 
         setTotalSales(salesRes.data?.total_sales || 0);
@@ -66,10 +60,8 @@ const Dashboard = () => {
   const fetchChartData = async (selectedPeriod) => {
     try {
       const [barRes, pieRes] = await Promise.all([
-        axios.get(
-          `http://localhost:8081/ownerTransactions/sales_chart?period=${selectedPeriod}`
-        ),
-        axios.get("http://localhost:8081/menu/sales_by_category"),
+        axios.get(`${API_BASE}/ownerTransactions/sales_chart?period=${selectedPeriod}`),
+        axios.get(`${API_BASE}/menu/sales_by_category`),
       ]);
       setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
       setPieData(pieRes.data || [["Category", "Amount"]]);
@@ -90,7 +82,9 @@ const Dashboard = () => {
   };
 
   const barOptions = {
-    title: `${chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)} Sales`,
+    title: `${
+      chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)
+    } Sales`,
     backgroundColor: "transparent",
     legend: { position: "none" },
   };
@@ -141,7 +135,6 @@ const Dashboard = () => {
             <PhilippinePesoIcon className="stat-icon" size={32} />
           </div>
 
-          {/* === Orders Card === */}
           <div className="stat-card blue-gradient">
             <p className="stat-label">Orders</p>
             <p className="stat-value">{loading ? "Loading..." : totalOrders}</p>
@@ -152,7 +145,6 @@ const Dashboard = () => {
             <ShoppingCart className="stat-icon" size={32} />
           </div>
 
-          {/* === Inventory Card === */}
           <div className="stat-card gray-gradient">
             <p className="stat-label">Inventory Overview</p>
             <p className="stat-value">
@@ -165,7 +157,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* === Chart period dropdown === */}
         <div className="dashboard-controls">
           <select
             value={chartPeriod}
@@ -177,7 +168,6 @@ const Dashboard = () => {
           </select>
         </div>
 
-        {/* === Charts === */}
         <div className="charts-grid">
           <div className="chart-card">
             <Chart

@@ -10,14 +10,18 @@ function Add() {
     unit: "",
   });
 
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
 
-    axios.post("http://localhost:8081/inventory", values)
+    axios.post(`${API_BASE}/inventory`, values)
       .then(res => {
         console.log(res.data);
         setTimeout(() => {

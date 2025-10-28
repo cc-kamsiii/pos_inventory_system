@@ -6,12 +6,14 @@ import "../../Style/Inventory.css";
 
 function Inventory() {
   const [data, setData] = useState([]);
-  const [search, setSearch] = useState(""); // 🔍 for search input
-  const [filteredData, setFilteredData] = useState([]); // for displaying filtered items
+  const [search, setSearch] = useState(""); 
+  const [filteredData, setFilteredData] = useState([]); 
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/inventory")
+      .get(`${API_BASE}/inventory`)
       .then((res) => {
         setData(res.data);
         setFilteredData(res.data);
@@ -26,7 +28,7 @@ function Inventory() {
 
   const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:8081/inventory/${id}`)
+      .delete(`${API_BASE}/inventory/${id}`)
       .then(() => {
         const updatedData = data.filter((item) => item.id !== id);
         setData(updatedData);
@@ -74,7 +76,6 @@ function Inventory() {
     return false;
   }
 
-  // 🔍 Filter items when search input changes
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearch(value);

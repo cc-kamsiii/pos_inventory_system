@@ -9,8 +9,10 @@ function Edit() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
-    axios.get(`http://localhost:8081/inventory/${id}`)
+    axios.get(`${API_BASE}/inventory/${id}`)
       .then(res => {
         const data = res.data[0];
         setValues({ item: data.item, quantity: data.quantity, unit: data.unit });
@@ -22,7 +24,7 @@ function Edit() {
     e.preventDefault();
     setLoading(true);
 
-    axios.put(`http://localhost:8081/inventory/${id}`, values)
+    axios.put(`${API_BASE}/inventory/${id}`, values)
       .then(res => {
         console.log(res.data);
         setTimeout(() => {
