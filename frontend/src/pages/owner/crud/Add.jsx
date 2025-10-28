@@ -6,6 +6,7 @@ import "../../../Style/Add.css";
 function Add() {
   const [values, setValues] = useState({
     item: "",
+    price: "",
     quantity: "",
     unit: "",
   });
@@ -47,6 +48,15 @@ function Add() {
               placeholder="Enter Item Name"
               required
               onChange={e => setValues({ ...values, item: e.target.value })}
+            />
+          </div>
+
+          <div className="inventory-input">
+            <input
+              type="number"
+              placeholder="Enter Price"
+              required
+              onChange={e => setValues({ ...values, price: e.target.value })}
             />
           </div>
 

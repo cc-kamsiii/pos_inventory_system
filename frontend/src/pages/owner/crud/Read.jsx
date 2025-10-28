@@ -47,6 +47,7 @@ function Read() {
                         <tr>
                             <th>ID</th>
                             <th>Item Name</th>
+                            <th>Price</th>
                             <th>Quantity</th>
                             <th>Unit</th>
                             <th>Last Update</th>
@@ -56,6 +57,7 @@ function Read() {
                         <tr>
                             <td>{item.id}</td>
                             <td>{item.item}</td>
+                            <td>{item.price}</td>
                             <td>{item.quantity}</td>
                             <td>{item.unit}</td>
                             <td>{formatDate(item.last_update)}</td>
