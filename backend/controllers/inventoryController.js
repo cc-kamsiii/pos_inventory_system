@@ -8,14 +8,14 @@ export const getItems = (req, res) =>{
 }
 
 export const addItems = (req, res) => {
-  const { item, quantity, unit } = req.body;
+  const { item, price,  quantity, unit } = req.body;
 
   const sql = `
-    INSERT INTO inventory (item, quantity, unit, last_update)
-    VALUES (?, ?, ?, NOW())
+    INSERT INTO inventory (item, price, quantity, unit, last_update)
+    VALUES (?, ?, ?, ?, NOW())
   `;
 
-  db.query(sql, [item, quantity, unit], (err, results) => {
+  db.query(sql, [item, price,  quantity, unit], (err, results) => {
     if (err) {
       console.error("Error inserting item:", err);
       return res.status(500).json({ success: false, message: "Database error", error: err });
@@ -42,10 +42,10 @@ export const readItems = (req, res) =>{
 
 export const editItems = (req, res) =>{
     const id = req.params.id;
-    const {item, quantity, unit} = req.body;
+    const {item, price, quantity, unit} = req.body;
 
-    const sql = "UPDATE inventory SET item = ?, quantity = ?, unit = ?, last_update = NOW() WHERE id = ?";
-    db.query(sql, [item, quantity, unit, id], (err, result) =>{
+    const sql = "UPDATE inventory SET item = ?, price = ?, quantity = ?, unit = ?, last_update = NOW() WHERE id = ?";
+    db.query(sql, [item, price, quantity, unit, id], (err, result) =>{
         if(err) return res.status(500).json({Message: "Error inside server"});
         return res.json({Message: "Updated Successfully"});
     })
