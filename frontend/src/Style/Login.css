@@ -33,7 +33,7 @@ body {
 
 .login-left {
   flex: 1;
-  background: #f7f4fb;
+  background: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -260,16 +260,28 @@ body {
 
 @media (max-width: 768px) {
   body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     padding: 15px;
   }
 
   .login-container {
-    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0;
   }
 
   .login-card {
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
     max-width: 100%;
+    width: 100%;
     min-height: auto;
     padding: 30px 20px;
     border-radius: 12px;
