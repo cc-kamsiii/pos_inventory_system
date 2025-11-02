@@ -111,6 +111,7 @@ function Inventory() {
             <thead>
               <tr>
                 <th>Item Name</th>
+                <th>Price</th>
                 <th>Quantity</th>
                 <th>Unit</th>
                 <th>Last Update</th>
@@ -133,6 +134,7 @@ function Inventory() {
                       title={low ? "Low stock alert!" : ""}
                     >
                       <td>{inventory.item}</td>
+                      <td>₱{inventory.price}</td>
                       <td>{inventory.quantity}</td>
                       <td>{inventory.unit}</td>
                       <td>{formatDate(inventory.last_update)}</td>

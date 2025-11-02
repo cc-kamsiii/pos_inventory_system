@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import "../../../Style/Edit.css";
 
 function Edit() {
-  const [values, setValues] = useState({ item: "", quantity: "", unit: "" });
+  const [values, setValues] = useState({ item: "", price: "", quantity: "", unit: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -15,7 +15,7 @@ function Edit() {
     axios.get(`${API_BASE}/inventory/${id}`)
       .then(res => {
         const data = res.data[0];
-        setValues({ item: data.item, quantity: data.quantity, unit: data.unit });
+        setValues({ item: data.item, price: data.price, quantity: data.quantity, unit: data.unit });
       })
       .catch(err => console.log(err));
   }, [id]);
@@ -51,6 +51,15 @@ function Edit() {
               type="text"
               value={values.item}
               onChange={e => setValues({ ...values, item: e.target.value })}
+            />
+          </div>
+
+          <div className="edit-input">
+            <label>Price</label>
+            <input
+              type="number"
+              value={values.price}
+              onChange={e => setValues({ ...values, price: e.target.value })}
             />
           </div>
 

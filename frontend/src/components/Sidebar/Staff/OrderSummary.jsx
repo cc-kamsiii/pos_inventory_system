@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Plus, Minus, Trash2 } from 'lucide-react';
+import { Plus, Minus, Trash2, ShoppingCart } from 'lucide-react';
 
 const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const [display, setDisplay] = useState('0');
   const [payment, setPayment] = useState(0);
   const [change, setChange] = useState(0);
-  const [orderType, setOrderType] = useState('dine-in');
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [orderType, setOrderType] = useState('Dine-in');
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
 
   const handleNumberClick = (num) => {
     if (display === '0') {
@@ -28,6 +28,18 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
     setPayment(paymentAmount);
     const changeAmount = paymentAmount - total;
     setChange(changeAmount > 0 ? changeAmount : 0);
+  };
+
+  const handleClearOrder = () => {
+    if (window.confirm('Are you sure you want to clear all items?')) {
+      cart.forEach(item => onRemoveItem(item.id));
+      handleClear();
+    }
+  };
+
+  const handleCheckout = () => {
+    onCheckout(total, payment, change, orderType, paymentMethod);
+    handleClear();
   };
 
   return (
@@ -99,26 +111,29 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
         ))}
       </div>
 
-      <div className="calculator-display">
-        <div className="display-amount">₱{display}</div>
-        {payment > 0 && (
-          <div className="payment-info">
-            <div>Payment: ₱{payment.toFixed(2)}</div>
-            <div>Change: ₱{change.toFixed(2)}</div>
-          </div>
-        )}
-      </div>
-
       <div className="totals-section">
         <div className="total-row final-total">
           <span>Total:</span>
           <span>₱{total.toFixed(2)}</span>
         </div>
       </div>
+
+      <div className="calculator-display">
+        <div className="display-amount">
+          <span className="display-label">Payment:</span>
+          <span>₱{display}</span>
+        </div>
+        {payment > 0 && (
+          <div className="payment-info">
+            <div className="payment-row change-row">
+              <span>Change:</span>
+              <span>₱{change.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
+      </div>
       
       <div className="number-pad">
-        
-
         <div className="calculator-grid">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '.'].map((num, index) => (
             <button 
@@ -143,13 +158,22 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
         </div>
       </div>
       
-      <button 
-        className="checkout-btn"
-        onClick={() => onCheckout(total, payment, change, orderType, paymentMethod)}
-        disabled={cart.length === 0}
-      >
-        CHECKOUT
-      </button>
+      <div className="action-buttons">
+        <button 
+          className="clear-order-btn"
+          onClick={handleClearOrder}
+          disabled={cart.length === 0}
+        >
+          CLEAR ORDER
+        </button>
+        <button 
+          className="checkout-btn"
+          onClick={handleCheckout}
+          disabled={cart.length === 0}
+        >
+          CHECKOUT
+        </button>
+      </div>
     </div>
   );
 };
