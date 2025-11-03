@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [barData, setBarData] = useState([
     ["Period", "Sales", { role: "style" }],
   ]);
-  const [pieData, setPieData] = useState([["Category", "Amount"]]); 
+  const [pieData, setPieData] = useState([["Category", "Amount"]]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,7 +31,9 @@ const Dashboard = () => {
       setLoading(true);
       try {
         const [salesRes, ordersRes, inventoryRes] = await Promise.all([
-          axios.get(`${API_BASE}/ownerTransactions/total_sales_breakdown?period=${salesPeriod}`),
+          axios.get(
+            `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${salesPeriod}`
+          ),
           axios.get(`${API_BASE}/ownerTransactions/orders_summary`),
           axios.get(`${API_BASE}/inventory/summary`),
         ]);
@@ -60,9 +62,12 @@ const Dashboard = () => {
   const fetchChartData = async (selectedPeriod) => {
     try {
       const [barRes, pieRes] = await Promise.all([
-        axios.get(`${API_BASE}/ownerTransactions/sales_chart?period=${selectedPeriod}`),
-        axios.get(`${API_BASE}/menu/sales_by_category`),
+        axios.get(
+          `${API_BASE}/ownerTransactions/sales_chart?period=${selectedPeriod}`
+        ), // snake_case
+        axios.get(`${API_BASE}/menu/sales_by_category`), // snake_case
       ]);
+
       setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
       setPieData(pieRes.data || [["Category", "Amount"]]);
     } catch (error) {

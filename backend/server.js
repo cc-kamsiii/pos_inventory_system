@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+import os from "os";
 
 import authRoutes from "./routes/auth.js";
 import inventoryRoutes from "./routes/inventory.js";
@@ -24,7 +25,24 @@ app.use("/staffTransactions", staffTransactionsRoutes);
 app.use("/ownerTransactions", ownerTransactionRoutes);
 
 
-app.listen(8081, "0.0.0.0", () => {
-  console.log("Server running on http://192.168.1.59:8081");
+const getLocalIP = () => {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === "IPv4" && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return "localhost";
+};
+
+const PORT = 8081;
+const HOST = "0.0.0.0";
+
+app.listen(PORT, HOST, () => {
+  const ip = getLocalIP();
+  console.log(`✅ Server running on http://${ip}:${PORT}`);
 });
+
 

@@ -1,23 +1,34 @@
 import db from "../config/db.js";
 
-
 export const getMenu = (req, res) => {
-  db.query(
-    "SELECT * FROM menu WHERE item_name IS NOT NULL AND item_name <> ''",
-    (err, results) => {
-      if (err) return res.status(500).json({ error: err });
-      res.json(results);
-    }
-  );
-};
-
-
-export const getCategories = (req, res) => {
   const sql = `
-    SELECT category, 
-           COUNT(CASE WHEN item_name IS NOT NULL AND item_name <> '' THEN 1 END) AS count
-    FROM menu
-    GROUP BY category
+    SELECT 
+  m.id,
+  m.item_name,
+  m.price,
+  m.category,
+  CASE
+    -- Items with no recipe ingredients
+    WHEN COUNT(ri.ingredient_id) = 0 THEN
+      CASE
+        WHEN i.quantity IS NULL OR i.quantity <= 0 THEN 'no-stock'
+        WHEN i.quantity < 2 THEN 'low-stock'
+        ELSE 'available'
+      END
+    ELSE
+      -- Items with recipe ingredients
+      CASE
+        WHEN MIN(COALESCE(i.quantity,0)/NULLIF(ri.amount_per_serving,0)) IS NULL THEN 'no-stock'
+        WHEN MIN(COALESCE(i.quantity,0)/NULLIF(ri.amount_per_serving,0)) <= 0 THEN 'no-stock'
+        WHEN MIN(COALESCE(i.quantity,0)/NULLIF(ri.amount_per_serving,0)) < 2 THEN 'low-stock'
+        ELSE 'available'
+      END
+  END AS stockStatus
+FROM menu m
+LEFT JOIN recipe_ingredients ri ON m.id = ri.menu_id
+LEFT JOIN inventory i ON ri.ingredient_id = i.id
+GROUP BY m.id, m.item_name, m.price, m.category;
+
   `;
 
   db.query(sql, (err, results) => {
@@ -27,9 +38,22 @@ export const getCategories = (req, res) => {
 };
 
 
+
+export const getCategories = (req, res) => {
+  const sql = `
+    SELECT category, 
+           COUNT(CASE WHEN item_name IS NOT NULL AND item_name <> '' THEN 1 END) AS count
+    FROM menu
+    GROUP BY category
+  `;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
+  });
+};
+
 export const addCategory = (req, res) => {
   const { category } = req.body;
-
   if (!category) return res.status(400).json({ message: "Category name required" });
 
   const checkSql = "SELECT DISTINCT category FROM menu WHERE category = ?";
@@ -42,29 +66,25 @@ export const addCategory = (req, res) => {
 
     const sql = "INSERT INTO menu (category) VALUES (?)";
     db.query(sql, [category], (err) => {
-      if (err) {
-        console.error("SQL ERROR:", err);
-        return res.status(500).json({ message: "Error adding category", err });
-      }
+      if (err) return res.status(500).json({ message: "Error adding category", err });
       res.json({ message: "Category added successfully" });
     });
   });
 };
 
 export const addMenuItem = (req, res) => {
-    const { item_name, price, category, size } = req.body;
+  const { item_name, price, category, size } = req.body;
+  const itemSize = size && size.trim() !== "" ? size : null;
 
-    const itemSize = size && size.trim() !== "" ? size : null;
-
-    db.query(
-        "INSERT INTO menu (item_name, price, category, size) VALUES (?, ?, ?, ?)",
-        [item_name, price, category, itemSize],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err });
-            res.status(200).json({ message: "Item added successfully" });
-        }
-    );
-}
+  db.query(
+    "INSERT INTO menu (item_name, price, category, size) VALUES (?, ?, ?, ?)",
+    [item_name, price, category, itemSize],
+    (err) => {
+      if (err) return res.status(500).json({ error: err });
+      res.status(200).json({ message: "Item added successfully" });
+    }
+  );
+};
 
 export const getSalesByCategory = (req, res) => {
   const sql = `
@@ -77,12 +97,8 @@ export const getSalesByCategory = (req, res) => {
     GROUP BY m.category
     ORDER BY amount DESC
   `;
-
   db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching sales by category:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
+    if (err) return res.status(500).json({ error: "Database error" });
 
     const data = [["Category", "Amount"]];
     results.forEach(row => {
@@ -90,5 +106,12 @@ export const getSalesByCategory = (req, res) => {
     });
 
     res.json(data);
+  });
+};
+
+export const getRecipeIngredients = (req, res) => {
+  db.query("SELECT * FROM recipe_ingredients", (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
   });
 };
