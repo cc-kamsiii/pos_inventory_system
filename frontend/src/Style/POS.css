@@ -230,8 +230,6 @@ html, body {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: #28a745;
-  color: #fff;
   border: none;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -735,3 +733,21 @@ html, body {
     padding: 0.6rem 0.8rem;
   }
 }
+
+/* ✅ Color badges */
+.available-badge.available {
+  background: #28a745 !important; /* Green */
+  color: #fff !important;
+}
+
+.available-badge.low-stock {
+  background: #ffc107 !important; /* Yellow */
+  color: #000 !important;
+}
+
+.available-badge.no-stock {
+  background: #dc3545 !important; /* Red */
+  color: #fff !important;
+}
+
+

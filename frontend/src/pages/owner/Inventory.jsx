@@ -6,8 +6,8 @@ import "../../Style/Inventory.css";
 
 function Inventory() {
   const [data, setData] = useState([]);
-  const [search, setSearch] = useState(""); 
-  const [filteredData, setFilteredData] = useState([]); 
+  const [search, setSearch] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -127,11 +127,17 @@ function Inventory() {
                     inventory.quantity,
                     inventory.unit
                   );
+                  const noStock = inventory.quantity <= 0;
+
                   return (
                     <tr
                       key={index}
-                      className={low ? "low-stock" : ""}
-                      title={low ? "Low stock alert!" : ""}
+                      className={
+                        noStock ? "no-stock" : low ? "low-stock" : ""
+                      }
+                      title={
+                        noStock ? "No stock!" : low ? "Low stock alert!" : ""
+                      }
                     >
                       <td>{inventory.item}</td>
                       <td>₱{inventory.price}</td>
@@ -139,7 +145,12 @@ function Inventory() {
                       <td>{inventory.unit}</td>
                       <td>{formatDate(inventory.last_update)}</td>
                       <td>
-                        {low ? (
+                        {noStock ? (
+                          <div className="no-alert">
+                            <AlertTriangle size={20} />
+                            <span>No Stock!</span>
+                          </div>
+                        ) : low ? (
                           <div className="low-alert">
                             <AlertTriangle size={20} />
                             <span>Low Stock!</span>
@@ -181,7 +192,7 @@ function Inventory() {
                 })
               ) : (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center" }}>
+                  <td colSpan="7" style={{ textAlign: "center" }}>
                     No items found
                   </td>
                 </tr>

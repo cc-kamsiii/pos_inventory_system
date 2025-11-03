@@ -130,25 +130,29 @@ export const getOrdersSummary = (req, res) => {
 export const getSalesChart = (req, res) => {
   const { period } = req.query;
   let groupBy = "";
-  let labelPrefix = "";
+  let labelExpr = "";
+  let orderBy = "";
 
   if (period === "weekly") {
     groupBy = "WEEK(order_date)";
-    labelPrefix = "Week ";
+    labelExpr = "CONCAT('Week ', WEEK(order_date))";
+    orderBy = "WEEK(order_date)";
   } else if (period === "monthly") {
     groupBy = "MONTH(order_date)";
-    labelPrefix = "Month ";
+    labelExpr = "MONTHNAME(order_date)";
+    orderBy = "MONTH(order_date)";
   } else {
     groupBy = "YEAR(order_date)";
-    labelPrefix = "Year ";
+    labelExpr = "CONCAT('Year ', YEAR(order_date))";
+    orderBy = "YEAR(order_date)";
   }
 
   const sql = `
-    SELECT ${groupBy} AS period, SUM(total_payment) AS sales
+    SELECT ${labelExpr} AS period, SUM(total_payment) AS sales
     FROM transactions
     WHERE order_date IS NOT NULL
     GROUP BY ${groupBy}
-    ORDER BY period
+    ORDER BY ${orderBy}
   `;
 
   db.query(sql, (err, result) => {
@@ -164,11 +168,12 @@ export const getSalesChart = (req, res) => {
     const data = [
       ["Period", "Sales", { role: "style" }],
       ...result.map((row) => [
-        `${labelPrefix}${row.period}`,
+        row.period,
         Number(row.sales) || 0,
         "#8b5cf6",
       ]),
     ];
+
     res.json(data);
   });
 };

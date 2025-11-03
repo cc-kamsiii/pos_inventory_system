@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
-import { Plus, Search, RefreshCw } from 'lucide-react';
+import React, { useState } from "react";
+import { Plus, Search, RefreshCw } from "lucide-react";
 
-const Menu = ({ products, onAddToCart, selectedCategory }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const Menu = ({ products, onAddToCart, selectedCategory, onRefresh }) => {
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
-    const matchesSearch = product.item_name.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+    const matchesSearch = product.item_name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const getStockLabel = (status) => {
+    if (status === "no-stock") return "No Stock";
+    if (status === "low-stock") return "Low Stock";
+    return "Available";
+  };
 
   return (
     <div className="menu-section">
@@ -23,7 +32,7 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className="refresh-btn" onClick={() => window.location.reload()}>
+        <button className="refresh-btn" onClick={onRefresh}>
           <RefreshCw className="refresh-icon" />
           Refresh
         </button>
@@ -32,17 +41,25 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
       <div className="products-grid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <div key={product.id} className="product-card">
+            <div
+              key={product.id}
+              className={`product-card ${product.stockStatus}`}
+            >
               <div className="product-image">
-                
-                <button className="available-badge">Available</button>
+                <span className={`available-badge ${product.stockStatus}`}>
+                  {getStockLabel(product.stockStatus)}
+                </span>
               </div>
+
               <div className="product-info">
                 <h3 className="product-name">{product.item_name}</h3>
-                <p className="product-price">₱{parseFloat(product.price).toFixed(2)}</p>
+                <p className="product-price">
+                  ₱{parseFloat(product.price).toFixed(2)}
+                </p>
                 <button
                   className="add-to-cart-btn"
                   onClick={() => onAddToCart(product)}
+                  disabled={product.stockStatus === "no-stock"}
                 >
                   <Plus className="plus-icon" />
                   Add to Cart
@@ -51,12 +68,9 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
             </div>
           ))
         ) : (
-          <div className="no-items">
-            <p>No items available in this category</p>
-          </div>
+          <p>No items found</p>
         )}
       </div>
-
     </div>
   );
 };
