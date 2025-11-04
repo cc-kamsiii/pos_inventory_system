@@ -1,5 +1,6 @@
 import db from "../config/db.js";
 
+// ✅ Get today's transactions
 export const getTransactions = (req, res) => {
   const sql = `
     SELECT
@@ -28,15 +29,17 @@ export const getTransactions = (req, res) => {
   });
 };
 
+// ✅ Add a new transaction with inventory deduction
 export const addTransactions = (req, res) => {
   const { cart, payment_method, total_payment, cashier_name, order_type, user_id } = req.body;
 
-  if (!cart || cart.length === 0) return res.status(400).json({ error: "Cart is empty" });
-  if (!user_id || !cashier_name) return res.status(400).json({ error: "User not logged in" });
+  if (!cart || cart.length === 0)
+    return res.status(400).json({ error: "Cart is empty" });
+  if (!user_id || !cashier_name)
+    return res.status(400).json({ error: "User not logged in" });
 
   console.log("Received transaction data:", req.body);
 
- 
   db.beginTransaction((err) => {
     if (err) return res.status(500).json({ error: "Transaction start failed" });
 
@@ -59,7 +62,7 @@ export const addTransactions = (req, res) => {
         INSERT INTO transaction_items (transaction_id, menu_id, quantity, price)
         VALUES ?
       `;
-      const values = cart.map(item => [transactionId, item.id, item.quantity, item.price]);
+      const values = cart.map((item) => [transactionId, item.id, item.quantity, item.price]);
 
       db.query(sqlItems, [values], async (err2) => {
         if (err2) {
@@ -69,8 +72,9 @@ export const addTransactions = (req, res) => {
         }
 
         try {
-          // Loop through all menu items in the cart
+          // ✅ Deduct inventory based on recipe or direct item
           for (const item of cart) {
+            // 🔹 Check if the menu item has recipe ingredients
             const [recipeRows] = await new Promise((resolve, reject) => {
               db.query(
                 "SELECT ingredient_id, amount_per_serving FROM recipe_ingredients WHERE menu_id = ?",
@@ -82,14 +86,14 @@ export const addTransactions = (req, res) => {
               );
             });
 
+            // 🔹 If the item has a recipe (like meals)
             if (recipeRows.length > 0) {
-              // Deduct ingredients per recipe
               for (const r of recipeRows) {
                 const totalNeeded = r.amount_per_serving * item.quantity;
 
                 const [invRows] = await new Promise((resolve, reject) => {
                   db.query(
-                    "SELECT quantity, item FROM inventory WHERE id = ?",
+                    "SELECT id, quantity, item, unit FROM inventory WHERE id = ?",
                     [r.ingredient_id],
                     (err, rows) => {
                       if (err) reject(err);
@@ -98,37 +102,69 @@ export const addTransactions = (req, res) => {
                   );
                 });
 
-                if (invRows.length === 0 || invRows[0].quantity < totalNeeded) {
+                if (invRows.length === 0) continue;
+
+                const inv = invRows[0];
+                const newQuantity = inv.quantity - totalNeeded;
+
+                if (newQuantity < 0) {
                   db.rollback(() => {});
                   return res.status(400).json({
-                    error: `Not enough stock for ingredient ID ${r.ingredient_id}`,
+                    error: `Not enough stock for ingredient ${inv.item}`,
                   });
                 }
 
                 await new Promise((resolve, reject) => {
                   db.query(
-                    "UPDATE inventory SET quantity = quantity - ?, last_update = NOW() WHERE id = ?",
-                    [totalNeeded, r.ingredient_id],
-                    (err) => {
-                      if (err) reject(err);
-                      else resolve();
-                    }
+                    "UPDATE inventory SET quantity = ?, last_update = NOW() WHERE id = ?",
+                    [newQuantity, inv.id],
+                    (err) => (err ? reject(err) : resolve())
                   );
                 });
               }
             } else {
-              // No recipe: try to deduct directly from inventory by name (for drinks)
-              await new Promise((resolve) => {
+              // 🔹 No recipe — direct deduction (e.g. drinks, canned goods)
+              const [invRows] = await new Promise((resolve, reject) => {
                 db.query(
-                  "UPDATE inventory SET quantity = quantity - ? , last_update = NOW() WHERE LOWER(item) = LOWER(?)",
-                  [item.quantity, item.item_name || ""],
-                  () => resolve() // silently skip if not found
+                  "SELECT id, quantity, unit, item FROM inventory WHERE LOWER(item) = LOWER(?)",
+                  [item.item_name],
+                  (err, rows) => {
+                    if (err) reject(err);
+                    else resolve([rows]);
+                  }
                 );
               });
+
+              if (invRows.length > 0) {
+                const inv = invRows[0];
+                let deductQty = item.quantity;
+
+                // ✅ Deduct per piece if unit is countable
+                if (["pcs", "can", "bottle", "pack"].includes(inv.unit.toLowerCase())) {
+                  deductQty = item.quantity; // one per item sold
+                }
+
+                const newQuantity = inv.quantity - deductQty;
+
+                if (newQuantity < 0) {
+                  db.rollback(() => {});
+                  return res.status(400).json({
+                    error: `Not enough stock for ${inv.item}`,
+                  });
+                }
+
+                await new Promise((resolve, reject) => {
+                  db.query(
+                    "UPDATE inventory SET quantity = ?, last_update = NOW() WHERE id = ?",
+                    [newQuantity, inv.id],
+                    (err) => (err ? reject(err) : resolve())
+                  );
+                });
+              }
             }
           }
 
-          // Commit only if all OK
+          // ✅ Commit if all deductions are successful
           db.commit((err3) => {
             if (err3) {
               db.rollback(() => {});
