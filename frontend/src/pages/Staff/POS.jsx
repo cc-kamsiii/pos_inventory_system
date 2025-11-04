@@ -39,63 +39,14 @@ function POS() {
 
   const fetchProducts = async () => {
     try {
-      const menuRes = await axios.get(`${API_BASE}/menu/`);
-      const menus = menuRes.data;
-
-      setProducts(menus); // stockStatus comes from backend
+      const res = await axios.get(`${API_BASE}/menu`);
+      setProducts(res.data); // already includes stockStatus
     } catch (err) {
       console.error(err);
     }
   };
 
-  const calculateStockStatus = (item, inventory) => {
-    // Helper function to normalize strings
-    const normalize = (str) => str?.toLowerCase().trim() || "";
-
-    if (!item.ingredients || item.ingredients.length === 0) {
-      // Single-ingredient items - match by item_name
-      const invItem = inventory.find(
-        (inv) => normalize(inv.item) === normalize(item.item_name)
-      );
-
-      if (!invItem) return "no-stock";
-      if (invItem.quantity < 1) return "no-stock";
-      if (invItem.quantity < 2) return "low-stock";
-      return "available";
-    }
-
-    // Multi-ingredient items
-    let hasNoStock = false;
-    let hasLowStock = false;
-
-    for (const ing of item.ingredients) {
-      const invItem = inventory.find(
-        (inv) => normalize(inv.item) === normalize(ing.name)
-      );
-
-      if (!invItem) {
-        hasNoStock = true;
-        break;
-      }
-
-      const available = invItem.quantity;
-      const required = ing.required_qty ?? 1;
-
-      if (available < required) {
-        hasNoStock = true;
-        break;
-      }
-
-      if (available < required * 2) {
-        hasLowStock = true;
-      }
-    }
-
-    if (hasNoStock) return "no-stock";
-    if (hasLowStock) return "low-stock";
-    return "available";
-  };
-
+  
   const fetchCategories = () => {
     axios
       .get(`${API_BASE}/menu/categories`)

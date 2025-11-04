@@ -3,36 +3,50 @@ import db from "../config/db.js";
 export const getMenu = (req, res) => {
   const sql = `
     SELECT 
-  m.id,
-  m.item_name,
-  m.price,
-  m.category,
-  CASE
-    -- Items with no recipe ingredients
-    WHEN COUNT(ri.ingredient_id) = 0 THEN
+      m.id,
+      m.item_name,
+      m.price,
+      m.category,
       CASE
-        WHEN i.quantity IS NULL OR i.quantity <= 0 THEN 'no-stock'
-        WHEN i.quantity < 2 THEN 'low-stock'
-        ELSE 'available'
-      END
-    ELSE
-      -- Items with recipe ingredients
-      CASE
-        WHEN MIN(COALESCE(i.quantity,0)/NULLIF(ri.amount_per_serving,0)) IS NULL THEN 'no-stock'
-        WHEN MIN(COALESCE(i.quantity,0)/NULLIF(ri.amount_per_serving,0)) <= 0 THEN 'no-stock'
-        WHEN MIN(COALESCE(i.quantity,0)/NULLIF(ri.amount_per_serving,0)) < 2 THEN 'low-stock'
-        ELSE 'available'
-      END
-  END AS stockStatus
-FROM menu m
-LEFT JOIN recipe_ingredients ri ON m.id = ri.menu_id
-LEFT JOIN inventory i ON ri.ingredient_id = i.id
-GROUP BY m.id, m.item_name, m.price, m.category;
-
+        -- If no recipe ingredients, check inventory directly
+        WHEN COUNT(ri.ingredient_id) = 0 THEN
+          CASE
+            WHEN inv.quantity IS NULL OR inv.quantity <= 0 THEN 'no-stock'
+            WHEN inv.quantity <= 10 THEN 'low-stock'   -- 🔹 low stock if ≤10 units
+            ELSE 'available'
+          END
+        ELSE
+          -- If menu has ingredients, base on servings possible
+          CASE
+            WHEN MIN(
+              CASE 
+                WHEN i.quantity IS NULL THEN 0
+                WHEN ri.amount_per_serving <= 0 THEN 999999
+                ELSE i.quantity / ri.amount_per_serving
+              END
+            ) <= 0 THEN 'no-stock'
+            WHEN MIN(
+              CASE 
+                WHEN i.quantity IS NULL THEN 0
+                WHEN ri.amount_per_serving <= 0 THEN 999999
+                ELSE i.quantity / ri.amount_per_serving
+              END
+            ) <= 10 THEN 'low-stock'   -- 🔹 low stock if ≤10 servings
+            ELSE 'available'
+          END
+      END AS stockStatus
+    FROM menu m
+    LEFT JOIN recipe_ingredients ri ON m.id = ri.menu_id
+    LEFT JOIN inventory i ON ri.ingredient_id = i.id
+    LEFT JOIN inventory inv ON LOWER(inv.item) = LOWER(m.item_name)
+    GROUP BY m.id, m.item_name, m.price, m.category, inv.quantity;
   `;
 
   db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: err });
+    if (err) {
+      console.error("Error fetching menu:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
     res.json(results);
   });
 };
@@ -54,7 +68,8 @@ export const getCategories = (req, res) => {
 
 export const addCategory = (req, res) => {
   const { category } = req.body;
-  if (!category) return res.status(400).json({ message: "Category name required" });
+  if (!category)
+    return res.status(400).json({ message: "Category name required" });
 
   const checkSql = "SELECT DISTINCT category FROM menu WHERE category = ?";
   db.query(checkSql, [category], (err, existing) => {
@@ -66,7 +81,8 @@ export const addCategory = (req, res) => {
 
     const sql = "INSERT INTO menu (category) VALUES (?)";
     db.query(sql, [category], (err) => {
-      if (err) return res.status(500).json({ message: "Error adding category", err });
+      if (err)
+        return res.status(500).json({ message: "Error adding category", err });
       res.json({ message: "Category added successfully" });
     });
   });
@@ -101,7 +117,7 @@ export const getSalesByCategory = (req, res) => {
     if (err) return res.status(500).json({ error: "Database error" });
 
     const data = [["Category", "Amount"]];
-    results.forEach(row => {
+    results.forEach((row) => {
       data.push([row.category, Number(row.amount) || 0]);
     });
 
