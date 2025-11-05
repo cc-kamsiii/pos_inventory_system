@@ -6,6 +6,7 @@ export const getMenu = (req, res) => {
       m.id,
       m.item_name,
       m.price,
+      m.size,
       m.category,
       CASE
         -- If no recipe ingredients, check inventory directly
@@ -51,14 +52,14 @@ export const getMenu = (req, res) => {
   });
 };
 
-
-
 export const getCategories = (req, res) => {
   const sql = `
-    SELECT category, 
-           COUNT(CASE WHEN item_name IS NOT NULL AND item_name <> '' THEN 1 END) AS count
-    FROM menu
-    GROUP BY category
+   SELECT category,
+       COUNT(*) AS count
+FROM menu
+WHERE category IS NOT NULL AND category <> ''
+GROUP BY category;
+
   `;
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: err });
@@ -95,9 +96,13 @@ export const addMenuItem = (req, res) => {
   db.query(
     "INSERT INTO menu (item_name, price, category, size) VALUES (?, ?, ?, ?)",
     [item_name, price, category, itemSize],
-    (err) => {
+    (err, result) => {
       if (err) return res.status(500).json({ error: err });
-      res.status(200).json({ message: "Item added successfully" });
+
+      res.status(200).json({
+        message: "Item added successfully",
+        menu_id: result.insertId, // ✅ Return new menu ID
+      });
     }
   );
 };
@@ -129,5 +134,147 @@ export const getRecipeIngredients = (req, res) => {
   db.query("SELECT * FROM recipe_ingredients", (err, results) => {
     if (err) return res.status(500).json({ error: err });
     res.json(results);
+  });
+};
+
+export const updateMenuItem = (req, res) => {
+  const { id } = req.params;
+  const { item_name, price, category, size } = req.body;
+
+  const sql = `
+    UPDATE menu 
+    SET item_name = ?, price = ?, category = ?, size = ?
+    WHERE id = ?
+  `;
+
+  db.query(sql, [item_name, price, category, size, id], (err, result) => {
+    if (err) {
+      console.error("Error updating menu item:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json({ message: "Menu item updated successfully" });
+  });
+};
+
+export const deleteMenuItem = (req, res) => {
+  const { id } = req.params;
+
+  try {
+    db.query(
+      "DELETE FROM recipe_ingredients WHERE menu_id = ?",
+      [id],
+      (err) => {
+        if (err) {
+          console.error("Error deleting recipe ingredients:", err);
+          return res.status(500).json({ error: "Database error" });
+        }
+
+        db.query("DELETE FROM menu WHERE id = ?", [id], (err2) => {
+          if (err2) {
+            console.error("Error deleting menu item:", err2);
+            return res.status(500).json({ error: "Database error" });
+          }
+
+          res.json({ message: "Menu item deleted successfully" });
+        });
+      }
+    );
+  } catch (e) {
+    res.status(500).json({ error: "Unexpected server error" });
+  }
+};
+
+export const getMenuIngredients = (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT 
+      ri.id,
+      ri.ingredient_id,
+      i.item AS ingredient_name,
+      ri.amount_per_serving
+    FROM recipe_ingredients ri
+    LEFT JOIN inventory i ON ri.ingredient_id = i.id
+    WHERE ri.menu_id = ?
+  `;
+
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching menu ingredients:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(results);
+  });
+};
+
+export const addMenuIngredients = (req, res) => {
+  const { menu_id, ingredients } = req.body;
+
+  if (!menu_id || !ingredients || !Array.isArray(ingredients)) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
+
+  const sql = `
+    INSERT INTO recipe_ingredients (menu_id, ingredient_id, amount_per_serving)
+    VALUES ?
+  `;
+
+  const values = ingredients.map((ing) => [
+    id,
+    ing.ingredient_id || null,
+    parseFloat(ing.amount_per_serving || ing.qty || 0),
+  ]);
+
+  db.query(sql, [values], (err) => {
+    if (err) {
+      console.error("Error saving recipe ingredients:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json({ message: "Ingredients saved successfully" });
+  });
+};
+
+export const saveMenuIngredients = (req, res) => {
+  const { id } = req.params;
+  const { ingredients } = req.body;
+
+  if (!Array.isArray(ingredients)) {
+    return res.status(400).json({ message: "Ingredients must be array" });
+  }
+
+  const deleteSQL = "DELETE FROM recipe_ingredients WHERE menu_id = ?";
+
+  db.query(deleteSQL, [id], (deleteErr) => {
+    if (deleteErr) {
+      console.error("Delete error:", deleteErr);
+      return res.status(500).json({ error: "Error deleting old ingredients" });
+    }
+
+    if (ingredients.length === 0) {
+      return res.json({ message: "Ingredients cleared" });
+    }
+
+    const insertSQL = `
+      INSERT INTO recipe_ingredients (menu_id, ingredient_id, amount_per_serving)
+      VALUES ?
+    `;
+
+    const values = ingredients.map((ing) => [
+      id,
+      ing.ingredient_id || null, // ✅ Get inventory ID or null
+      ing.amount_per_serving || ing.qty || 0, // ✅ Accept both names
+    ]);
+
+    db.query(insertSQL, [values], (insertErr) => {
+      if (insertErr) {
+        console.error("Insert error:", insertErr);
+        return res.status(500).json({ error: "Error saving ingredients" });
+      }
+
+      res.json({ message: "Ingredients updated successfully" });
+    });
   });
 };

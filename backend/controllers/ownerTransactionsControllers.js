@@ -1,7 +1,11 @@
 import db from "../config/db.js";
 
 export const getTransactions = (req, res) => {
-  const sql = `
+  const { date, page = 1, limit = 10 } = req.query;
+
+  const offset = (page - 1) * limit;
+
+  let sql = `
     SELECT
       t.id AS transaction_id,
       m.item_name,
@@ -11,20 +15,37 @@ export const getTransactions = (req, res) => {
       t.payment_method,
       t.total_payment,
       t.cashier_name,
-      DATE_FORMAT(t.order_date, '%Y-%m-%d %H:%i:%s') AS order_date
+      DATE_FORMAT(t.order_date, '%Y-%m-%d') AS order_date
     FROM transactions t
     JOIN transaction_items ti ON t.id = ti.transaction_id
     JOIN menu m ON ti.menu_id = m.id
-    ORDER BY t.order_date DESC
   `;
-  db.query(sql, (err, result) => {
+
+  let whereClause = "";
+
+  if (date) {
+    whereClause = `WHERE DATE(t.order_date) = ?`;
+  }
+
+  const finalSQL = `
+    ${sql} 
+    ${whereClause}
+    ORDER BY t.order_date DESC
+    LIMIT ? OFFSET ?
+  `;
+
+  const params = date ? [date, Number(limit), Number(offset)] : [Number(limit), Number(offset)];
+
+  db.query(finalSQL, params, (err, result) => {
     if (err) {
-      console.error("Error fetching transactions:", err);
+      console.error(err);
       return res.status(500).json({ error: "Database error" });
     }
+
     res.json(result);
   });
 };
+
 
 export const addTransactions = (req, res) => {
   const { cart, payment_method, total_payment, cashier_name, order_type, user_id } = req.body;

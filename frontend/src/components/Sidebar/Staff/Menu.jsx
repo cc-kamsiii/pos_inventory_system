@@ -52,7 +52,13 @@ const Menu = ({ products, onAddToCart, selectedCategory, onRefresh }) => {
               </div>
 
               <div className="product-info">
-                <h3 className="product-name">{product.item_name}</h3>
+                <h3 className="product-name">
+                  {product.item_name}{" "}
+                  {product.size && (
+                    <span className="product-size">({product.size})</span>
+                  )}
+                </h3>
+
                 <p className="product-price">
                   ₱{parseFloat(product.price).toFixed(2)}
                 </p>

@@ -95,7 +95,7 @@ const Dashboard = () => {
   };
 
   const categoryOptions = {
-    title: "Most Selling Menu",
+    title: "Most Selling Categories",
     pieHole: 0.4,
     colors: ["#8b5cf6", "#3b82f6", "#f59e0b"],
     backgroundColor: "transparent",
