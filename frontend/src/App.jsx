@@ -180,11 +180,18 @@ function App() {
   }, []);
 
   useEffect(() => {
+  const currentPath = window.location.pathname;
+
+  if (currentPath === "/") {
     window.history.pushState(null, null, window.location.href);
     window.onpopstate = () => {
       window.history.go(1);
     };
-  }, []);
+  } else {
+    window.onpopstate = null;
+  }
+}, [window.location.pathname]);
+
 
   const handleUnlock = () => {
     setIsLocked(false);

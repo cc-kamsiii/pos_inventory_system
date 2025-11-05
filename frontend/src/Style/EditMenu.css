@@ -204,3 +204,268 @@
   font-style: italic;
   padding-left: 10px;
 }
+
+.editAndAddButton{
+  display: flex;
+  gap: 1rem;
+}
+
+.menu-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.action-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.action-grid button {
+  background: none;
+  padding: 5px;
+  border: none;
+  cursor: pointer;
+  margin-left: 1px;
+}
+
+.btn-edit svg{
+  stroke: green;
+  padding: 10px;
+}
+
+.btn-edit svg:hover{
+  stroke: white;
+  background-color: green;
+  border-radius: 5px;
+}
+
+.btn-dlt svg {
+  stroke: red;
+  padding: 10px;
+}
+
+.btn-dlt svg:hover{
+  stroke: white;
+  background-color: red;
+  border-radius: 5px;
+}
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: white;
+  padding: 20px;
+  width: 300px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.popup-buttons button {
+  margin: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+}
+
+.yes-btn { background: #4caf50; color: white; }
+.no-btn { background: #d32f2f; color: white; }
+
+/* Make modal responsive and wider default size */
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  width: 700px; /* increased from 380px */
+  max-width: 95%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.2s ease;
+}
+
+/* --- MODAL REFINED --- */
+.modal.modal-landscape {
+  width: 950px;
+  max-width: 95%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-grid {
+  display: flex;
+  gap: 24px;
+  margin-top: 15px;
+}
+
+.modal-left,
+.modal-right {
+  flex: 1;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.modal-left label {
+  font-weight: 500;
+  color: #333;
+  margin-top: 12px;
+}
+
+.modal-left input,
+.modal-left select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.modal-left input:focus,
+.modal-left select:focus {
+  border-color: #8e24e4;
+  box-shadow: 0 0 0 2px rgba(142, 36, 228, 0.1);
+}
+
+/* --- INGREDIENTS SECTION --- */
+.modal-right h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4b4b4b;
+  margin-bottom: 10px;
+}
+
+.ingredient-table-wrapper {
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  background: white;
+  margin: 0 auto 16px auto; /* centers table horizontally */
+  width: 90%; /* keep a nice width */
+  max-width: 600px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ingredient-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: center; /* center text in cells */
+}
+
+.ingredient-table th {
+  background: #8e24e4;
+  color: #fff;
+  padding: 10px 12px;
+  font-weight: 600;
+}
+
+.ingredient-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f1f1;
+  color: #333;
+}
+
+.ingredient-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ingredient-table tr:hover {
+  background: #faf7ff;
+}
+
+.delete-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #e53935;
+  padding: 6px;
+  border-radius: 5px;
+  transition: 0.2s;
+}
+
+.delete-button:hover {
+  background: #fde8e8;
+}
+
+
+/* Ingredient add section */
+.modal-right select,
+.modal-right input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.btn-add-ing {
+  margin-top: 10px;
+  background: #8e24e4;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+  width: 100%;
+}
+
+.btn-add-ing:hover {
+  background: #9b41f5;
+}
+
+/* --- MODAL FOOTER BUTTONS --- */
+.modal-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancel,
+.btn-submit {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-cancel {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-cancel:hover {
+  background: #c9c9c9;
+}
+
+.btn-submit {
+  background: #8e24e4;
+  color: white;
+}
+
+.btn-submit:hover {
+  background: #a344f0;
+}

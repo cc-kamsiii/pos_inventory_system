@@ -45,7 +45,7 @@ function StaffSidebar({ name, onLogout, first_name }) {
           <li>
             <Link to="/stafftransactions" title="Transaction History">
               <ArrowLeftRight size={20} className="icon-side" />
-              {!isCollapsed && <span>Transaction History</span>}
+              {!isCollapsed && <span>Transaction Today</span>}
             </Link>
           </li>
 

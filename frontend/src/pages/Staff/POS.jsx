@@ -40,7 +40,7 @@ function POS() {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE}/menu`);
-      setProducts(res.data); // already includes stockStatus
+      setProducts(res.data); 
     } catch (err) {
       console.error(err);
     }
