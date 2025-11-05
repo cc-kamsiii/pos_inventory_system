@@ -282,18 +282,17 @@
 .yes-btn { background: #4caf50; color: white; }
 .no-btn { background: #d32f2f; color: white; }
 
-/* Make modal responsive and wider default size */
 .modal {
   background: #fff;
   border-radius: 12px;
   padding: 25px;
-  width: 700px; /* increased from 380px */
+  width: 700px; 
   max-width: 95%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.2s ease;
 }
 
-/* --- MODAL REFINED --- */
+
 .modal.modal-landscape {
   width: 950px;
   max-width: 95%;
@@ -343,7 +342,6 @@
   box-shadow: 0 0 0 2px rgba(142, 36, 228, 0.1);
 }
 
-/* --- INGREDIENTS SECTION --- */
 .modal-right h4 {
   font-size: 16px;
   font-weight: 600;
@@ -355,8 +353,8 @@
   border: 1px solid #e2e2e2;
   border-radius: 8px;
   background: white;
-  margin: 0 auto 16px auto; /* centers table horizontally */
-  width: 90%; /* keep a nice width */
+  margin: 0 auto 16px auto;
+  width: 90%;
   max-width: 600px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -366,7 +364,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  text-align: center; /* center text in cells */
+  text-align: center;
 }
 
 .ingredient-table th {
@@ -402,10 +400,11 @@
 
 .delete-button:hover {
   background: #fde8e8;
+  color: #e53935;
+  transform: scale(1.1);
 }
 
 
-/* Ingredient add section */
 .modal-right select,
 .modal-right input {
   width: 100%;
@@ -433,7 +432,6 @@
   background: #9b41f5;
 }
 
-/* --- MODAL FOOTER BUTTONS --- */
 .modal-actions {
   margin-top: 25px;
   display: flex;
