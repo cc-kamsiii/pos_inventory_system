@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import noTransaction from "../../assets/noTransaction.png";
+
+
 
 function StaffTransactions() {
   const [data, setData] = useState([]);
@@ -70,7 +73,11 @@ function StaffTransactions() {
                     colSpan="9"
                     style={{ textAlign: "center", padding: "15px" }}
                   >
-                    No transactions found
+                    <img
+                      src={noTransaction}
+                      alt="No Transactions"
+                      className="noTransaction"
+                    />
                   </td>
                 </tr>
               ) : (
