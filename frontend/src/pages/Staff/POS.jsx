@@ -16,6 +16,8 @@ function POS() {
   const [showModal, setShowModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [mostOrdered, setMostOrdered] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -58,6 +60,19 @@ function POS() {
         ]);
       })
       .catch((err) => console.error(err));
+  };
+
+  const fetchMostOrdered = () => {
+    axios.get(`${API_BASE}/analytics/most-ordered`)
+      .then(res => setMostOrdered(res.data.slice(0, 5)))
+      .catch(err => console.error(err));
+  };
+
+  const fetchRecentOrders = () => {
+    const userId = localStorage.getItem("user_id");
+    axios.get(`${API_BASE}/transactions/recent/${userId}`)
+      .then(res => setRecentOrders(res.data.slice(0, 5)))
+      .catch(err => console.error(err));
   };
 
   const addToCart = (product) => {

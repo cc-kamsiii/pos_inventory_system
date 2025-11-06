@@ -27,6 +27,7 @@ function Login() {
         localStorage.setItem("user_id", res.data.user_id);
         localStorage.setItem("username", username);
         localStorage.setItem("first_name", res.data.first_name);
+        localStorage.setItem("loginTime", new Date().toISOString());
 
         if (role === "owner") navigate("/dashboard", { replace: true });
         else if (role === "staff") navigate("/stafftransactions", { replace: true });

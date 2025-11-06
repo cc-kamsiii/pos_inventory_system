@@ -110,17 +110,102 @@ html, body {
   font-size: 0.75rem;
 }
 
+.quick-access-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.quick-section {
+  background: rgba(94, 35, 157, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(94, 35, 157, 0.2);
+}
+
+.section-title {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5e239d;
+}
+
+.quick-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-item {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+}
+
+.quick-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(94, 35, 157, 0.2);
+  border-color: #5e239d;
+}
+
+.quick-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.quick-item-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.quick-item-count {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+}
+
+.quick-item-price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #5e239d;
+  margin-left: 0.5rem;
+}
+
+.quick-empty {
+  text-align: center;
+  padding: 1.5rem;
+  color: #95a5a6;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.recent-order {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
 .menu-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .search-bar {
   position: relative;
   flex: 1;
   max-width: 300px;
+  min-width: 200px;
 }
 
 .search-icon {
@@ -158,7 +243,8 @@ html, body {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  margin-left: 1rem;
+  margin-left: 0;
+  white-space: nowrap;
 }
 
 .refresh-icon {
@@ -188,6 +274,10 @@ html, body {
 @media (max-width: 900px) {
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .quick-access-sections {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -679,6 +769,12 @@ html, body {
   .categories-bar {
     overflow-x: auto;
     flex-wrap: nowrap;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .categories-bar::-webkit-scrollbar {
+    height: 4px;
   }
 }
 
