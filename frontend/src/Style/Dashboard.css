@@ -122,12 +122,13 @@
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(635px, 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
 
 .chart-card {
+  margin-bottom: 30px;
   background: #ffffff;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(109, 40, 217, 0.08); 
@@ -172,7 +173,6 @@
   border: 1px solid #ccc;
 }
 
-/*DROP DOWN BTN SA INCOME*/
 .stat-card-header {
   display: flex;
   justify-content: space-between;
@@ -192,4 +192,44 @@
 .sales-period-select:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.3);
+}
+
+
+.login-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.login-filter input {
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.login-filter button {
+  background-color:  #A640FA ;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.login-table th,
+.login-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.login-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
 }
