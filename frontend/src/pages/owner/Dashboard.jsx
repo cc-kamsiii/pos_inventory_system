@@ -5,6 +5,9 @@ import { Chart } from "react-google-charts";
 import "../../Style/Dashboard.css";
 
 const Dashboard = () => {
+  const [cashierLogins, setCashierLogins] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
+
   const [totalSales, setTotalSales] = useState(0);
   const [cashSales, setCashSales] = useState(0);
   const [gcashSales, setGcashSales] = useState(0);
@@ -25,6 +28,24 @@ const Dashboard = () => {
   const [pieData, setPieData] = useState([["Category", "Amount"]]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+  const fetchCashierLogins = async () => {
+    try {
+      const res = await axios.get(
+        `${API_BASE}/ownerTransactions/cashier_logins`,
+        {
+          params: { date: selectedDate || undefined },
+        }
+      );
+      setCashierLogins(res.data || []);
+    } catch (err) {
+      console.error("Error fetching cashier logins:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCashierLogins();
+  }, [selectedDate]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -194,6 +215,46 @@ const Dashboard = () => {
             />
           </div>
         </div>
+
+        <div className="chart-card">
+          <h3>Cashier Login Records</h3>
+          <div className="login-filter">
+            <label>Filter by date: </label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+            <button onClick={() => setSelectedDate("")}>Show All</button>
+          </div>
+
+          <table className="login-table">
+            <thead>
+              <tr>
+                <th>Cashier Name</th>
+                <th>Login Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cashierLogins.length > 0 ? (
+                cashierLogins.map((log, index) => (
+                  <tr key={index}>
+                    <td>{log.first_name}</td>
+                    <td>{log.login_time}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="2">No login records found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        
+
+        
       </div>
     </div>
   );

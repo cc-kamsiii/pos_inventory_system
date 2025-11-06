@@ -5,6 +5,10 @@ const jwt = require("jsonwebtoken");
 exports.login = async (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.json({ success: false, message: "All fields are required" });
+  }
+
   db.query(
     "SELECT * FROM users WHERE username = ?",
     [username],
@@ -15,18 +19,32 @@ exports.login = async (req, res) => {
         return res.json({ success: false, message: "User not found" });
 
       const user = result[0];
-      const isMatch = await bcrypt.compare(password, user.password);
 
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch)
         return res.json({ success: false, message: "Wrong Password" });
 
       const expiresIn = user.role === "staff" ? "1h" : "6h";
 
       const token = jwt.sign(
-        { id: user.id, name: user.name, role: user.role, first_name: user.first_name },
+        {
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          first_name: user.first_name,
+        },
         "secretkey",
         { expiresIn }
       );
+
+      if (user.role === "staff") {
+        const loginSql = "INSERT INTO cashier_logins (user_id, first_name) VALUES (?, ?)";
+        db.query(loginSql, [user.id, user.first_name], (loginErr) => {
+          if (loginErr) {
+            console.error("Error recording cashier login:", loginErr);
+          }
+        });
+      }
 
       return res.json({
         success: true,
@@ -42,9 +60,9 @@ exports.login = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-  const { username, password, role, name } = req.body;
+  const { username, password, role, name, first_name } = req.body; // Add first_name here
 
-  if (!username || !password || !role || !name) {
+  if (!username || !password || !role || !name || !first_name) { // Validate it
     return res.json({ success: false, message: "All fields are required" });
   }
 
@@ -60,9 +78,9 @@ exports.register = async (req, res) => {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const sql =
-        "INSERT INTO users (username, password, role, name, first_name) VALUES (?, ?, ?, ?)";
+        "INSERT INTO users (username, password, role, name, first_name) VALUES (?, ?, ?, ?, ?)";
 
-      db.query(sql, [username, hashedPassword, role, name], (err, result) => {
+      db.query(sql, [username, hashedPassword, role, name, first_name], (err, result) => { // Add first_name here
         if (err) return res.status(400).json({ error: err });
         res.json({ success: true, message: "Account created successfully!" });
       });

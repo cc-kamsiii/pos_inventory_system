@@ -34,7 +34,9 @@ export const getTransactions = (req, res) => {
     LIMIT ? OFFSET ?
   `;
 
-  const params = date ? [date, Number(limit), Number(offset)] : [Number(limit), Number(offset)];
+  const params = date
+    ? [date, Number(limit), Number(offset)]
+    : [Number(limit), Number(offset)];
 
   db.query(finalSQL, params, (err, result) => {
     if (err) {
@@ -46,13 +48,21 @@ export const getTransactions = (req, res) => {
   });
 };
 
-
 export const addTransactions = (req, res) => {
-  const { cart, payment_method, total_payment, cashier_name, order_type, user_id } = req.body;
+  const {
+    cart,
+    payment_method,
+    total_payment,
+    cashier_name,
+    order_type,
+    user_id,
+  } = req.body;
 
-  if (!cart || cart.length === 0) return res.status(400).json({ error: "Cart is empty" });
+  if (!cart || cart.length === 0)
+    return res.status(400).json({ error: "Cart is empty" });
 
-  if (!user_id || !cashier_name) return res.status(400).json({ error: "User not logged in" });
+  if (!user_id || !cashier_name)
+    return res.status(400).json({ error: "User not logged in" });
 
   console.log("Received transaction data:", req.body);
 
@@ -61,35 +71,47 @@ export const addTransactions = (req, res) => {
     VALUES (?, ?, ?, ?, ?)
   `;
 
-  db.query(sqlTransaction, [order_type, payment_method, total_payment, cashier_name, user_id], (err, result) => {
-    if (err) {
-      console.error("Error inserting transaction:", err);
-      return res.status(500).json({ error: "Database error: " + err.message });
-    }
+  db.query(
+    sqlTransaction,
+    [order_type, payment_method, total_payment, cashier_name, user_id],
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting transaction:", err);
+        return res
+          .status(500)
+          .json({ error: "Database error: " + err.message });
+      }
 
-    const transactionId = result.insertId;
+      const transactionId = result.insertId;
 
-    const sqlItems = `
+      const sqlItems = `
       INSERT INTO transaction_items (transaction_id, menu_id, quantity, price)
       VALUES ?
     `;
 
-    const values = cart.map(item => [transactionId, item.id, item.quantity, item.price]);
+      const values = cart.map((item) => [
+        transactionId,
+        item.id,
+        item.quantity,
+        item.price,
+      ]);
 
-    db.query(sqlItems, [values], (err2) => {
-      if (err2) {
-        console.error("Error inserting transaction items:", err2);
-        return res.status(500).json({ error: "Database error: " + err2.message });
-      }
+      db.query(sqlItems, [values], (err2) => {
+        if (err2) {
+          console.error("Error inserting transaction items:", err2);
+          return res
+            .status(500)
+            .json({ error: "Database error: " + err2.message });
+        }
 
-      res.json({ message: "Transaction saved successfully", transactionId });
-    });
-  });
-}; 
-
+        res.json({ message: "Transaction saved successfully", transactionId });
+      });
+    }
+  );
+};
 
 export const getTotalSales = (req, res) => {
-  const sql = "SELECT SUM(total_payment) AS total_sales FROM transactions"; 
+  const sql = "SELECT SUM(total_payment) AS total_sales FROM transactions";
   db.query(sql, (err, result) => {
     if (err) {
       console.error("Error fetching total sales:", err);
@@ -147,7 +169,6 @@ export const getOrdersSummary = (req, res) => {
   });
 };
 
-
 export const getSalesChart = (req, res) => {
   const { period } = req.query;
   let groupBy = "";
@@ -188,13 +209,39 @@ export const getSalesChart = (req, res) => {
 
     const data = [
       ["Period", "Sales", { role: "style" }],
-      ...result.map((row) => [
-        row.period,
-        Number(row.sales) || 0,
-        "#8b5cf6",
-      ]),
+      ...result.map((row) => [row.period, Number(row.sales) || 0, "#8b5cf6"]),
     ];
 
     res.json(data);
   });
 };
+
+export const getCashierLogins = (req, res) => {
+  const { date } = req.query;
+
+  let sql = `
+    SELECT 
+      u.first_name, 
+      DATE_FORMAT(c.login_time, '%Y-%m-%d %H:%i:%s') AS login_time
+    FROM cashier_logins c
+    JOIN users u ON c.user_id = u.id
+  `;
+
+  const params = [];
+
+  if (date) {
+    sql += " WHERE DATE(c.login_time) = ?";
+    params.push(date);
+  }
+
+  sql += " ORDER BY c.login_time DESC";
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      console.error("Error fetching cashier logins:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(result);
+  });
+};
+
