@@ -776,61 +776,22 @@ html, body {
   .categories-bar::-webkit-scrollbar {
     height: 4px;
   }
-
-  .categories-bar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .categories-bar::-webkit-scrollbar-thumb {
-    background: #5e239d;
-    border-radius: 2px;
-  }
-
-  .category-btn {
-    white-space: nowrap;
-  }
-
-  .menu-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-bar {
-    max-width: none;
-    min-width: auto;
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-
-  .refresh-btn {
-    width: 100%;
-    justify-content: center;
-  }
 }
 
-@media (max-width: 600px) {
-  .category-btn {
-    font-size: 0.8rem;
-    padding: 0.6rem 0.8rem;
-  }
-
-  .refresh-btn {
-    font-size: 0.8rem;
-    padding: 0.6rem 0.8rem;
-  }
-}
-
+/* ✅ Color badges */
 .available-badge.available {
-  background: #28a745 !important;
+  background: #28a745 !important; /* Green */
   color: #fff !important;
 }
 
 .available-badge.low-stock {
-  background: #ffc107 !important;
+  background: #ffc107 !important; /* Yellow */
   color: #000 !important;
 }
 
 .available-badge.no-stock {
-  background: #dc3545 !important;
+  background: #dc3545 !important; /* Red */
   color: #fff !important;
 }
+
+

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Search, RefreshCw } from "lucide-react";
 
-const Menu = ({ products, onAddToCart, selectedCategory, onRefresh, mostOrdered, recentOrders, addRecentOrderToCart }) => {
+const Menu = ({ products, onAddToCart, selectedCategory, onRefresh }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProducts = products.filter((product) => {

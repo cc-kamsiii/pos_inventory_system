@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { ShoppingCart } from 'lucide-react';
-import Menu from '../../components/Sidebar/Staff/Menu';
-import Categories from '../../components/Sidebar/Staff/Categories';
-import OrderSummary from '../../components/Sidebar/Staff/OrderSummary';
-import Modal from '../../components/Sidebar/Staff/Modal';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { ShoppingCart } from "lucide-react";
+import Menu from "../../components/Sidebar/Staff/Menu";
+import Categories from "../../components/Sidebar/Staff/Categories";
+import OrderSummary from "../../components/Sidebar/Staff/OrderSummary";
+import Modal from "../../components/Sidebar/Staff/Modal";
 import "../../Style/POS.css";
 
 function POS() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [cart, setCart] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [showModal, setShowModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
   const [showOrderSummary, setShowOrderSummary] = useState(false);
@@ -21,23 +22,45 @@ function POS() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
-    axios.get(`${API_BASE}/menu`)        
-      .then(res => setProducts(res.data))
-      .catch(err => console.error(err));
+    fetchCategories();
+    fetchInventory();
+  }, []);
 
-    axios.get(`${API_BASE}/menu/categories`) 
-      .then(res => {
+  useEffect(() => {
+    if (inventory.length > 0) {
+      fetchProducts();
+    }
+  }, [inventory]);
+
+  const fetchInventory = () => {
+    axios
+      .get(`${API_BASE}/inventory`)
+      .then((res) => setInventory(res.data))
+      .catch((err) => console.error(err));
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/menu`);
+      setProducts(res.data); 
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  
+  const fetchCategories = () => {
+    axios
+      .get(`${API_BASE}/menu/categories`)
+      .then((res) => {
         const allCount = res.data.reduce((sum, c) => sum + c.count, 0);
         setCategories([
           { name: "All", count: allCount },
-          ...res.data.map(c => ({ name: c.category, count: c.count }))
+          ...res.data.map((c) => ({ name: c.category, count: c.count })),
         ]);
       })
-      .catch(err => console.error(err));
-
-    fetchMostOrdered();
-    fetchRecentOrders();
-  }, []);
+      .catch((err) => console.error(err));
+  };
 
   const fetchMostOrdered = () => {
     axios.get(`${API_BASE}/analytics/most-ordered`)
@@ -53,12 +76,17 @@ function POS() {
   };
 
   const addToCart = (product) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === product.id);
+    if (product.stockStatus === "no-stock") {
+      alert("This item is out of stock!");
+      return;
+    }
+
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
-        return prevCart.map(item =>
+        return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: existingItem.quantity + 1 }
             : item
         );
       }
@@ -71,111 +99,125 @@ function POS() {
       removeFromCart(id);
       return;
     }
-    setCart(prevCart =>
-      prevCart.map(item =>
+    setCart((prevCart) =>
+      prevCart.map((item) =>
         item.id === id ? { ...item, quantity: newQuantity } : item
       )
     );
   };
 
   const removeFromCart = (id) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== id));
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
-  const clearCart = () => {
-    setCart([]);
+  const clearCart = () => setCart([]);
+
+  const validateCartStock = () => {
+    return axios
+      .get(`${API_BASE}/inventory`)
+      .then((res) => {
+        const currentInventory = res.data;
+        const outOfStockItems = [];
+
+        cart.forEach((cartItem) => {
+          if (cartItem.stockStatus === "no-stock") {
+            outOfStockItems.push(cartItem.item_name);
+          }
+        });
+
+        if (outOfStockItems.length > 0) {
+          alert(
+            `The following items are out of stock:\n${outOfStockItems.join(
+              ", "
+            )}`
+          );
+          return false;
+        }
+        return true;
+      })
+      .catch((err) => {
+        console.error("Error validating stock:", err);
+        alert("Error checking stock availability.");
+        return false;
+      });
   };
 
-  const checkout = (total, payment, change, orderType, paymentMethod) => {
+  const checkout = async (total, payment, change, orderType, paymentMethod) => {
     const cashierName = localStorage.getItem("name");
     const userId = localStorage.getItem("user_id");
-    console.log("Cashier:", cashierName, "User ID:", userId);
 
-    if (!cart.length) {
-      alert("Cart is empty!");
+    if (!cart.length) return alert("Cart is empty!");
+    if (!cashierName || !userId) return alert("User not logged in!");
+
+    const stockValid = await validateCartStock();
+    if (!stockValid) {
+      fetchProducts();
       return;
     }
 
-    if (!cashierName || !userId) {
-      alert("User not logged in!");
-      return;
-    }
-    
     const transactionData = {
       cart,
       payment_method: paymentMethod,
       total_payment: total,
       cashier_name: cashierName,
       order_type: orderType,
-      user_id: userId 
+      user_id: userId,
     };
 
-    axios.post(`${API_BASE}/staffTransactions`, transactionData)
-      .then(res => {
-        console.log("Transaction saved:", res.data);
-
+    axios
+      .post(`${API_BASE}/staffTransactions`, transactionData)
+      .then(() => {
         setLastTransaction({
           total_payment: total,
-          payment_method: "Cash",
-          cashier_name: cashierName, 
-          order_type: "Dine-in",
-          user_id: userId
+          payment_method: paymentMethod,
+          cashier_name: cashierName,
+          order_type: orderType,
+          user_id: userId,
         });
-
         setShowModal(true);
         setCart([]);
         setShowOrderSummary(false);
-        fetchMostOrdered();
-        fetchRecentOrders();
+        fetchProducts();
       })
-      .catch(err => console.log(err));
-  };
-
-  const addRecentOrderToCart = (order) => {
-    order.items.forEach(item => {
-      const product = products.find(p => p.id === item.product_id);
-      if (product) {
-        for (let i = 0; i < item.quantity; i++) {
-          addToCart(product);
+      .catch((err) => {
+        console.error("Transaction error:", err);
+        if (err.response?.status === 400) {
+          alert("Transaction failed: Insufficient stock for some items.");
+          fetchProducts();
+        } else {
+          alert("Transaction failed. Please try again.");
         }
-      }
-    });
+      });
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
+  const closeModal = () => setShowModal(false);
 
   return (
     <div className="pos-system">
-      <button 
+      <button
         className="order-summary-toggle"
         onClick={() => setShowOrderSummary(!showOrderSummary)}
       >
         <ShoppingCart size={20} />
         <span>Order</span>
-        {cart.length > 0 && (
-          <span className="cart-badge">{cart.length}</span>
-        )}
+        {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
       </button>
 
       <div className="pos-main">
         <div className="pos-left">
-          <Categories 
+          <Categories
             categories={categories}
             selectedCategory={selectedCategory}
             onCategorySelect={setSelectedCategory}
           />
-
-
-          <Menu 
+          <Menu
             products={products}
             onAddToCart={addToCart}
             selectedCategory={selectedCategory}
           />
         </div>
 
-        <div className={`pos-right ${showOrderSummary ? 'show' : ''}`}>
+        <div className={`pos-right ${showOrderSummary ? "show" : ""}`}>
           <OrderSummary
             cart={cart}
             onUpdateQuantity={updateQuantity}
