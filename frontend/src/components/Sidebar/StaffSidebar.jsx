@@ -25,6 +25,16 @@ function StaffSidebar({ name, onLogout, first_name }) {
     }, 1000);
   };
 
+  const [loginTime, setLoginTime] = useState("");
+
+useState(() => {
+  const storedTime = localStorage.getItem("loginTime");
+  if (storedTime) {
+    const date = new Date(storedTime);
+    setLoginTime(date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+  }
+}, []);
+
   return (
     <>
       <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
@@ -37,6 +47,7 @@ function StaffSidebar({ name, onLogout, first_name }) {
             <div className="b-border">
               <p>Hi, {first_name}!</p>
               <p>Role: Staff</p>
+              <p>Login Time: {loginTime}</p>
             </div>
           </div>
         )}
