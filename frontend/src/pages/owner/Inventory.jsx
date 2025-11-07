@@ -13,7 +13,6 @@ function Inventory() {
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  // Define inventory categories
   const categories = [
     { value: "all", label: "All Categories" },
     { value: "meat", label: "Meat & Poultry" },
@@ -453,7 +452,7 @@ function Inventory() {
                 <tr>
                   <td colSpan="7" style={{ textAlign: "center" }}>
                     No items found
-                    {(search || selectedCategory !== "all") && " matching your filters"}
+                    {(search || selectedCategory !== "all") && "."}
                   </td>
                 </tr>
               )}
