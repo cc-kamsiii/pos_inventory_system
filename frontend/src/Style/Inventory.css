@@ -207,3 +207,145 @@
   border: none;
 
 }
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.header-content-inventory {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sort-icon-neutral {
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+
+.sortable-header:hover .sort-icon-neutral {
+  opacity: 0.6;
+}
+
+.sort-icon-active {
+  opacity: 1;
+  color: #A640FA;
+}
+
+.sortable-header.active {
+  background-color: rgba(0, 123, 255, 0.08);
+  font-weight: 600;
+}
+
+.filter-search-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.category-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.category-filter:hover {
+  border-color: #A640FA;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.category-filter svg {
+  color: #666;
+}
+
+.category-select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  min-width: 180px;
+  font-weight: 500;
+}
+
+.category-select option {
+  padding: 8px;
+}
+
+.filter-info {
+  display: flex;
+  justify-content: space-between;
+  width: 1450px;
+  max-width: 95%;
+  align-items: center;
+  padding: 12px 25px;
+  background: rgb(253, 242, 255);
+  border-radius: 6px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.result-count {
+  color: #666;
+}
+
+.active-filter {
+  font-weight: 600;
+  color: #A640FA;
+}
+
+.clear-filters-btn {
+  background: white;
+  border: 1px solid lightgray;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #666;
+}
+
+.clear-filters-btn:hover {
+  background: #f8f9fa;
+  border-color:#A640FA;
+  color: #A640FA;
+}
+
+@media (max-width: 768px) {
+  .filter-search-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .category-filter {
+    width: 100%;
+  }
+
+  .category-select {
+    width: 100%;
+  }
+
+  .filter-info {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .clear-filters-btn {
+    width: 100%;
+  }
+}

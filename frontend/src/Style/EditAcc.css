@@ -101,13 +101,15 @@
 
 .trash-icon {
     color: #e63946;
+    padding: 10px;
     cursor: pointer;
     transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .trash-icon:hover {
-    color: #c82333;
+    color: white;
     transform: scale(1.1);
+    background-color: red;
 }
 
 .account-card:hover {

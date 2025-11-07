@@ -217,26 +217,24 @@ export const getSalesChart = (req, res) => {
 };
 
 export const getCashierLogins = (req, res) => {
-  const { date } = req.query;
+  let { date } = req.query;
 
-  let sql = `
+  if (!date) {
+    const today = new Date();
+    date = today.toISOString().split("T")[0]; 
+  }
+
+  const sql = `
     SELECT 
       u.first_name, 
       DATE_FORMAT(c.login_time, '%Y-%m-%d %H:%i:%s') AS login_time
     FROM cashier_logins c
     JOIN users u ON c.user_id = u.id
+    WHERE DATE(c.login_time) = ?
+    ORDER BY c.login_time DESC
   `;
 
-  const params = [];
-
-  if (date) {
-    sql += " WHERE DATE(c.login_time) = ?";
-    params.push(date);
-  }
-
-  sql += " ORDER BY c.login_time DESC";
-
-  db.query(sql, params, (err, result) => {
+  db.query(sql, [date], (err, result) => {
     if (err) {
       console.error("Error fetching cashier logins:", err);
       return res.status(500).json({ error: "Database error" });
@@ -244,4 +242,5 @@ export const getCashierLogins = (req, res) => {
     res.json(result);
   });
 };
+
 

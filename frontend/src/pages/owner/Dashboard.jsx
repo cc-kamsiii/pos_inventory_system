@@ -6,7 +6,8 @@ import "../../Style/Dashboard.css";
 
 const Dashboard = () => {
   const [cashierLogins, setCashierLogins] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
 
   const [totalSales, setTotalSales] = useState(0);
   const [cashSales, setCashSales] = useState(0);
@@ -251,10 +252,6 @@ const Dashboard = () => {
             </tbody>
           </table>
         </div>
-
-        
-
-        
       </div>
     </div>
   );
