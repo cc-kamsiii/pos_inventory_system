@@ -3,12 +3,21 @@ import React from "react";
 const Modal = ({ isVisible, onClose, lastTransaction }) => {
   if (!isVisible) return null;
 
+  // Get current date
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-body">
-          <div className="success-icon">✅</div>
           <h3 className="success-title">Payment Successful!</h3>
+          <p className="success-date">
+            {currentDate}
+          </p>
           <p className="success-amount">
             Total:{" "}
             <span className="amount">
