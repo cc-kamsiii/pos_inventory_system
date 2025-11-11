@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.get('/summary', getInventorySummary);
+router.get('/summary', getInventorySummary);~
 
 router.get('/category/:category', getItemsByCategory);
 

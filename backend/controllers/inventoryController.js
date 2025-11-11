@@ -197,6 +197,7 @@ export const getInventorySummary = (req, res) => {
 
     let total = results.length;
     let lowStock = 0;
+    let noStock = 0;
 
     const categoryCount = {
       meat: 0,
@@ -211,13 +212,18 @@ export const getInventorySummary = (req, res) => {
     };
 
     results.forEach((inv) => {
-      const item = inv.item.toLowerCase();
-      const qty = inv.quantity;
-      const unit = inv.unit;
+      const item = inv.item?.toLowerCase() || "";
+      const qty = inv.quantity || 0;
+      const unit = inv.unit || "";
 
       const category = inv.category || getCategoryFromItem(inv.item);
       if (categoryCount.hasOwnProperty(category)) {
         categoryCount[category]++;
+      }
+
+      if (qty === 0) {
+        noStock++;
+        return;
       }
 
       if (
@@ -258,10 +264,12 @@ export const getInventorySummary = (req, res) => {
     res.json({
       total_inventory: total,
       low_stock: lowStock,
-      by_category: categoryCount 
+      no_stock: noStock,
+      by_category: categoryCount
     });
   });
 };
+
 
 export const getItemsByCategory = (req, res) => {
   const { category } = req.params;

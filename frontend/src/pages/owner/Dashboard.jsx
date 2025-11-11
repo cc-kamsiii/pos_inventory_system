@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [dineInOrders, setDineInOrders] = useState(0);
   const [takeoutOrders, setTakeoutOrders] = useState(0);
   const [totalInventory, setTotalInventory] = useState(0);
+  const [noStockCount, setNoStockCount] = useState(0);
   const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +69,7 @@ const Dashboard = () => {
         setTakeoutOrders(ordersRes.data?.takeout || 0);
         setTotalInventory(inventoryRes.data?.total_inventory || 0);
         setLowStockCount(inventoryRes.data?.low_stock || 0);
+        setNoStockCount(inventoryRes.data?.no_stock || 0);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -178,8 +180,16 @@ const Dashboard = () => {
               {loading ? "Loading..." : `${totalInventory} items`}
             </p>
             <p className="stat-subvalue">
-              {loading ? "" : `Low Stock: ${lowStockCount}`}
+              {loading ? (
+                ""
+              ) : (
+                <>
+                  Low Stock: {lowStockCount} <br />
+                  No Stock: {noStockCount}
+                </>
+              )}
             </p>
+
             <Package className="stat-icon" size={32} />
           </div>
         </div>

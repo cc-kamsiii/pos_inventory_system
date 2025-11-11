@@ -29,7 +29,6 @@ export const getTransactions = (req, res) => {
   });
 };
 
-// ✅ Add a new transaction with inventory deduction
 export const addTransactions = (req, res) => {
   const { cart, payment_method, total_payment, cashier_name, order_type, user_id } = req.body;
 
@@ -57,7 +56,6 @@ export const addTransactions = (req, res) => {
 
       const transactionId = result.insertId;
 
-      // Insert all transaction items
       const sqlItems = `
         INSERT INTO transaction_items (transaction_id, menu_id, quantity, price)
         VALUES ?
@@ -72,9 +70,8 @@ export const addTransactions = (req, res) => {
         }
 
         try {
-          // ✅ Deduct inventory based on recipe or direct item
           for (const item of cart) {
-            // 🔹 Check if the menu item has recipe ingredients
+            // Check if the menu item has recipe ingredients
             const [recipeRows] = await new Promise((resolve, reject) => {
               db.query(
                 "SELECT ingredient_id, amount_per_serving FROM recipe_ingredients WHERE menu_id = ?",
@@ -86,7 +83,7 @@ export const addTransactions = (req, res) => {
               );
             });
 
-            // 🔹 If the item has a recipe (like meals)
+            // If the item has a recipe (like meals)
             if (recipeRows.length > 0) {
               for (const r of recipeRows) {
                 const totalNeeded = r.amount_per_serving * item.quantity;
@@ -123,7 +120,7 @@ export const addTransactions = (req, res) => {
                 });
               }
             } else {
-              // 🔹 No recipe — direct deduction (e.g. drinks, canned goods)
+              // No recipe — direct deduction (e.g. drinks, canned goods)
               const [invRows] = await new Promise((resolve, reject) => {
                 db.query(
                   "SELECT id, quantity, unit, item FROM inventory WHERE LOWER(item) = LOWER(?)",
@@ -139,7 +136,7 @@ export const addTransactions = (req, res) => {
                 const inv = invRows[0];
                 let deductQty = item.quantity;
 
-                // ✅ Deduct per piece if unit is countable
+                //  Deduct per piece if unit is countable
                 if (["pcs", "can", "bottle", "pack"].includes(inv.unit.toLowerCase())) {
                   deductQty = item.quantity; // one per item sold
                 }
@@ -164,7 +161,7 @@ export const addTransactions = (req, res) => {
             }
           }
 
-          // ✅ Commit if all deductions are successful
+          // Commit if all deductions are successful
           db.commit((err3) => {
             if (err3) {
               db.rollback(() => {});
