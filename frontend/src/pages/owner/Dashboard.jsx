@@ -51,7 +51,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      console.log("🚀 Fetching dashboard data with period:", chartPeriod);
+      console.log(" Fetching dashboard data with period:", chartPeriod);
       setLoading(true);
       try {
         const [
@@ -88,13 +88,20 @@ const Dashboard = () => {
         setLowStockCount(inventoryRes.data?.low_stock || 0);
         setNoStockCount(inventoryRes.data?.no_stock || 0);
 
-        setPieData(categoryRes.data || [["Category", "Amount"]]);
+        setPieData(
+          categoryRes.data && categoryRes.data.length > 1
+            ? [categoryRes.data[0], ...categoryRes.data.slice(1, 6)] // top 5
+            : [["Category", "Amount"]]
+        );
+
         setMostSellingData(
-          mostSellingRes.data || [["Menu Item", "Quantity Sold"]]
+          mostSellingRes.data && mostSellingRes.data.length > 1
+            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)] // top 5
+            : [["Menu Item", "Quantity Sold"]]
         );
         setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
       } catch (error) {
-        console.error("❌ Error fetching dashboard data:", error);
+        console.error("Error fetching dashboard data:", error);
         console.error("Error details:", error.response?.data);
       } finally {
         setLoading(false);
@@ -102,7 +109,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, [chartPeriod]); 
+  }, [chartPeriod]);
 
   const currentDate = new Date();
 
