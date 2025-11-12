@@ -49,7 +49,6 @@ const Dashboard = () => {
     fetchCashierLogins();
   }, [selectedDate]);
 
-  // SINGLE useEffect for all dashboard data - REMOVED DUPLICATE
   useEffect(() => {
     const fetchDashboardData = async () => {
       console.log("🚀 Fetching dashboard data with period:", chartPeriod);
@@ -79,10 +78,6 @@ const Dashboard = () => {
           ),
         ]);
 
-        console.log("📊 Category Response:", categoryRes.data);
-        console.log("🍔 Most Selling Response:", mostSellingRes.data);
-        console.log("📈 Bar Chart Response:", barRes.data);
-
         setTotalSales(salesRes.data?.total_sales || 0);
         setCashSales(salesRes.data?.cash_sales || 0);
         setGcashSales(salesRes.data?.gcash_sales || 0);
@@ -107,7 +102,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, [chartPeriod]); // Only triggers when chartPeriod changes
+  }, [chartPeriod]); 
 
   const currentDate = new Date();
 
