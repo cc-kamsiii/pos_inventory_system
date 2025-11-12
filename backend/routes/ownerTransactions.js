@@ -8,6 +8,7 @@ import {
   getSalesChart,
   getCashierLogins,
   getMostSellingMenu, 
+  getSalesByCategory
 } from "../controllers/ownerTransactionsControllers.js";
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.get("/orders_summary", getOrdersSummary);
 router.get("/sales_chart", getSalesChart);
 router.get("/cashier_logins", getCashierLogins);
 router.get("/most_selling_menu", getMostSellingMenu);
+router.get("/sales_by_category", getSalesByCategory);
 
 export default router;

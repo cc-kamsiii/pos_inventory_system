@@ -23,10 +23,7 @@ const Dashboard = () => {
     ["Menu Item", "Quantity Sold"],
   ]);
 
-  const [salesPeriod, setSalesPeriod] = useState("monthly");
-
   const [chartPeriod, setChartPeriod] = useState("monthly");
-
   const [barData, setBarData] = useState([
     ["Period", "Sales", { role: "style" }],
   ]);
@@ -52,26 +49,39 @@ const Dashboard = () => {
     fetchCashierLogins();
   }, [selectedDate]);
 
+  // SINGLE useEffect for all dashboard data - REMOVED DUPLICATE
   useEffect(() => {
     const fetchDashboardData = async () => {
+      console.log("🚀 Fetching dashboard data with period:", chartPeriod);
       setLoading(true);
       try {
-        const [salesRes, ordersRes, inventoryRes, categoryRes, mostSellingRes] =
-          await Promise.all([
-            axios.get(
-              `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${chartPeriod}`
-            ),
-            axios.get(
-              `${API_BASE}/ownerTransactions/orders_summary?period=${chartPeriod}`
-            ),
-            axios.get(`${API_BASE}/inventory/summary`),
-            axios.get(
-              `${API_BASE}/menu/sales_by_category?period=${chartPeriod}`
-            ),
-            axios.get(
-              `${API_BASE}/ownerTransactions/most_selling_menu?period=${chartPeriod}`
-            ),
-          ]);
+        const [
+          salesRes,
+          ordersRes,
+          inventoryRes,
+          categoryRes,
+          mostSellingRes,
+          barRes,
+        ] = await Promise.all([
+          axios.get(
+            `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${chartPeriod}`
+          ),
+          axios.get(
+            `${API_BASE}/ownerTransactions/orders_summary?period=${chartPeriod}`
+          ),
+          axios.get(`${API_BASE}/inventory/summary`),
+          axios.get(`${API_BASE}/menu/sales_by_category?period=${chartPeriod}`),
+          axios.get(
+            `${API_BASE}/ownerTransactions/most_selling_menu?period=${chartPeriod}`
+          ),
+          axios.get(
+            `${API_BASE}/ownerTransactions/sales_chart?period=${chartPeriod}`
+          ),
+        ]);
+
+        console.log("📊 Category Response:", categoryRes.data);
+        console.log("🍔 Most Selling Response:", mostSellingRes.data);
+        console.log("📈 Bar Chart Response:", barRes.data);
 
         setTotalSales(salesRes.data?.total_sales || 0);
         setCashSales(salesRes.data?.cash_sales || 0);
@@ -82,43 +92,22 @@ const Dashboard = () => {
         setTotalInventory(inventoryRes.data?.total_inventory || 0);
         setLowStockCount(inventoryRes.data?.low_stock || 0);
         setNoStockCount(inventoryRes.data?.no_stock || 0);
+
         setPieData(categoryRes.data || [["Category", "Amount"]]);
         setMostSellingData(
           mostSellingRes.data || [["Menu Item", "Quantity Sold"]]
         );
+        setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("❌ Error fetching dashboard data:", error);
+        console.error("Error details:", error.response?.data);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [chartPeriod]);
-
-  useEffect(() => {
-    fetchChartData(chartPeriod);
-  }, [chartPeriod]);
-
-  const fetchChartData = async (selectedPeriod) => {
-    try {
-      const [barRes, pieRes, mostSellingRes] = await Promise.all([
-        axios.get(
-          `${API_BASE}/ownerTransactions/sales_chart?period=${selectedPeriod}`
-        ),
-        axios.get(`${API_BASE}/menu/sales_by_category`),
-        axios.get(`${API_BASE}/ownerTransactions/most_selling_menu`),
-      ]);
-
-      setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
-      setPieData(pieRes.data || [["Category", "Amount"]]);
-      setMostSellingData(
-        mostSellingRes.data || [["Menu Item", "Quantity Sold"]]
-      );
-    } catch (error) {
-      console.error("Error fetching chart data:", error);
-    }
-  };
+  }, [chartPeriod]); // Only triggers when chartPeriod changes
 
   const currentDate = new Date();
 
@@ -267,28 +256,30 @@ const Dashboard = () => {
               <button onClick={() => setSelectedDate("")}>Show All</button>
             </div>
 
-            <table className="login-table">
-              <thead>
-                <tr>
-                  <th>Cashier Name</th>
-                  <th>Login Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cashierLogins.length > 0 ? (
-                  cashierLogins.map((log, index) => (
-                    <tr key={index}>
-                      <td>{log.first_name}</td>
-                      <td>{log.login_time}</td>
-                    </tr>
-                  ))
-                ) : (
+            <div className="login-table-container">
+              <table className="login-table">
+                <thead>
                   <tr>
-                    <td colSpan="2">No login records found</td>
+                    <th>Cashier Name</th>
+                    <th>Login Time</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {cashierLogins.length > 0 ? (
+                    cashierLogins.map((log, index) => (
+                      <tr key={index}>
+                        <td>{log.first_name}</td>
+                        <td>{log.login_time}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="2">No login records found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

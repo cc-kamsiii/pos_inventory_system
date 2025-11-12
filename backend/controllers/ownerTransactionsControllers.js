@@ -305,28 +305,58 @@ export const getMostSellingMenu = (req, res) => {
 export const getSalesByCategory = (req, res) => {
   const { period } = req.query;
 
+  // Debug: Log what period was received
+  console.log("🔍 getSalesByCategory called with period:", period);
+
   let dateFilter = "";
-  if (period === "weekly") dateFilter = "AND YEARWEEK(t.order_date) = YEARWEEK(CURDATE())";
-  else if (period === "monthly") dateFilter = "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
-  else if (period === "yearly") dateFilter = "AND YEAR(t.order_date) = YEAR(CURDATE())";
+  
+  if (period === "weekly") {
+    dateFilter = "AND YEARWEEK(t.order_date, 1) = YEARWEEK(CURDATE(), 1)";
+  } else if (period === "monthly") {
+    dateFilter = "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
+  } else if (period === "yearly") {
+    dateFilter = "AND YEAR(t.order_date) = YEAR(CURDATE())";
+  }
 
   const sql = `
     SELECT 
       c.category_name AS category,
-      SUM(ti.quantity) AS total_sold
+      SUM(ti.quantity * ti.price) AS total_amount
     FROM transaction_items ti
     JOIN transactions t ON ti.transaction_id = t.id
     JOIN menu m ON ti.menu_id = m.id
     JOIN categories c ON m.category_id = c.id
-    WHERE 1=1 ${dateFilter}
-    GROUP BY c.id
-    ORDER BY total_sold DESC
+    WHERE t.order_date IS NOT NULL ${dateFilter}
+    GROUP BY c.id, c.category_name
+    ORDER BY total_amount DESC
   `;
 
+  // Debug: Log the SQL query
+  console.log("📝 SQL Query:", sql);
+
   db.query(sql, (err, result) => {
-    if (err) return res.status(500).json({ error: "Database error" });
+    if (err) {
+      console.error("❌ Error fetching sales by category:", err);
+      return res.status(500).json({ error: "Database error", details: err.message });
+    }
+
+    // Debug: Log the raw result
+    console.log("✅ Raw DB Result:", result);
+    console.log("📊 Result count:", result ? result.length : 0);
+
+    // Return empty chart structure if no data
+    if (!result || result.length === 0) {
+      console.log("⚠️ No data found, returning empty chart");
+      return res.json([["Category", "Amount"]]);
+    }
+
     const data = [["Category", "Amount"]];
-    result.forEach((row) => data.push([row.category, Number(row.total_sold)]));
+    result.forEach((row) => {
+      console.log("📈 Adding row:", row.category, "=>", row.total_amount);
+      data.push([row.category, Number(row.total_amount) || 0]);
+    });
+    
+    console.log("🎯 Final data being sent:", data);
     res.json(data);
   });
 };
