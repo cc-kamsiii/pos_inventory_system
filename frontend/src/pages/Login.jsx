@@ -41,18 +41,6 @@ function Login() {
     }
   };
 
-  const handleForgotSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${API_BASE}/auth/forgot-password`, { username: forgotUsername });
-      if (res.data.success) alert("Password reset link sent!");
-      else alert("Username not found.");
-      setShowForgotModal(false);
-      setForgotUsername("");
-    } catch {
-      alert("Server error. Try again later.");
-    }
-  };
 
   return (
     <div className="login-container">
@@ -85,9 +73,6 @@ function Login() {
 
             <button type="submit" className="login-btn">Log In</button>
 
-            <div className="extra-options">
-              <span className="forgot-link" onClick={() => setShowForgotModal(true)}>Forgot Password?</span>
-            </div>
           </form>
         </div>
       </div>
@@ -99,19 +84,6 @@ function Login() {
           <div className="modal">
             <h3>Reset Password</h3>
             <p>Enter your username to receive a reset link</p>
-            <form onSubmit={handleForgotSubmit}>
-              <input
-                type="text"
-                placeholder="Username"
-                required
-                value={forgotUsername}
-                onChange={(e) => setForgotUsername(e.target.value)}
-              />
-              <div className="modal-actions">
-                <button type="submit" className="login-btn">Send Link</button>
-                <button type="button" className="cancel-btn" onClick={() => setShowForgotModal(false)}>Cancel</button>
-              </div>
-            </form>
           </div>
         </div>
       )}
