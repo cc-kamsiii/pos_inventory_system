@@ -16,8 +16,6 @@ function POS() {
   const [showModal, setShowModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
   const [showOrderSummary, setShowOrderSummary] = useState(false);
-  const [mostOrdered, setMostOrdered] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 

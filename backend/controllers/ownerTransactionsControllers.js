@@ -122,20 +122,44 @@ export const getTotalSales = (req, res) => {
 };
 
 export const getTotalSalesBreakdown = (req, res) => {
+  const { period } = req.query;
+
+  let dateFilter = "";
+  if (period === "weekly")
+    dateFilter = "AND YEARWEEK(order_date) = YEARWEEK(CURDATE())";
+  else if (period === "monthly")
+    dateFilter =
+      "AND MONTH(order_date) = MONTH(CURDATE()) AND YEAR(order_date) = YEAR(CURDATE())";
+  else if (period === "yearly")
+    dateFilter = "AND YEAR(order_date) = YEAR(CURDATE())";
+
   const sql = `
     SELECT 
       SUM(total_payment) AS total_sales,
       SUM(CASE WHEN payment_method = 'Cash' THEN total_payment ELSE 0 END) AS cash_sales,
       SUM(CASE WHEN payment_method = 'GCash' THEN total_payment ELSE 0 END) AS gcash_sales
     FROM transactions
+    WHERE 1=1 ${dateFilter}
   `;
+
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: "Database error" });
-    res.json(result[0]);
+    res.json(result[0] || { total_sales: 0, cash_sales: 0, gcash_sales: 0 });
   });
 };
 
 export const getOrdersSummary = (req, res) => {
+  const { period } = req.query;
+
+  let dateFilter = "";
+  if (period === "weekly")
+    dateFilter = "AND YEARWEEK(order_date) = YEARWEEK(CURDATE())";
+  else if (period === "monthly")
+    dateFilter =
+      "AND MONTH(order_date) = MONTH(CURDATE()) AND YEAR(order_date) = YEAR(CURDATE())";
+  else if (period === "yearly")
+    dateFilter = "AND YEAR(order_date) = YEAR(CURDATE())";
+
   const sql = `
     SELECT 
       COUNT(*) AS total_orders,
@@ -152,14 +176,11 @@ export const getOrdersSummary = (req, res) => {
         END
       ) AS takeout
     FROM transactions
+    WHERE 1=1 ${dateFilter}
   `;
 
   db.query(sql, (err, result) => {
-    if (err) {
-      console.error("Orders summary error:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
+    if (err) return res.status(500).json({ error: "Database error" });
     const data = result[0] || { total_orders: 0, dine_in: 0, takeout: 0 };
     res.json({
       total_orders: parseInt(data.total_orders) || 0,
@@ -244,5 +265,68 @@ export const getCashierLogins = (req, res) => {
   });
 };
 
+export const getMostSellingMenu = (req, res) => {
+  const { period } = req.query;
 
+  let dateFilter = "";
+  if (period === "weekly")
+    dateFilter = "AND YEARWEEK(t.order_date) = YEARWEEK(CURDATE())";
+  else if (period === "monthly")
+    dateFilter =
+      "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
+  else if (period === "yearly")
+    dateFilter = "AND YEAR(t.order_date) = YEAR(CURDATE())";
 
+  const sql = `
+    SELECT 
+      m.item_name AS menu_item,
+      SUM(ti.quantity) AS total_sold
+    FROM transaction_items ti
+    JOIN transactions t ON ti.transaction_id = t.id
+    JOIN menu m ON ti.menu_id = m.id
+    WHERE 1=1 ${dateFilter}
+    GROUP BY m.id
+    ORDER BY total_sold DESC
+    LIMIT 5
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Error fetching most selling menu:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const data = [["Menu Item", "Quantity Sold"]];
+    result.forEach((row) => data.push([row.menu_item, Number(row.total_sold)]));
+    res.json(data);
+  });
+};
+
+export const getSalesByCategory = (req, res) => {
+  const { period } = req.query;
+
+  let dateFilter = "";
+  if (period === "weekly") dateFilter = "AND YEARWEEK(t.order_date) = YEARWEEK(CURDATE())";
+  else if (period === "monthly") dateFilter = "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
+  else if (period === "yearly") dateFilter = "AND YEAR(t.order_date) = YEAR(CURDATE())";
+
+  const sql = `
+    SELECT 
+      c.category_name AS category,
+      SUM(ti.quantity) AS total_sold
+    FROM transaction_items ti
+    JOIN transactions t ON ti.transaction_id = t.id
+    JOIN menu m ON ti.menu_id = m.id
+    JOIN categories c ON m.category_id = c.id
+    WHERE 1=1 ${dateFilter}
+    GROUP BY c.id
+    ORDER BY total_sold DESC
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    const data = [["Category", "Amount"]];
+    result.forEach((row) => data.push([row.category, Number(row.total_sold)]));
+    res.json(data);
+  });
+};

@@ -19,6 +19,9 @@ const Dashboard = () => {
   const [noStockCount, setNoStockCount] = useState(0);
   const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [mostSellingData, setMostSellingData] = useState([
+    ["Menu Item", "Quantity Sold"],
+  ]);
 
   const [salesPeriod, setSalesPeriod] = useState("monthly");
 
@@ -53,13 +56,22 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const [salesRes, ordersRes, inventoryRes] = await Promise.all([
-          axios.get(
-            `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${salesPeriod}`
-          ),
-          axios.get(`${API_BASE}/ownerTransactions/orders_summary`),
-          axios.get(`${API_BASE}/inventory/summary`),
-        ]);
+        const [salesRes, ordersRes, inventoryRes, categoryRes, mostSellingRes] =
+          await Promise.all([
+            axios.get(
+              `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${chartPeriod}`
+            ),
+            axios.get(
+              `${API_BASE}/ownerTransactions/orders_summary?period=${chartPeriod}`
+            ),
+            axios.get(`${API_BASE}/inventory/summary`),
+            axios.get(
+              `${API_BASE}/menu/sales_by_category?period=${chartPeriod}`
+            ),
+            axios.get(
+              `${API_BASE}/ownerTransactions/most_selling_menu?period=${chartPeriod}`
+            ),
+          ]);
 
         setTotalSales(salesRes.data?.total_sales || 0);
         setCashSales(salesRes.data?.cash_sales || 0);
@@ -70,14 +82,19 @@ const Dashboard = () => {
         setTotalInventory(inventoryRes.data?.total_inventory || 0);
         setLowStockCount(inventoryRes.data?.low_stock || 0);
         setNoStockCount(inventoryRes.data?.no_stock || 0);
+        setPieData(categoryRes.data || [["Category", "Amount"]]);
+        setMostSellingData(
+          mostSellingRes.data || [["Menu Item", "Quantity Sold"]]
+        );
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchDashboardData();
-  }, [salesPeriod]);
+  }, [chartPeriod]);
 
   useEffect(() => {
     fetchChartData(chartPeriod);
@@ -85,15 +102,19 @@ const Dashboard = () => {
 
   const fetchChartData = async (selectedPeriod) => {
     try {
-      const [barRes, pieRes] = await Promise.all([
+      const [barRes, pieRes, mostSellingRes] = await Promise.all([
         axios.get(
           `${API_BASE}/ownerTransactions/sales_chart?period=${selectedPeriod}`
-        ), // snake_case
-        axios.get(`${API_BASE}/menu/sales_by_category`), // snake_case
+        ),
+        axios.get(`${API_BASE}/menu/sales_by_category`),
+        axios.get(`${API_BASE}/ownerTransactions/most_selling_menu`),
       ]);
 
       setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
       setPieData(pieRes.data || [["Category", "Amount"]]);
+      setMostSellingData(
+        mostSellingRes.data || [["Menu Item", "Quantity Sold"]]
+      );
     } catch (error) {
       console.error("Error fetching chart data:", error);
     }
@@ -140,19 +161,21 @@ const Dashboard = () => {
           </div>
         </div>
 
+        <div className="select-choices">
+          <select
+            value={chartPeriod}
+            onChange={(e) => setChartPeriod(e.target.value)}
+          >
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+
         <div className="stats-grid">
           <div className="stat-card yellow-gradient">
             <div className="stat-card-header">
               <p className="stat-label">Income</p>
-              <select
-                className="sales-period-select"
-                value={salesPeriod}
-                onChange={(e) => setSalesPeriod(e.target.value)}
-              >
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-              </select>
             </div>
             <p className="stat-value">
               {loading ? "Loading..." : `₱ ${totalSales.toLocaleString()}`}
@@ -194,16 +217,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="dashboard-controls">
-          <select
-            value={chartPeriod}
-            onChange={(e) => setChartPeriod(e.target.value)}
-          >
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </div>
+        <div className="dashboard-controls"></div>
 
         <div className="charts-grid">
           <div className="chart-card">
@@ -218,6 +232,22 @@ const Dashboard = () => {
 
           <div className="chart-card">
             <Chart
+              chartType="PieChart"
+              data={mostSellingData}
+              options={{
+                title: "Most Selling Menu",
+                pieHole: 0.4,
+                backgroundColor: "transparent",
+                legend: { position: "right" },
+                colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"],
+              }}
+              width="100%"
+              height="300px"
+            />
+          </div>
+
+          <div className="chart-card">
+            <Chart
               chartType="ColumnChart"
               data={barData}
               options={barOptions}
@@ -225,42 +255,41 @@ const Dashboard = () => {
               height="300px"
             />
           </div>
-        </div>
+          <div className="chart-card">
+            <h3>Cashier Login Records</h3>
+            <div className="login-filter">
+              <label>Filter by date: </label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+              <button onClick={() => setSelectedDate("")}>Show All</button>
+            </div>
 
-        <div className="chart-card">
-          <h3>Cashier Login Records</h3>
-          <div className="login-filter">
-            <label>Filter by date: </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
-            <button onClick={() => setSelectedDate("")}>Show All</button>
-          </div>
-
-          <table className="login-table">
-            <thead>
-              <tr>
-                <th>Cashier Name</th>
-                <th>Login Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cashierLogins.length > 0 ? (
-                cashierLogins.map((log, index) => (
-                  <tr key={index}>
-                    <td>{log.first_name}</td>
-                    <td>{log.login_time}</td>
-                  </tr>
-                ))
-              ) : (
+            <table className="login-table">
+              <thead>
                 <tr>
-                  <td colSpan="2">No login records found</td>
+                  <th>Cashier Name</th>
+                  <th>Login Time</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cashierLogins.length > 0 ? (
+                  cashierLogins.map((log, index) => (
+                    <tr key={index}>
+                      <td>{log.first_name}</td>
+                      <td>{log.login_time}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2">No login records found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import db from "../config/db.js";
 
-// ✅ Get today's transactions
 export const getTransactions = (req, res) => {
   const sql = `
     SELECT
@@ -71,7 +70,6 @@ export const addTransactions = (req, res) => {
 
         try {
           for (const item of cart) {
-            // Check if the menu item has recipe ingredients
             const [recipeRows] = await new Promise((resolve, reject) => {
               db.query(
                 "SELECT ingredient_id, amount_per_serving FROM recipe_ingredients WHERE menu_id = ?",
@@ -83,7 +81,7 @@ export const addTransactions = (req, res) => {
               );
             });
 
-            // If the item has a recipe (like meals)
+            // If the item has a recipe 
             if (recipeRows.length > 0) {
               for (const r of recipeRows) {
                 const totalNeeded = r.amount_per_serving * item.quantity;
