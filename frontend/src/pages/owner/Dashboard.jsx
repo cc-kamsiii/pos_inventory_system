@@ -90,13 +90,13 @@ const Dashboard = () => {
 
         setPieData(
           categoryRes.data && categoryRes.data.length > 1
-            ? [categoryRes.data[0], ...categoryRes.data.slice(1, 6)] // top 5
+            ? [categoryRes.data[0], ...categoryRes.data.slice(1, 6)] 
             : [["Category", "Amount"]]
         );
 
         setMostSellingData(
           mostSellingRes.data && mostSellingRes.data.length > 1
-            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)] // top 5
+            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)] 
             : [["Menu Item", "Quantity Sold"]]
         );
         setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);

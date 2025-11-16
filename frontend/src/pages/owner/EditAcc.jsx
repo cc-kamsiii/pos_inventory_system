@@ -12,6 +12,7 @@ function EditAcc() {
     username: "",
     password: "",
     name: "",
+    first_name: "",
     role: "staff",
   });
 
@@ -145,6 +146,19 @@ function EditAcc() {
                   required
                 />
               </div>
+              <div className="form-group">
+                <label>First Name</label>
+                <input
+                  type="text"
+                  value={formData.first_name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, first_name: e.target.value })
+                  }
+                  placeholder="Enter first name"
+                  required
+                />
+              </div>
+
               <div className="form-group">
                 <label>Select Role</label>
                 <select
