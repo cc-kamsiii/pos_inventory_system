@@ -27,7 +27,6 @@ const Dashboard = () => {
   const [barData, setBarData] = useState([
     ["Period", "Sales", { role: "style" }],
   ]);
-  const [pieData, setPieData] = useState([["Category", "Amount"]]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -58,7 +57,6 @@ const Dashboard = () => {
           salesRes,
           ordersRes,
           inventoryRes,
-          categoryRes,
           mostSellingRes,
           barRes,
         ] = await Promise.all([
@@ -69,7 +67,6 @@ const Dashboard = () => {
             `${API_BASE}/ownerTransactions/orders_summary?period=${chartPeriod}`
           ),
           axios.get(`${API_BASE}/inventory/summary`),
-          axios.get(`${API_BASE}/menu/sales_by_category?period=${chartPeriod}`),
           axios.get(
             `${API_BASE}/ownerTransactions/most_selling_menu?period=${chartPeriod}`
           ),
@@ -88,15 +85,9 @@ const Dashboard = () => {
         setLowStockCount(inventoryRes.data?.low_stock || 0);
         setNoStockCount(inventoryRes.data?.no_stock || 0);
 
-        setPieData(
-          categoryRes.data && categoryRes.data.length > 1
-            ? [categoryRes.data[0], ...categoryRes.data.slice(1, 6)] 
-            : [["Category", "Amount"]]
-        );
-
         setMostSellingData(
           mostSellingRes.data && mostSellingRes.data.length > 1
-            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)] 
+            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)] // top 5
             : [["Menu Item", "Quantity Sold"]]
         );
         setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
@@ -128,14 +119,6 @@ const Dashboard = () => {
     } Sales`,
     backgroundColor: "transparent",
     legend: { position: "none" },
-  };
-
-  const categoryOptions = {
-    title: "Most Selling Categories",
-    pieHole: 0.4,
-    colors: ["#8b5cf6", "#3b82f6", "#f59e0b"],
-    backgroundColor: "transparent",
-    legend: { position: "right" },
   };
 
   return (
@@ -214,16 +197,6 @@ const Dashboard = () => {
           <div className="chart-card">
             <Chart
               chartType="PieChart"
-              data={pieData}
-              options={categoryOptions}
-              width="100%"
-              height="300px"
-            />
-          </div>
-
-          <div className="chart-card">
-            <Chart
-              chartType="PieChart"
               data={mostSellingData}
               options={{
                 title: "Most Selling Menu",
@@ -246,6 +219,7 @@ const Dashboard = () => {
               height="300px"
             />
           </div>
+          
           <div className="chart-card">
             <h3>Cashier Login Records</h3>
             <div className="login-filter">
