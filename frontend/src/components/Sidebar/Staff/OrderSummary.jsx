@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Minus, Trash2, ShoppingCart } from 'lucide-react';
+import { Plus, Minus, Trash2, ShoppingCart, X } from 'lucide-react';
 
-const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
+const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClose }) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const [display, setDisplay] = useState('0');
   const [payment, setPayment] = useState(0);
@@ -42,10 +42,25 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
     handleClear();
   };
 
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <div className="order-summary">
+      <div className="order-summary-header">
+        <div>
+          <h2 className="order-summary-title">Order Summary</h2>
+          <div className="cart-count">Items in cart: {totalItems}</div>
+        </div>
+        <button 
+          className="close-summary-btn" 
+          onClick={onClose}
+          aria-label="Close order summary"
+        >
+          <X size={25} />
+        </button>
+      </div>
+
       <div className="summary-header">
-        <h2>Order Summary</h2>
         <div className="OT-section">
           <button 
             className={`OTPM-btn ${orderType === 'Dine-in' ? 'active' : ''}`}
@@ -78,37 +93,41 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
       </div>
 
       <div className="order-items-section">
-        {cart.map((item) => (
-          <div key={item.id} className="order-item">
-            <div className="item-info">
-              <span className="item-name">{item.item_name}</span>
-              <div className="item-controls">
-                <button
-                  onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                  className="qty-btn minus"
-                >
-                  <Minus size={12} />
-                </button>
-                <span className="quantity">{item.quantity}</span>
-                <button
-                  onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                  className="qty-btn plus"
-                >
-                  <Plus size={12} />
-                </button>
-                <button
-                  onClick={() => onRemoveItem(item.id)}
-                  className="remove-btn"
-                >
-                  <Trash2 size={12} />
-                </button>
+        {cart.length === 0 ? (
+          <div className="empty-cart-message">Your cart is empty</div>
+        ) : (
+          cart.map((item) => (
+            <div key={item.id} className="order-item">
+              <div className="item-info">
+                <span className="item-name">{item.item_name}</span>
+                <div className="item-controls">
+                  <button
+                    onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                    className="qty-btn minus"
+                  >
+                    <Minus size={12} />
+                  </button>
+                  <span className="quantity">{item.quantity}</span>
+                  <button
+                    onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                    className="qty-btn plus"
+                  >
+                    <Plus size={12} />
+                  </button>
+                  <button
+                    onClick={() => onRemoveItem(item.id)}
+                    className="remove-btn"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              </div>
+              <div className="item-total">
+                ₱{(item.price * item.quantity).toFixed(2)}
               </div>
             </div>
-            <div className="item-total">
-              ₱{(item.price * item.quantity).toFixed(2)}
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="totals-section">

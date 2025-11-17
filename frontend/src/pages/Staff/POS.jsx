@@ -1,238 +1,248 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { ShoppingCart } from "lucide-react";
-import Menu from "../../components/Sidebar/Staff/Menu";
-import Categories from "../../components/Sidebar/Staff/Categories";
-import OrderSummary from "../../components/Sidebar/Staff/OrderSummary";
-import Modal from "../../components/Sidebar/Staff/Modal";
-import "../../Style/POS.css";
+import React, { useState } from 'react';
+import { Plus, Minus, Trash2, ShoppingCart, X, Calculator } from 'lucide-react';
 
-function POS() {
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [inventory, setInventory] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [showModal, setShowModal] = useState(false);
-  const [lastTransaction, setLastTransaction] = useState({});
-  const [showOrderSummary, setShowOrderSummary] = useState(false);
-
-  const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
-  useEffect(() => {
-    fetchCategories();
-    fetchInventory();
-  }, []);
-
-  useEffect(() => {
-    if (inventory.length > 0) {
-      fetchProducts();
-    }
-  }, [inventory]);
-
-  const fetchInventory = () => {
-    axios
-      .get(`${API_BASE}/inventory`)
-      .then((res) => setInventory(res.data))
-      .catch((err) => console.error(err));
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/menu`);
-      setProducts(res.data); 
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClose }) => {
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const tax = total * 0.12; // 12% tax
+  const finalTotal = total + tax;
   
-  const fetchCategories = () => {
-    axios
-      .get(`${API_BASE}/menu/categories`)
-      .then((res) => {
-        const allCount = res.data.reduce((sum, c) => sum + c.count, 0);
-        setCategories([
-          { name: "All", count: allCount },
-          ...res.data.map((c) => ({ name: c.category, count: c.count })),
-        ]);
-      })
-      .catch((err) => console.error(err));
-  };
+  const [display, setDisplay] = useState('0');
+  const [payment, setPayment] = useState(0);
+  const [change, setChange] = useState(0);
+  const [orderType, setOrderType] = useState('Dine-in');
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
 
-  const fetchMostOrdered = () => {
-    axios.get(`${API_BASE}/analytics/most-ordered`)
-      .then(res => setMostOrdered(res.data.slice(0, 5)))
-      .catch(err => console.error(err));
-  };
-
-  const fetchRecentOrders = () => {
-    const userId = localStorage.getItem("user_id");
-    axios.get(`${API_BASE}/transactions/recent/${userId}`)
-      .then(res => setRecentOrders(res.data.slice(0, 5)))
-      .catch(err => console.error(err));
-  };
-
-  const addToCart = (product) => {
-    if (product.stockStatus === "no-stock") {
-      alert("This item is out of stock!");
-      return;
+  const handleNumberClick = (num) => {
+    if (display === '0') {
+      setDisplay(num.toString());
+    } else {
+      setDisplay(display + num.toString());
     }
-
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: existingItem.quantity + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { ...product, quantity: 1 }];
-    });
   };
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeFromCart(id);
-      return;
+  const handleClear = () => {
+    setDisplay('0');
+    setPayment(0);
+    setChange(0);
+  };
+
+  const handleEnter = () => {
+    const paymentAmount = parseFloat(display) || 0;
+    setPayment(paymentAmount);
+    const changeAmount = paymentAmount - finalTotal;
+    setChange(changeAmount > 0 ? changeAmount : 0);
+  };
+
+  const handleClearOrder = () => {
+    if (window.confirm('Are you sure you want to clear all items?')) {
+      cart.forEach(item => onRemoveItem(item.id));
+      handleClear();
     }
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
   };
 
-  const removeFromCart = (id) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  const handleCheckout = () => {
+    onCheckout(finalTotal, payment, change, orderType, paymentMethod);
+    handleClear();
   };
-
-  const clearCart = () => setCart([]);
-
-  const validateCartStock = () => {
-    return axios
-      .get(`${API_BASE}/inventory`)
-      .then((res) => {
-        const currentInventory = res.data;
-        const outOfStockItems = [];
-
-        cart.forEach((cartItem) => {
-          if (cartItem.stockStatus === "no-stock") {
-            outOfStockItems.push(cartItem.item_name);
-          }
-        });
-
-        if (outOfStockItems.length > 0) {
-          alert(
-            `The following items are out of stock:\n${outOfStockItems.join(
-              ", "
-            )}`
-          );
-          return false;
-        }
-        return true;
-      })
-      .catch((err) => {
-        console.error("Error validating stock:", err);
-        alert("Error checking stock availability.");
-        return false;
-      });
-  };
-
-  const checkout = async (total, payment, change, orderType, paymentMethod) => {
-    const cashierName = localStorage.getItem("name");
-    const userId = localStorage.getItem("user_id");
-
-    if (!cart.length) return alert("Cart is empty!");
-    if (!cashierName || !userId) return alert("User not logged in!");
-
-    const stockValid = await validateCartStock();
-    if (!stockValid) {
-      fetchProducts();
-      return;
-    }
-
-    const transactionData = {
-      cart,
-      payment_method: paymentMethod,
-      total_payment: total,
-      cashier_name: cashierName,
-      order_type: orderType,
-      user_id: userId,
-    };
-
-    axios
-      .post(`${API_BASE}/staffTransactions`, transactionData)
-      .then(() => {
-        setLastTransaction({
-          total_payment: total,
-          payment_method: paymentMethod,
-          cashier_name: cashierName,
-          order_type: orderType,
-          user_id: userId,
-        });
-        setShowModal(true);
-        setCart([]);
-        setShowOrderSummary(false);
-        fetchProducts();
-      })
-      .catch((err) => {
-        console.error("Transaction error:", err);
-        if (err.response?.status === 400) {
-          alert("Transaction failed: Insufficient stock for some items.");
-          fetchProducts();
-        } else {
-          alert("Transaction failed. Please try again.");
-        }
-      });
-  };
-
-  const closeModal = () => setShowModal(false);
 
   return (
-    <div className="pos-system">
-      <button
-        className="order-summary-toggle"
-        onClick={() => setShowOrderSummary(!showOrderSummary)}
-      >
-        <ShoppingCart size={20} />
-        <span>Order</span>
-        {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
-      </button>
+    <div className="order-summary">
+      {/* Header */}
+      <div className="order-summary-header">
+        <div>
+          <h2 className="order-summary-title">Order Summary</h2>
+          <div className="order-summary-subtitle">Table #01 • 2 customers</div>
+        </div>
+        <button 
+          className="close-summary-btn" 
+          onClick={onClose}
+          aria-label="Close order summary"
+        >
+          <X size={20} />
+        </button>
+      </div>
 
-      <div className="pos-main">
-        <div className="pos-left">
-          <Categories
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
-          />
-          <Menu
-            products={products}
-            onAddToCart={addToCart}
-            selectedCategory={selectedCategory}
-          />
+      {/* Order Type & Payment Method */}
+      <div className="summary-header">
+        <div className="order-type-section">
+          <h3 className="section-label">Order Type</h3>
+          <div className="OT-section">
+            <button 
+              className={`OTPM-btn ${orderType === 'Dine-in' ? 'active' : ''}`}
+              onClick={() => setOrderType('Dine-in')}
+            >
+              Dine In
+            </button>
+            <button 
+              className={`OTPM-btn ${orderType === 'Takeout' ? 'active' : ''}`}
+              onClick={() => setOrderType('Takeout')}
+            >
+              Takeout
+            </button>
+          </div>
         </div>
 
-        <div className={`pos-right ${showOrderSummary ? "show" : ""}`}>
-          <OrderSummary
-            cart={cart}
-            onUpdateQuantity={updateQuantity}
-            onRemoveItem={removeFromCart}
-            onCheckout={checkout}
-            onClear={clearCart}
-          />
+        <div className="payment-method-section">
+          <h3 className="section-label">Payment Method</h3>
+          <div className="PM-section">
+            <button 
+              className={`OTPM-btn ${paymentMethod === 'Cash' ? 'active' : ''}`}
+              onClick={() => setPaymentMethod('Cash')}
+            >
+              Cash
+            </button>
+            <button 
+              className={`OTPM-btn ${paymentMethod === 'Gcash' ? 'active' : ''}`}
+              onClick={() => setPaymentMethod('Gcash')}
+            >
+              GCash
+            </button>
+          </div>
         </div>
       </div>
 
-      <Modal
-        isVisible={showModal}
-        onClose={closeModal}
-        lastTransaction={lastTransaction}
-      />
+      {/* Order Items */}
+      <div className="order-items-section">
+        {cart.length === 0 ? (
+          <div className="empty-order">
+            <div className="empty-icon">
+              <ShoppingCart size={48} />
+            </div>
+            <div className="empty-message">Your cart is empty</div>
+            <div className="empty-submessage">Add items from the menu to get started</div>
+          </div>
+        ) : (
+          <>
+            <div className="order-items-header">
+              <span>Item</span>
+              <span>Total</span>
+            </div>
+            {cart.map((item) => (
+              <div key={item.id} className="order-item">
+                <div className="item-info">
+                  <span className="item-name">{item.item_name}</span>
+                  <div className="item-controls">
+                    <button
+                      onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                      className="qty-btn minus"
+                      disabled={item.quantity <= 1}
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="quantity">{item.quantity}</span>
+                    <button
+                      onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                      className="qty-btn plus"
+                    >
+                      <Plus size={14} />
+                    </button>
+                    <button
+                      onClick={() => onRemoveItem(item.id)}
+                      className="remove-btn"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+                <div className="item-total">
+                  ₱{(item.price * item.quantity).toFixed(2)}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+
+      {/* Totals Section */}
+      <div className="order-summary-footer">
+        <div className="summary-totals">
+          <div className="total-row subtotal">
+            <span className="total-label">Subtotal:</span>
+            <span className="total-value">₱{total.toFixed(2)}</span>
+          </div>
+          <div className="total-row">
+            <span className="total-label">Tax (12%):</span>
+            <span className="total-value">₱{tax.toFixed(2)}</span>
+          </div>
+          <div className="total-row final-total">
+            <span className="total-label">Total Amount:</span>
+            <span className="total-value">₱{finalTotal.toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* Payment Display */}
+        <div className="calculator-display">
+          <div className="display-amount">
+            <span className="display-label">Payment Amount:</span>
+            <span>₱{display}</span>
+          </div>
+          {payment > 0 && (
+            <div className="payment-info">
+              <div className="payment-row">
+                <span>Amount Due:</span>
+                <span>₱{finalTotal.toFixed(2)}</span>
+              </div>
+              <div className="payment-row">
+                <span>Amount Paid:</span>
+                <span>₱{payment.toFixed(2)}</span>
+              </div>
+              <div className="payment-row change-row">
+                <span>Change:</span>
+                <span>₱{change.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Number Pad */}
+        <div className="number-pad">
+          <div className="calculator-grid">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '.'].map((num, index) => (
+              <button 
+                key={index}
+                className={`calc-btn ${num === 'C' ? 'clear-btn' : ''}`}
+                onClick={() => {
+                  if (num === 'C') {
+                    handleClear();
+                  } else {
+                    handleNumberClick(num);
+                  }
+                }}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          <div className="calculator-actions">
+            <button className="calc-action-btn enter" onClick={handleEnter}>
+              <Calculator size={18} />
+              ENTER PAYMENT
+            </button>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="action-buttons">
+          <button 
+            className="clear-order-btn"
+            onClick={handleClearOrder}
+            disabled={cart.length === 0}
+          >
+            <Trash2 size={18} />
+            CLEAR ORDER
+          </button>
+          <button 
+            className="checkout-btn"
+            onClick={handleCheckout}
+            disabled={cart.length === 0 || payment < finalTotal}
+          >
+            <ShoppingCart size={18} />
+            PROCESS PAYMENT
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-export default POS;
+export default OrderSummary;
