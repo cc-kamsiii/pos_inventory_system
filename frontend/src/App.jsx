@@ -19,6 +19,7 @@ import OwnerTransactions from "./pages/owner/OwnerTransactions.jsx";
 import Settings from "./pages/owner/Settings.jsx";
 import EditAcc from "./pages/owner/EditAcc.jsx";
 import EditMenu from "./pages/owner/EditMenu.jsx";
+import Archives from "./pages/owner/Archives.jsx";
 import LockScreen from "./components/LockScreen.jsx";
 import "./Style/App.css";
 
@@ -123,6 +124,14 @@ function Layout() {
             element={
               <ProtectedRoute allowedRoles={["owner"]}>
                 <EditMenu />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/archives"
+            element={
+              <ProtectedRoute allowedRoles={["owner"]}>
+                <Archives />
               </ProtectedRoute>
             }
           />

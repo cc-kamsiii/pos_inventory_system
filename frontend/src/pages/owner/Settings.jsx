@@ -26,6 +26,14 @@ function Settings() {
           <h3>Edit Menu</h3>
           <p>Update and organize menu items</p>
         </div>
+
+        <div
+          className="settings-option"
+          onClick={() => navigate("/Archives")}
+        >
+          <h3>Archives</h3>
+          <p>Access and manage archived records</p>
+        </div>
       </div>
     </div>
   );
