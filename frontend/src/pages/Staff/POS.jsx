@@ -237,6 +237,11 @@ function POS() {
         onClose={closeModal}
         lastTransaction={lastTransaction}
       />
+      <Modal
+        isVisible={showModal}
+        onClose={closeModal}
+        lastTransaction={lastTransaction}
+      />
     </div>
   );
 }
