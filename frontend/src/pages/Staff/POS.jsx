@@ -16,6 +16,8 @@ function POS() {
   const [showModal, setShowModal] = useState(false);
   const [lastTransaction, setLastTransaction] = useState({});
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [mostOrdered, setMostOrdered] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -46,7 +48,6 @@ function POS() {
     }
   };
 
-  
   const fetchCategories = () => {
     axios
       .get(`${API_BASE}/menu/categories`)
@@ -190,11 +191,15 @@ function POS() {
 
   const closeModal = () => setShowModal(false);
 
+  const closeOrderSummary = () => {
+    setShowOrderSummary(false);
+  };
+
   return (
     <div className="pos-system">
       <button
-        className="order-summary-toggle"
-        onClick={() => setShowOrderSummary(!showOrderSummary)}
+        className={`order-summary-toggle ${showOrderSummary ? "hidden" : ""}`}
+        onClick={() => setShowOrderSummary(true)}
       >
         <ShoppingCart size={20} />
         <span>Order</span>
@@ -222,10 +227,16 @@ function POS() {
             onRemoveItem={removeFromCart}
             onCheckout={checkout}
             onClear={clearCart}
+            onClose={closeOrderSummary} // Pass the close function
           />
         </div>
       </div>
 
+      <Modal
+        isVisible={showModal}
+        onClose={closeModal}
+        lastTransaction={lastTransaction}
+      />
       <Modal
         isVisible={showModal}
         onClose={closeModal}
