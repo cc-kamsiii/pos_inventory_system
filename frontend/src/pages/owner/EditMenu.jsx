@@ -74,14 +74,14 @@ function EditMenu() {
     e.preventDefault();
 
     try {
-      // ✅ Case 1: Create new category
+     
       if (isNewCategory) {
         await axios.post(`${API_BASE}/menu/add-category`, {
           category: formData.category,
         });
         alert("Category created successfully!");
       }
-      // ✅ Case 2: Editing existing item
+  
       else if (isEditing && editId) {
         await axios.put(`${API_BASE}/menu/update/${editId}`, formData);
         await axios.post(`${API_BASE}/menu/${editId}/ingredients/save`, {
@@ -90,7 +90,7 @@ function EditMenu() {
         });
         alert("Menu item updated successfully!");
       }
-      // ✅ Case 3: Add new item
+    
       else {
         const res = await axios.post(`${API_BASE}/menu/add-item`, formData);
         const newId = res.data.menu_id;
@@ -103,7 +103,6 @@ function EditMenu() {
         alert("Menu item added successfully!");
       }
 
-      // ✅ Reset form & refresh data
       setShowAddModal(false);
       setFormData({ item_name: "", price: "", category: "", size: "" });
       setIngredients([]);
@@ -181,7 +180,7 @@ function EditMenu() {
         </div>
       </div>
 
-      {/* MENU LIST SAME */}
+      
       <div className="menu-list">
         {categories.map((cat) => (
           <div key={cat} className="menu-category">
@@ -237,7 +236,6 @@ function EditMenu() {
             </h3>
 
             <form id="menu-form" onSubmit={handleAdd} className="modal-grid">
-              {/* LEFT SIDE FORM */}
               <div className="modal-left">
                 <label className="checkbox-label">
                   <input
@@ -315,7 +313,6 @@ function EditMenu() {
                 <div className="modal-right">
                   <h4>Ingredients</h4>
 
-                  {/* ✅ Table Display */}
                   <div className="ingredient-table-wrapper">
                     <table className="ingredient-table">
                       <thead>
@@ -357,7 +354,6 @@ function EditMenu() {
                     </table>
                   </div>
 
-                  {/* ✅ Select ingredient + qty */}
                   <label>Select Ingredient (Inventory):</label>
                   <select
                     value={newIngredient.ingredient_id}
