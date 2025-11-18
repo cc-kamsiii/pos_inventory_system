@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArchiveIcon } from "lucide-react";
 import axios from "axios";
 import "../../Style/EditAcc.css";
 
@@ -53,17 +53,33 @@ function EditAcc() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async () => {
-    try {
-      await axios.delete(`${API_BASE}/auth/${accountToDelete.id}`);
-      setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
-      setShowDeleteModal(false);
-      setAccountToDelete(null);
-    } catch (err) {
-      console.log(err);
-      alert("Error in deleting an account");
+const confirmArchive = async () => {
+  try {
+    await axios.delete(`${API_BASE}/auth/archive/${accountToDelete.id}`);
+
+    // Remove from current accounts
+    setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
+    setShowDeleteModal(false);
+    setAccountToDelete(null);
+
+    // Optional: Show success message
+    alert(`Account ${accountToDelete.username} archived successfully!`);
+
+  } catch (err) {
+    console.log("Archive error:", err);
+    
+    if (err.response?.status === 500) {
+      const errorMessage = err.response?.data?.message || 
+        `Cannot archive ${accountToDelete.username}. This staff member has transaction records that prevent archiving.`;
+      alert(errorMessage);
+    } else if (err.response?.data?.message) {
+      alert(err.response.data.message);
+    } else {
+      alert("Error archiving account. Please try again.");
     }
-  };
+  }
+};
+
 
   return (
     <div className="createacc-container">
@@ -91,7 +107,7 @@ function EditAcc() {
                   <small>Role: {account.role}</small>
                   <small>Name: {account.name}</small>
                 </div>
-                <Trash2
+                <ArchiveIcon
                   className="trash-icon"
                   size={20}
                   onClick={() => handleDeleteClick(account)}
@@ -195,9 +211,9 @@ function EditAcc() {
           onClick={() => setShowDeleteModal(false)}
         >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirm Delete</h3>
+            <h3>Confirm Archieve</h3>
             <p>
-              Are you sure you want to delete{" "}
+              Are you sure you want to archive{" "}
               <strong>{accountToDelete?.username}</strong>?
             </p>
             <div className="warning-text">⚠️ This action cannot be undone.</div>
@@ -208,8 +224,8 @@ function EditAcc() {
               >
                 Cancel
               </button>
-              <button onClick={confirmDelete} className="btn-delete-confirm">
-                Delete
+              <button onClick={confirmArchive} className="btn-delete-confirm">
+                Archieve
               </button>
             </div>
           </div>

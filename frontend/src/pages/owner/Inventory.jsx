@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, Pencil, Trash, AlertTriangle, ArrowUpDown, ArrowUp, ArrowDown, Filter } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Trash,
+  AlertTriangle,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Filter,
+  ArchiveIcon,
+} from "lucide-react";
 import axios from "axios";
 import "../../Style/Inventory.css";
 
@@ -22,7 +32,7 @@ function Inventory() {
     { value: "beverages", label: "Drinks" },
     { value: "rice", label: "Rice & Grains" },
     { value: "noodles", label: "Noodles" },
-    { value: "processed", label: "Processed & Canned Goods" }
+    { value: "processed", label: "Processed & Canned Goods" },
   ];
 
   useEffect(() => {
@@ -95,73 +105,123 @@ function Inventory() {
     const lower = itemName.toLowerCase();
 
     // Meat & Poultry
-    if (lower.includes("chicken") || lower.includes("tapa") || 
-        lower.includes("lechon") || lower.includes("beef") || 
-        lower.includes("pork") || lower.includes("meat") ||
-        lower.includes("liempo") || lower.includes("egg")) {
+    if (
+      lower.includes("chicken") ||
+      lower.includes("tapa") ||
+      lower.includes("lechon") ||
+      lower.includes("beef") ||
+      lower.includes("pork") ||
+      lower.includes("meat") ||
+      lower.includes("liempo") ||
+      lower.includes("egg")
+    ) {
       return "meat";
     }
-    
+
     // Seafood
-    if (lower.includes("bangus") || lower.includes("pulpo") || 
-        lower.includes("fish") || lower.includes("shrimp") || 
-        lower.includes("seafood")) {
+    if (
+      lower.includes("bangus") ||
+      lower.includes("pulpo") ||
+      lower.includes("fish") ||
+      lower.includes("shrimp") ||
+      lower.includes("seafood")
+    ) {
       return "seafood";
     }
-    
+
     // Vegetables & Produce
-    if (lower.includes("broccoli") || lower.includes("vegetable") || 
-        lower.includes("garlic") || lower.includes("onion") || 
-        lower.includes("tomato") || lower.includes("lettuce") ||
-        lower.includes("eggplant") || lower.includes("tokwa") ||
-        lower.includes("tofu") || lower.includes("calamansi")) {
+    if (
+      lower.includes("broccoli") ||
+      lower.includes("vegetable") ||
+      lower.includes("garlic") ||
+      lower.includes("onion") ||
+      lower.includes("tomato") ||
+      lower.includes("lettuce") ||
+      lower.includes("eggplant") ||
+      lower.includes("tokwa") ||
+      lower.includes("tofu") ||
+      lower.includes("calamansi")
+    ) {
       return "vegetables";
     }
-    
+
     // Condiments & Sauces
-    if (lower.includes("sauce") || lower.includes("mayonnaise") || 
-        lower.includes("ketchup") || lower.includes("gravy") || 
-        lower.includes("condiment") || lower.includes("vinegar") ||
-        lower.includes("fish sauce") || lower.includes("sinigang") ||
-        lower.includes("cooking oil") || lower.includes("oil") ||
-        lower.includes("black pepper") || lower.includes("pepper") ||
-        lower.includes("salt")) {
+    if (
+      lower.includes("sauce") ||
+      lower.includes("mayonnaise") ||
+      lower.includes("ketchup") ||
+      lower.includes("gravy") ||
+      lower.includes("condiment") ||
+      lower.includes("vinegar") ||
+      lower.includes("fish sauce") ||
+      lower.includes("sinigang") ||
+      lower.includes("cooking oil") ||
+      lower.includes("oil") ||
+      lower.includes("black pepper") ||
+      lower.includes("pepper") ||
+      lower.includes("salt")
+    ) {
       return "condiments";
     }
-    
+
     // Beverages
-    if (lower.includes("juice") || lower.includes("lemonade") || 
-        lower.includes("syrup") || lower.includes("mix") || 
-        lower.includes("drink") || lower.includes("beverage") ||
-        lower.includes("soda") || lower.includes("water") ||
-        lower.includes("coffee") || lower.includes("yakult") ||
-        lower.includes("coke") || lower.includes("sprite") ||
-        lower.includes("royal") || lower.includes("mountain dew") ||
-        lower.includes("pepsi") || lower.includes("mug") ||
-        lower.includes("rootbeer")) {
+    if (
+      lower.includes("juice") ||
+      lower.includes("lemonade") ||
+      lower.includes("syrup") ||
+      lower.includes("mix") ||
+      lower.includes("drink") ||
+      lower.includes("beverage") ||
+      lower.includes("soda") ||
+      lower.includes("water") ||
+      lower.includes("coffee") ||
+      lower.includes("yakult") ||
+      lower.includes("coke") ||
+      lower.includes("sprite") ||
+      lower.includes("royal") ||
+      lower.includes("mountain dew") ||
+      lower.includes("pepsi") ||
+      lower.includes("mug") ||
+      lower.includes("rootbeer")
+    ) {
       return "beverages";
     }
-    
+
     // Rice & Grains
-    if (lower.includes("rice") || lower.includes("grain") || 
-        lower.includes("flour")) {
+    if (
+      lower.includes("rice") ||
+      lower.includes("grain") ||
+      lower.includes("flour")
+    ) {
       return "rice";
     }
-    
+
     // Noodles
-    if (lower.includes("noodle") || lower.includes("bihon") || 
-        lower.includes("canton") || lower.includes("pasta") ||
-        lower.includes("spaghetti")) {
+    if (
+      lower.includes("noodle") ||
+      lower.includes("bihon") ||
+      lower.includes("canton") ||
+      lower.includes("pasta") ||
+      lower.includes("spaghetti")
+    ) {
       return "noodles";
     }
-    
+
     // Processed & Canned Goods
-    if (lower.includes("corned beef") || lower.includes("luncheon") ||
-        lower.includes("longganisa") || lower.includes("hotdog") ||
-        lower.includes("hot dog") || lower.includes("tocino") ||
-        lower.includes("ham") || lower.includes("hungarian") ||
-        lower.includes("sausage") || lower.includes("sardines") ||
-        lower.includes("canned") || lower.includes("processed")) {
+    if (
+      lower.includes("corned beef") ||
+      lower.includes("luncheon") ||
+      lower.includes("longganisa") ||
+      lower.includes("hotdog") ||
+      lower.includes("hot dog") ||
+      lower.includes("tocino") ||
+      lower.includes("ham") ||
+      lower.includes("hungarian") ||
+      lower.includes("sausage") ||
+      lower.includes("sardines") ||
+      lower.includes("canned") ||
+      lower.includes("processed")
+    ) {
       return "processed";
     }
 
@@ -205,11 +265,11 @@ function Inventory() {
 
   // Sorting function
   const handleSort = (key) => {
-    let direction = 'asc';
-    
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+    let direction = "asc";
+
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    } else if (sortConfig.key === key && sortConfig.direction === "desc") {
       setSortConfig({ key: null, direction: null });
       applyFilters(data, search, selectedCategory);
       return;
@@ -220,24 +280,24 @@ function Inventory() {
     const sorted = [...filteredData].sort((a, b) => {
       let aValue, bValue;
 
-      switch(key) {
-        case 'item':
+      switch (key) {
+        case "item":
           aValue = a.item.toLowerCase();
           bValue = b.item.toLowerCase();
           break;
-        case 'price':
+        case "price":
           aValue = parseFloat(a.price);
           bValue = parseFloat(b.price);
           break;
-        case 'quantity':
+        case "quantity":
           aValue = parseFloat(a.quantity);
           bValue = parseFloat(b.quantity);
           break;
-        case 'unit':
+        case "unit":
           aValue = a.unit.toLowerCase();
           bValue = b.unit.toLowerCase();
           break;
-        case 'last_update':
+        case "last_update":
           aValue = new Date(a.last_update);
           bValue = new Date(b.last_update);
           break;
@@ -246,10 +306,10 @@ function Inventory() {
       }
 
       if (aValue < bValue) {
-        return direction === 'asc' ? -1 : 1;
+        return direction === "asc" ? -1 : 1;
       }
       if (aValue > bValue) {
-        return direction === 'asc' ? 1 : -1;
+        return direction === "asc" ? 1 : -1;
       }
       return 0;
     });
@@ -261,12 +321,13 @@ function Inventory() {
     if (sortConfig.key !== columnKey) {
       return <ArrowUpDown size={16} className="sort-icon-neutral" />;
     }
-    return sortConfig.direction === 'asc' ? 
-      <ArrowUp size={16} className="sort-icon-active" /> : 
-      <ArrowDown size={16} className="sort-icon-active" />;
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp size={16} className="sort-icon-active" />
+    ) : (
+      <ArrowDown size={16} className="sort-icon-active" />
+    );
   };
 
-  // Get count of items in selected category
   const getCategoryCount = () => {
     if (selectedCategory === "all") {
       return data.length;
@@ -275,6 +336,22 @@ function Inventory() {
       const itemCategory = item.category || getCategoryFromItem(item.item);
       return itemCategory === selectedCategory;
     }).length;
+  };
+
+  const archiveItem = (id) => {
+    axios
+      .post(`${API_BASE}/inventory/archive/${id}`)
+      .then(() => {
+        const updated = data.filter((item) => item.id !== id);
+        setData(updated);
+        applyFilters(updated, search, selectedCategory);
+        alert("Item archived successfully");
+      })
+      .catch((err) => {
+        const message = err.response?.data?.message || "Error archiving item";
+        alert(message); // This should show: 'Cannot archive "testing". It is used in 2 recipe(s)...'
+        console.error("Archive error:", err.response?.data);
+      });
   };
 
   return (
@@ -290,8 +367,8 @@ function Inventory() {
             <div className="filter-search-group">
               <div className="category-filter">
                 <Filter size={18} />
-                <select 
-                  value={selectedCategory} 
+                <select
+                  value={selectedCategory}
                   onChange={handleCategoryChange}
                   className="category-select"
                 >
@@ -314,18 +391,18 @@ function Inventory() {
           </div>
         </div>
 
-        {/* Display active filters info */}
         <div className="filter-info">
           <span className="result-count">
             Showing {filteredData.length} of {getCategoryCount()} items
             {selectedCategory !== "all" && (
               <span className="active-filter">
-                {" "}in {categories.find(c => c.value === selectedCategory)?.label}
+                {" "}
+                in {categories.find((c) => c.value === selectedCategory)?.label}
               </span>
             )}
           </span>
           {(search || selectedCategory !== "all") && (
-            <button 
+            <button
               className="clear-filters-btn"
               onClick={() => {
                 setSearch("");
@@ -343,34 +420,49 @@ function Inventory() {
           <table>
             <thead>
               <tr>
-                <th onClick={() => handleSort('item')} className="sortable-header">
+                <th
+                  onClick={() => handleSort("item")}
+                  className="sortable-header"
+                >
                   <div className="header-content-inventory">
                     <span>Item Name</span>
-                    {getSortIcon('item')}
+                    {getSortIcon("item")}
                   </div>
                 </th>
-                <th onClick={() => handleSort('price')} className="sortable-header">
+                <th
+                  onClick={() => handleSort("price")}
+                  className="sortable-header"
+                >
                   <div className="header-content">
                     <span>Price</span>
-                    {getSortIcon('price')}
+                    {getSortIcon("price")}
                   </div>
                 </th>
-                <th onClick={() => handleSort('quantity')} className="sortable-header">
+                <th
+                  onClick={() => handleSort("quantity")}
+                  className="sortable-header"
+                >
                   <div className="header-content">
                     <span>Quantity</span>
-                    {getSortIcon('quantity')}
+                    {getSortIcon("quantity")}
                   </div>
                 </th>
-                <th onClick={() => handleSort('unit')} className="sortable-header">
+                <th
+                  onClick={() => handleSort("unit")}
+                  className="sortable-header"
+                >
                   <div className="header-content">
                     <span>Unit</span>
-                    {getSortIcon('unit')}
+                    {getSortIcon("unit")}
                   </div>
                 </th>
-                <th onClick={() => handleSort('last_update')} className="sortable-header">
+                <th
+                  onClick={() => handleSort("last_update")}
+                  className="sortable-header"
+                >
                   <div className="header-content">
                     <span>Last Update</span>
-                    {getSortIcon('last_update')}
+                    {getSortIcon("last_update")}
                   </div>
                 </th>
                 <th>Alert</th>
@@ -390,9 +482,7 @@ function Inventory() {
                   return (
                     <tr
                       key={index}
-                      className={
-                        noStock ? "no-stock" : low ? "low-stock" : ""
-                      }
+                      className={noStock ? "no-stock" : low ? "low-stock" : ""}
                       title={
                         noStock ? "No stock!" : low ? "Low stock alert!" : ""
                       }
@@ -430,18 +520,14 @@ function Inventory() {
                             </button>
                           </Link>
                           <button
-                            className="delete-button"
+                            className="archive-button"
                             onClick={() => {
-                              if (
-                                window.confirm(
-                                  "Are you sure you want to delete this item?"
-                                )
-                              ) {
-                                handleDelete(inventory.id);
+                              if (window.confirm("Archive this item?")) {
+                                archiveItem(inventory.id);
                               }
                             }}
                           >
-                            <Trash />
+                            <ArchiveIcon />
                           </button>
                         </div>
                       </td>

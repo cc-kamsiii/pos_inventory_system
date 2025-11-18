@@ -101,7 +101,7 @@ export const addMenuItem = (req, res) => {
 
       res.status(200).json({
         message: "Item added successfully",
-        menu_id: result.insertId, // ✅ Return new menu ID
+        menu_id: result.insertId,
       });
     }
   );
@@ -160,29 +160,48 @@ export const updateMenuItem = (req, res) => {
 export const deleteMenuItem = (req, res) => {
   const { id } = req.params;
 
-  try {
-    db.query(
-      "DELETE FROM recipe_ingredients WHERE menu_id = ?",
-      [id],
-      (err) => {
-        if (err) {
-          console.error("Error deleting recipe ingredients:", err);
-          return res.status(500).json({ error: "Database error" });
-        }
+  // Check if menu item is used in any transactions
+  db.query(
+    "SELECT COUNT(*) as count FROM transaction_items WHERE menu_id = ?",
+    [id],
+    (err, countResult) => {
+      if (err) {
+        console.error("Error checking transactions:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
 
-        db.query("DELETE FROM menu WHERE id = ?", [id], (err2) => {
+      const transactionCount = countResult[0].count;
+
+      if (transactionCount > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot delete this menu item. It has been used in ${transactionCount} transaction(s). Consider archiving it instead.`,
+          usedInTransactions: true
+        });
+      }
+
+      // If not used in transactions, proceed with deletion
+      db.query(
+        "DELETE FROM recipe_ingredients WHERE menu_id = ?",
+        [id],
+        (err2) => {
           if (err2) {
-            console.error("Error deleting menu item:", err2);
+            console.error("Error deleting recipe ingredients:", err2);
             return res.status(500).json({ error: "Database error" });
           }
 
-          res.json({ message: "Menu item deleted successfully" });
-        });
-      }
-    );
-  } catch (e) {
-    res.status(500).json({ error: "Unexpected server error" });
-  }
+          db.query("DELETE FROM menu WHERE id = ?", [id], (err3) => {
+            if (err3) {
+              console.error("Error deleting menu item:", err3);
+              return res.status(500).json({ error: "Database error" });
+            }
+
+            res.json({ message: "Menu item deleted successfully" });
+          });
+        }
+      );
+    }
+  );
 };
 
 export const getMenuIngredients = (req, res) => {
@@ -222,7 +241,7 @@ export const addMenuIngredients = (req, res) => {
   `;
 
   const values = ingredients.map((ing) => [
-    id,
+    menu_id,
     ing.ingredient_id || null,
     parseFloat(ing.amount_per_serving || ing.qty || 0),
   ]);
@@ -264,8 +283,8 @@ export const saveMenuIngredients = (req, res) => {
 
     const values = ingredients.map((ing) => [
       id,
-      ing.ingredient_id || null, // ✅ Get inventory ID or null
-      ing.amount_per_serving || ing.qty || 0, // ✅ Accept both names
+      ing.ingredient_id || null,
+      ing.amount_per_serving || ing.qty || 0,
     ]);
 
     db.query(insertSQL, [values], (insertErr) => {
@@ -276,5 +295,126 @@ export const saveMenuIngredients = (req, res) => {
 
       res.json({ message: "Ingredients updated successfully" });
     });
+  });
+};
+
+export const getArchivedMenu = (req, res) => {
+  db.query("SELECT * FROM archived_menu", (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
+  });
+};
+
+export const archiveMenu = (req, res) => {
+  const id = req.params.id;
+
+  db.query("SELECT * FROM menu WHERE id = ?", [id], (err, rows) => {
+    if (err) {
+      console.error("Error fetching menu item:", err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+
+    const item = rows[0];
+
+    // Insert into archived_menu
+    db.query(
+      `INSERT INTO archived_menu 
+        (item_name, price, category, size, archived_at) 
+       VALUES (?, ?, ?, ?, NOW())`,
+      [
+        item.item_name,
+        item.price || 0,
+        item.category || null,
+        item.size || null
+      ],
+      (err2) => {
+        if (err2) {
+          console.error("Error inserting into archived_menu:", err2);
+          return res.status(500).json({ error: err2.message });
+        }
+
+        // Delete recipe ingredients
+        db.query("DELETE FROM recipe_ingredients WHERE menu_id = ?", [id], (err3) => {
+          if (err3) {
+            console.error("Error deleting recipe ingredients:", err3);
+            return res.status(500).json({ error: err3.message });
+          }
+
+          // Delete from menu
+          // The FK constraint with ON DELETE SET NULL will automatically set menu_id to NULL in transaction_items
+          // But item_name will remain, preserving the transaction history!
+          db.query("DELETE FROM menu WHERE id = ?", [id], (err4) => {
+            if (err4) {
+              console.error("Error deleting menu item:", err4);
+              return res.status(500).json({ error: err4.message });
+            }
+
+            res.json({ success: true, message: "Menu item archived successfully" });
+          });
+        });
+      }
+    );
+  });
+};
+
+export const restoreMenu = (req, res) => {
+  const id = req.params.id;
+
+  db.query(
+    "SELECT * FROM archived_menu WHERE id = ?",
+    [id],
+    (err, rows) => {
+      if (err) return res.status(500).json(err);
+      if (rows.length === 0)
+        return res.status(404).json({ message: "Not found" });
+
+      const item = rows[0];
+
+      // Check for duplicates
+      db.query(
+        "SELECT * FROM menu WHERE item_name = ? AND category = ?",
+        [item.item_name, item.category],
+        (err2, exists) => {
+          if (err2) return res.status(500).json(err2);
+
+          if (exists.length > 0) {
+            return res.status(400).json({
+              message: `Cannot restore. Item "${item.item_name}" already exists in menu.`,
+            });
+          }
+
+          // Insert back into menu
+          db.query(
+            "INSERT INTO menu (item_name, price, category, size) VALUES (?, ?, ?, ?)",
+            [item.item_name, item.price, item.category, item.size],
+            (err3) => {
+              if (err3) return res.status(500).json(err3);
+
+              // Delete from archived_menu
+              db.query(
+                "DELETE FROM archived_menu WHERE id = ?",
+                [id],
+                () => {}
+              );
+
+              res.json({ success: true, message: "Menu item restored" });
+            }
+          );
+        }
+      );
+    }
+  );
+};
+
+export const deletePermanentMenu = (req, res) => {
+  const id = req.params.id;
+
+  db.query("DELETE FROM archived_menu WHERE id = ?", [id], (err) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ message: "Menu item permanently deleted" });
   });
 };

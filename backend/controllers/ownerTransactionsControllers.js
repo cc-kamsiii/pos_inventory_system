@@ -8,7 +8,7 @@ export const getTransactions = (req, res) => {
   let sql = `
     SELECT
       t.id AS transaction_id,
-      m.item_name,
+      COALESCE(m.item_name, ti.item_name, 'Unknown Item') AS item_name,
       ti.quantity,
       ti.price,
       t.order_type,
@@ -18,7 +18,7 @@ export const getTransactions = (req, res) => {
       DATE_FORMAT(t.order_date, '%Y-%m-%d') AS order_date
     FROM transactions t
     JOIN transaction_items ti ON t.id = ti.transaction_id
-    JOIN menu m ON ti.menu_id = m.id
+    LEFT JOIN menu m ON ti.menu_id = m.id
   `;
 
   let whereClause = "";
@@ -84,14 +84,16 @@ export const addTransactions = (req, res) => {
 
       const transactionId = result.insertId;
 
+      // Updated to include item_name
       const sqlItems = `
-      INSERT INTO transaction_items (transaction_id, menu_id, quantity, price)
-      VALUES ?
-    `;
+        INSERT INTO transaction_items (transaction_id, menu_id, item_name, quantity, price)
+        VALUES ?
+      `;
 
       const values = cart.map((item) => [
         transactionId,
         item.id,
+        item.item_name,  // ADDED - saves menu item name
         item.quantity,
         item.price,
       ]);
@@ -279,13 +281,13 @@ export const getMostSellingMenu = (req, res) => {
 
   const sql = `
     SELECT 
-      m.item_name AS menu_item,
+      COALESCE(m.item_name, ti.item_name, 'Unknown Item') AS menu_item,
       SUM(ti.quantity) AS total_sold
     FROM transaction_items ti
     JOIN transactions t ON ti.transaction_id = t.id
-    JOIN menu m ON ti.menu_id = m.id
+    LEFT JOIN menu m ON ti.menu_id = m.id
     WHERE 1=1 ${dateFilter}
-    GROUP BY m.id
+    GROUP BY COALESCE(m.item_name, ti.item_name)
     ORDER BY total_sold DESC
     LIMIT 5
   `;
@@ -305,7 +307,6 @@ export const getMostSellingMenu = (req, res) => {
 export const getSalesByCategory = (req, res) => {
   const { period } = req.query;
 
-  // Debug: Log what period was received
   console.log("🔍 getSalesByCategory called with period:", period);
 
   let dateFilter = "";
@@ -324,14 +325,13 @@ export const getSalesByCategory = (req, res) => {
       SUM(ti.quantity * ti.price) AS total_amount
     FROM transaction_items ti
     JOIN transactions t ON ti.transaction_id = t.id
-    JOIN menu m ON ti.menu_id = m.id
+    LEFT JOIN menu m ON ti.menu_id = m.id
     JOIN categories c ON m.category_id = c.id
     WHERE t.order_date IS NOT NULL ${dateFilter}
     GROUP BY c.id, c.category_name
     ORDER BY total_amount DESC
   `;
 
-  // Debug: Log the SQL query
   console.log("📝 SQL Query:", sql);
 
   db.query(sql, (err, result) => {
@@ -340,11 +340,9 @@ export const getSalesByCategory = (req, res) => {
       return res.status(500).json({ error: "Database error", details: err.message });
     }
 
-    // Debug: Log the raw result
     console.log("✅ Raw DB Result:", result);
     console.log("📊 Result count:", result ? result.length : 0);
 
-    // Return empty chart structure if no data
     if (!result || result.length === 0) {
       console.log("⚠️ No data found, returning empty chart");
       return res.json([["Category", "Amount"]]);

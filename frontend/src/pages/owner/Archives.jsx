@@ -1,28 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { RotateCcw, Trash2 } from "lucide-react";
+import axios from "axios";
 import "../../Style/Archives.css";
 
 function Archives() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("accounts");
 
-  const archivedAccounts = [
-    { id: 1, name: "John Doe", email: "john@example.com", archivedDate: "2024-01-15", role: "Manager" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", archivedDate: "2024-01-10", role: "Staff" },
-    { id: 3, name: "Bob Wilson", email: "bob@example.com", archivedDate: "2024-01-05", role: "Cashier" }
-  ];
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  const archivedMenus = [
-    { id: 1, name: "Seasonal Salad", category: "Appetizers", price: "$8.99", archivedDate: "2024-01-12" },
-    { id: 2, name: "Chocolate Volcano", category: "Desserts", price: "$6.99", archivedDate: "2024-01-08" },
-    { id: 3, name: "Mango Smoothie", category: "Beverages", price: "$4.99", archivedDate: "2024-01-03" }
-  ];
+  const [archivedAccounts, setArchivedAccounts] = useState([]);
+  const [archivedMenus, setArchivedMenus] = useState([]);
+  const [archivedInventories, setArchivedInventories] = useState([]);
 
-  const archivedInventories = [
-    { id: 1, name: "Fresh Basil", category: "Herbs", quantity: "0 kg", archivedDate: "2024-01-14" },
-    { id: 2, name: "Mango Pulp", category: "Fruits", quantity: "0 cans", archivedDate: "2024-01-09" },
-    { id: 3, name: "Special Sauce", category: "Condiments", quantity: "0 bottles", archivedDate: "2024-01-04" }
-  ];
+  const fetchArchivedAccounts = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/auth/archived`);
+      const formattedData = res.data.map(user => ({
+        ...user,
+        fullname: user.name
+      }));
+      setArchivedAccounts(formattedData);
+    } catch (err) {
+      console.log("Error fetching archived accounts:", err);
+    }
+  };
+
+  const fetchArchivedMenus = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/menu/archived`);
+      setArchivedMenus(res.data);
+    } catch (err) {
+      console.log("Error fetching archived menus:", err);
+    }
+  };
+
+  const fetchArchivedInventory = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/inventory/archived`);
+      setArchivedInventories(res.data);
+    } catch (err) {
+      console.log("Error fetching archived inventory:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "accounts") fetchArchivedAccounts();
+    if (activeTab === "menus") fetchArchivedMenus();
+    if (activeTab === "inventories") fetchArchivedInventory();
+  }, [activeTab]);
 
   const getArchivedData = () => {
     switch (activeTab) {
@@ -40,53 +67,152 @@ function Archives() {
   const getTableHeaders = () => {
     switch (activeTab) {
       case "accounts":
-        return ["Name", "Email", "Role", "Archived Date", "Actions"];
+        return ["Name", "Username", "Role", "Archived Date", "Actions"];
       case "menus":
         return ["Item Name", "Category", "Price", "Archived Date", "Actions"];
       case "inventories":
-        return ["Item Name", "Category", "Quantity", "Archived Date", "Actions"];
+        return [
+          "Item Name",
+          "Category",
+          "Quantity",
+          "Archived Date",
+          "Actions",
+        ];
       default:
         return [];
     }
   };
 
-  const handleRestore = (id, type) => {
-    // Implement restore functionality
-    console.log(`Restoring ${type} with ID: ${id}`);
-    // Add your API call here to restore the item
+  const handleRestore = async (id, type) => {
+    if (!window.confirm(`Restore this ${type}?`)) return;
+
+    try {
+      const endpoint = type === "account" ? "auth" : type;
+      await axios.post(`${API_BASE}/${endpoint}/restore/${id}`);
+
+      if (type === "account") {
+        setArchivedAccounts(archivedAccounts.filter((acc) => acc.id !== id));
+      }
+
+      if (type === "menu") {
+        setArchivedMenus(archivedMenus.filter((menu) => menu.id !== id));
+      }
+
+      if (type === "inventory") {
+        setArchivedInventories(
+          archivedInventories.filter((inv) => inv.id !== id)
+        );
+      }
+
+      alert("Item restored successfully!");
+    } catch (err) {
+      console.log(err);
+      const message = err.response?.data?.message || "Error restoring item.";
+      alert(message);
+    }
   };
 
-  const handleDelete = (id, type) => {
-    // Implement permanent delete functionality
-    if (window.confirm(`Are you sure you want to permanently delete this ${type}? This action cannot be undone.`)) {
-      console.log(`Deleting ${type} with ID: ${id}`);
-      // Add your API call here to permanently delete the item
+  const handleDelete = async (id, type) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete this ${type}? This action cannot be undone!`
+      )
+    )
+      return;
+
+    try {
+      const endpoint = type === "account" ? "auth" : type;
+      await axios.delete(`${API_BASE}/${endpoint}/permanent/${id}`);
+
+      if (type === "account") {
+        setArchivedAccounts(archivedAccounts.filter((acc) => acc.id !== id));
+      }
+
+      if (type === "menu") {
+        setArchivedMenus(archivedMenus.filter((menu) => menu.id !== id));
+      }
+
+      if (type === "inventory") {
+        setArchivedInventories(
+          archivedInventories.filter((inv) => inv.id !== id)
+        );
+      }
+
+      alert(`Archived ${type} deleted permanently.`);
+    } catch (err) {
+      console.log(err);
+      alert("Error deleting item.");
     }
   };
 
   const renderTableRows = () => {
     const data = getArchivedData();
-    const type = activeTab.slice(0, -1); // Remove 's' from end for singular
+
+    const getTypeFromTab = (tab) => {
+      switch (tab) {
+        case "accounts":
+          return "account";
+        case "menus":
+          return "menu";
+        case "inventories":
+          return "inventory";
+        default:
+          return tab.slice(0, -1);
+      }
+    };
+
+    const type = getTypeFromTab(activeTab);
 
     return data.map((item) => (
       <tr key={item.id} className="archive-row">
-        <td>{item.name}</td>
-        <td>{item.email || item.category}</td>
-        <td>{item.role || item.price || item.quantity}</td>
-        <td>{item.archivedDate}</td>
+        {activeTab === "accounts" && (
+          <>
+            <td>{item.fullname}</td>
+            <td>{item.username}</td>
+            <td>{item.role}</td>
+            <td>{new Date(item.archived_at).toLocaleDateString()}</td>
+          </>
+        )}
+
+        {activeTab === "menus" && (
+          <>
+            <td>{item.item_name}</td>
+            <td>{item.category}</td>
+            <td>₱{item.price}</td>
+            <td>{new Date(item.archived_at).toLocaleDateString()}</td>
+          </>
+        )}
+
+        {activeTab === "inventories" && (
+          <>
+            <td>{item.item}</td>
+            <td>{item.category}</td>
+            <td>
+              {item.quantity} {item.unit}
+            </td>
+            <td>{new Date(item.archived_at).toLocaleDateString()}</td>
+          </>
+        )}
+
         <td className="action-buttons">
-          <button 
+          <button
             className="btn-restore"
             onClick={() => handleRestore(item.id, type)}
+            title="Restore this item"
           >
-            Restore
+            <RotateCcw size={18} />
           </button>
-          <button 
-            className="btn-delete"
-            onClick={() => handleDelete(item.id, type)}
-          >
-            Delete
-          </button>
+
+          {/* Only show delete button for menus and inventory, NOT for accounts */}
+          {activeTab !== "accounts" && (
+            <button
+              className="btn-delete"
+              onClick={() => handleDelete(item.id, type)}
+              title="Delete permanently"
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
         </td>
       </tr>
     ));
@@ -110,13 +236,15 @@ function Archives() {
           className={`tab-button ${activeTab === "menus" ? "active" : ""}`}
           onClick={() => setActiveTab("menus")}
         >
-        Menus
+          Menus
         </button>
         <button
-          className={`tab-button ${activeTab === "inventories" ? "active" : ""}`}
+          className={`tab-button ${
+            activeTab === "inventories" ? "active" : ""
+          }`}
           onClick={() => setActiveTab("inventories")}
         >
-        Inventory
+          Inventory
         </button>
       </div>
 
@@ -130,9 +258,7 @@ function Archives() {
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {renderTableRows()}
-            </tbody>
+            <tbody>{renderTableRows()}</tbody>
           </table>
         </div>
 

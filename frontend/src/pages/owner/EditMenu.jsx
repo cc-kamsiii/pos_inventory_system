@@ -1,4 +1,4 @@
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, ArchiveIcon } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "../../Style/EditMenu.css";
@@ -74,24 +74,19 @@ function EditMenu() {
     e.preventDefault();
 
     try {
-     
       if (isNewCategory) {
         await axios.post(`${API_BASE}/menu/add-category`, {
           category: formData.category,
         });
         alert("Category created successfully!");
-      }
-  
-      else if (isEditing && editId) {
+      } else if (isEditing && editId) {
         await axios.put(`${API_BASE}/menu/update/${editId}`, formData);
         await axios.post(`${API_BASE}/menu/${editId}/ingredients/save`, {
           id: editId,
           ingredients: ingredients,
         });
         alert("Menu item updated successfully!");
-      }
-    
-      else {
+      } else {
         const res = await axios.post(`${API_BASE}/menu/add-item`, formData);
         const newId = res.data.menu_id;
         if (ingredients.length > 0) {
@@ -115,16 +110,26 @@ function EditMenu() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
+  const handleArchive = async (id) => {
+    if (!window.confirm("Archive this item?")) return;
 
     try {
-      await axios.delete(`${API_BASE}/menu/delete/${id}`);
-      alert("Menu item deleted successfully!");
+      await axios.post(`${API_BASE}/menu/archive/${id}`);
+      alert("Menu item archived successfully!");
       fetchData();
     } catch (err) {
-      console.error("Error deleting:", err);
-      alert("Failed to delete item.");
+      console.error("Error archiving:", err);
+
+      const errorData = err.response?.data;
+
+      if (errorData?.usedInTransactions) {
+        alert(errorData.message);
+      } else {
+        alert(
+          errorData?.message ||
+            "Failed to archive item. Check console for details."
+        );
+      }
     }
   };
 
@@ -170,6 +175,7 @@ function EditMenu() {
             onClick={async () => {
               setShowAddModal(true);
               setIsEditing(false);
+              resetForm();
 
               const inv = await axios.get(`${API_BASE}/inventory`);
               setInventoryList(inv.data);
@@ -180,7 +186,6 @@ function EditMenu() {
         </div>
       </div>
 
-      
       <div className="menu-list">
         {categories.map((cat) => (
           <div key={cat} className="menu-category">
@@ -204,10 +209,10 @@ function EditMenu() {
                         </button>
 
                         <button
-                          className="btn-dlt"
-                          onClick={() => handleDelete(item.id)}
+                          className="btn-archive"
+                          onClick={() => handleArchive(item.id)}
                         >
-                          <Trash2 size={20} />
+                          <ArchiveIcon size={20} />
                         </button>
                       </div>
                     </li>
@@ -331,12 +336,8 @@ function EditMenu() {
                               <td>
                                 <button
                                   type="button"
-                                  className="delete-button"
-                                  onClick={() =>
-                                    setIngredients(
-                                      ingredients.filter((_, idx) => idx !== i)
-                                    )
-                                  }
+                                  className="delete-button-small"
+                                  onClick={() => removeIngredient(i)}
                                 >
                                   <Trash2 size={16} />
                                 </button>

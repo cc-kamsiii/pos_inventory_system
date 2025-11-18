@@ -244,12 +244,12 @@
   border-radius: 5px;
 }
 
-.btn-dlt svg {
+.btn-archive svg {
   stroke: red;
   padding: 10px;
 }
 
-.btn-dlt svg:hover{
+.btn-archive svg:hover{
   stroke: white;
   background-color: red;
   border-radius: 5px;
@@ -381,7 +381,7 @@
   background: #faf7ff;
 }
 
-.delete-button {
+.delete-button-small {
   background: transparent;
   border: none;
   cursor: pointer;
@@ -391,7 +391,7 @@
   transition: 0.2s;
 }
 
-.delete-button:hover {
+.delete-button-small:hover {
   background: #fde8e8;
   color: #e53935;
   transform: scale(1.1);

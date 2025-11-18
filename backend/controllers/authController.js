@@ -9,14 +9,15 @@ exports.login = async (req, res) => {
     return res.json({ success: false, message: "All fields are required" });
   }
 
+  // Check if user is archived
   db.query(
-    "SELECT * FROM users WHERE username = ?",
+    "SELECT * FROM users WHERE username = ? AND is_archived = FALSE",
     [username],
     async (err, result) => {
       if (err) return res.json({ error: err });
 
       if (result.length === 0)
-        return res.json({ success: false, message: "User not found" });
+        return res.json({ success: false, message: "User not found or archived" });
 
       const user = result[0];
 
@@ -59,10 +60,18 @@ exports.login = async (req, res) => {
   );
 };
 
-exports.register = async (req, res) => {
-  const { username, password, role, name, first_name } = req.body; // Add first_name here
+exports.getAllUsers = async (req, res) => {
+  const sql = "SELECT id, username, role, name FROM users WHERE is_archived = FALSE";
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(result);
+  });
+};
 
-  if (!username || !password || !role || !name || !first_name) { // Validate it
+exports.register = async (req, res) => {
+  const { username, password, role, name, first_name } = req.body;
+
+  if (!username || !password || !role || !name || !first_name) {
     return res.json({ success: false, message: "All fields are required" });
   }
 
@@ -78,9 +87,9 @@ exports.register = async (req, res) => {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const sql =
-        "INSERT INTO users (username, password, role, name, first_name) VALUES (?, ?, ?, ?, ?)";
+        "INSERT INTO users (username, password, role, name, first_name, is_archived) VALUES (?, ?, ?, ?, ?, FALSE)";
 
-      db.query(sql, [username, hashedPassword, role, name, first_name], (err, result) => { // Add first_name here
+      db.query(sql, [username, hashedPassword, role, name, first_name], (err, result) => {
         if (err) return res.status(400).json({ error: err });
         res.json({ success: true, message: "Account created successfully!" });
       });
@@ -88,25 +97,111 @@ exports.register = async (req, res) => {
   );
 };
 
-exports.deleteUser = async (req, res) => {
+exports.archiveUser = async (req, res) => {
   const { id } = req.params;
 
-  db.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
+  console.log("=== ARCHIVE USER START ===");
+  console.log("Attempting to archive user with ID:", id);
 
-    if (result.affectedRows === 0)
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+  // Simply mark the user as archived instead of deleting
+  const sql = "UPDATE users SET is_archived = TRUE, archived_at = NOW() WHERE id = ?";
+  
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error("❌ Error archiving user:", err);
+      return res.status(500).json({ 
+        error: err.message,
+        step: "archive_user"
+      });
+    }
 
-    res.json({ success: true, message: "Account deleted successfully!" });
+    if (result.affectedRows === 0) {
+      console.log("❌ User not found with ID:", id);
+      return res.status(404).json({ 
+        success: false, 
+        message: "User not found" 
+      });
+    }
+
+    console.log("✅ Successfully archived user");
+    console.log("=== ARCHIVE USER COMPLETE ===");
+    
+    res.json({ 
+      success: true, 
+      message: "Account archived successfully! Transaction history preserved." 
+    });
   });
 };
 
-exports.getAllUsers = async (req, res) => {
-  const sql = "SELECT id, username, role, name FROM users";
+exports.getArchivedUsers = async (req, res) => {
+  const sql = "SELECT id, username, role, name, first_name, archived_at FROM users WHERE is_archived = TRUE ORDER BY archived_at DESC";
+  
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     res.json(result);
   });
+};
+
+exports.restoreUser = async (req, res) => {
+  const { id } = req.params;
+
+  const sql = "UPDATE users SET is_archived = FALSE, archived_at = NULL WHERE id = ?";
+  
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error("Error restoring user:", err);
+      return res.status(500).json({ error: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Archived user not found" 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: "User restored successfully!" 
+    });
+  });
+};
+
+exports.permanentDeleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  // Check if user has transactions
+  db.query(
+    "SELECT COUNT(*) as count FROM transactions WHERE user_id = ?",
+    [id],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+
+      const transactionCount = result[0].count;
+
+      if (transactionCount > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Cannot permanently delete user. This user has ${transactionCount} transaction(s) in the system. Archive only is allowed to preserve transaction history.`
+        });
+      }
+
+      // If no transactions, allow permanent deletion
+      db.query("DELETE FROM users WHERE id = ? AND is_archived = TRUE", [id], (deleteErr, deleteResult) => {
+        if (deleteErr) return res.status(500).json({ error: deleteErr });
+
+        if (deleteResult.affectedRows === 0) {
+          return res.status(404).json({ 
+            success: false, 
+            message: "Archived user not found" 
+          });
+        }
+
+        res.json({ 
+          success: true, 
+          message: "User permanently deleted!" 
+        });
+      });
+    }
+  );
 };

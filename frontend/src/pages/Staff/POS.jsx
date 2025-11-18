@@ -42,7 +42,7 @@ function POS() {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE}/menu`);
-      setProducts(res.data); 
+      setProducts(res.data);
     } catch (err) {
       console.error(err);
     }
@@ -62,16 +62,18 @@ function POS() {
   };
 
   const fetchMostOrdered = () => {
-    axios.get(`${API_BASE}/analytics/most-ordered`)
-      .then(res => setMostOrdered(res.data.slice(0, 5)))
-      .catch(err => console.error(err));
+    axios
+      .get(`${API_BASE}/analytics/most-ordered`)
+      .then((res) => setMostOrdered(res.data.slice(0, 5)))
+      .catch((err) => console.error(err));
   };
 
   const fetchRecentOrders = () => {
     const userId = localStorage.getItem("user_id");
-    axios.get(`${API_BASE}/transactions/recent/${userId}`)
-      .then(res => setRecentOrders(res.data.slice(0, 5)))
-      .catch(err => console.error(err));
+    axios
+      .get(`${API_BASE}/transactions/recent/${userId}`)
+      .then((res) => setRecentOrders(res.data.slice(0, 5)))
+      .catch((err) => console.error(err));
   };
 
   const addToCart = (product) => {
@@ -154,8 +156,18 @@ function POS() {
       return;
     }
 
+    // Map cart items to include item_name explicitly
+    const cartWithNames = cart.map((item) => ({
+      id: item.id,
+      item_name: item.item_name, // ADD THIS - preserves name in transaction history
+      quantity: item.quantity,
+      price: item.price,
+      size: item.size,
+      category: item.category,
+    }));
+
     const transactionData = {
-      cart,
+      cart: cartWithNames, // Use the mapped cart with item_name
       payment_method: paymentMethod,
       total_payment: total,
       cashier_name: cashierName,

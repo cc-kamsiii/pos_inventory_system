@@ -4,7 +4,7 @@ export const getTransactions = (req, res) => {
   const sql = `
     SELECT
       t.id AS transaction_id,
-      m.item_name,
+      COALESCE(m.item_name, ti.item_name) AS item_name,  -- Use stored item_name if menu item was archived
       ti.quantity,
       ti.price,
       t.order_type,
@@ -14,7 +14,7 @@ export const getTransactions = (req, res) => {
       t.order_date
     FROM transactions t
     JOIN transaction_items ti ON t.id = ti.transaction_id
-    JOIN menu m ON ti.menu_id = m.id
+    LEFT JOIN menu m ON ti.menu_id = m.id  -- LEFT JOIN because menu_id might be NULL for archived items
     WHERE DATE(t.order_date) = CURDATE()
     ORDER BY t.order_date DESC
   `;
@@ -55,11 +55,18 @@ export const addTransactions = (req, res) => {
 
       const transactionId = result.insertId;
 
+      // Updated to include item_name
       const sqlItems = `
-        INSERT INTO transaction_items (transaction_id, menu_id, quantity, price)
+        INSERT INTO transaction_items (transaction_id, menu_id, item_name, quantity, price)
         VALUES ?
       `;
-      const values = cart.map((item) => [transactionId, item.id, item.quantity, item.price]);
+      const values = cart.map((item) => [
+        transactionId, 
+        item.id, 
+        item.item_name,  // ADD THIS - saves the menu item name for history
+        item.quantity, 
+        item.price
+      ]);
 
       db.query(sqlItems, [values], async (err2) => {
         if (err2) {
