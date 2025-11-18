@@ -50,7 +50,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      console.log(" Fetching dashboard data with period:", chartPeriod);
       setLoading(true);
       try {
         const [
@@ -87,13 +86,13 @@ const Dashboard = () => {
 
         setMostSellingData(
           mostSellingRes.data && mostSellingRes.data.length > 1
-            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)] // top 5
+            ? [mostSellingRes.data[0], ...mostSellingRes.data.slice(1, 6)]
             : [["Menu Item", "Quantity Sold"]]
         );
+
         setBarData(barRes.data || [["Period", "Sales", { role: "style" }]]);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-        console.error("Error details:", error.response?.data);
       } finally {
         setLoading(false);
       }
@@ -113,12 +112,42 @@ const Dashboard = () => {
     });
   };
 
+  const formatNumber = (num) => {
+    return Number(num).toLocaleString('en-US', { 
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2 
+    });
+  };
+
   const barOptions = {
-    title: `${
-      chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)
-    } Sales`,
+    title: `${chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)} Sales`,
     backgroundColor: "transparent",
     legend: { position: "none" },
+    vAxis: { 
+      format: "decimal",
+      textStyle: { fontSize: 12 }
+    },
+    hAxis: {
+      textStyle: { fontSize: 12 }
+    },
+    tooltip: { 
+      isHtml: true,
+      trigger: 'both'
+    },
+    chartArea: { width: '80%', height: '70%' }
+  };
+
+  const pieOptions = {
+    title: "Most Selling Menu",
+    pieHole: 0.4,
+    backgroundColor: "transparent",
+    legend: { position: "right" },
+    tooltip: { 
+      text: "value",
+      trigger: 'both'
+    },
+    colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"],
+    chartArea: { width: '90%', height: '80%' }
   };
 
   return (
@@ -152,21 +181,23 @@ const Dashboard = () => {
               <p className="stat-label">Income</p>
             </div>
             <p className="stat-value">
-              {loading ? "Loading..." : `₱ ${totalSales.toLocaleString()}`}
+              {loading ? "Loading..." : `₱ ${formatNumber(totalSales)}`}
             </p>
             <div className="stat-breakdown">
-              <p>Cash: ₱ {cashSales.toLocaleString()}</p>
-              <p>GCash: ₱ {gcashSales.toLocaleString()}</p>
+              <p>Cash: ₱ {formatNumber(cashSales)}</p>
+              <p>GCash: ₱ {formatNumber(gcashSales)}</p>
             </div>
             <PhilippinePesoIcon className="stat-icon" size={32} />
           </div>
 
           <div className="stat-card blue-gradient">
             <p className="stat-label">Orders</p>
-            <p className="stat-value">{loading ? "Loading..." : totalOrders}</p>
+            <p className="stat-value">
+              {loading ? "Loading..." : formatNumber(totalOrders)}
+            </p>
             <div className="stat-breakdown">
-              <p>Dine In: {dineInOrders}</p>
-              <p>Takeout: {takeoutOrders}</p>
+              <p>Dine In: {formatNumber(dineInOrders)}</p>
+              <p>Takeout: {formatNumber(takeoutOrders)}</p>
             </div>
             <ShoppingCart className="stat-icon" size={32} />
           </div>
@@ -174,37 +205,26 @@ const Dashboard = () => {
           <div className="stat-card gray-gradient">
             <p className="stat-label">Inventory Overview</p>
             <p className="stat-value">
-              {loading ? "Loading..." : `${totalInventory} items`}
+              {loading ? "Loading..." : `${formatNumber(totalInventory)} items`}
             </p>
             <p className="stat-subvalue">
-              {loading ? (
-                ""
-              ) : (
+              {!loading && (
                 <>
-                  Low Stock: {lowStockCount} <br />
-                  No Stock: {noStockCount}
+                  Low Stock: {formatNumber(lowStockCount)} <br />
+                  No Stock: {formatNumber(noStockCount)}
                 </>
               )}
             </p>
-
             <Package className="stat-icon" size={32} />
           </div>
         </div>
-
-        <div className="dashboard-controls"></div>
 
         <div className="charts-grid">
           <div className="chart-card">
             <Chart
               chartType="PieChart"
               data={mostSellingData}
-              options={{
-                title: "Most Selling Menu",
-                pieHole: 0.4,
-                backgroundColor: "transparent",
-                legend: { position: "right" },
-                colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"],
-              }}
+              options={pieOptions}
               width="100%"
               height="300px"
             />
@@ -219,7 +239,7 @@ const Dashboard = () => {
               height="300px"
             />
           </div>
-          
+
           <div className="chart-card">
             <h3>Cashier Login Records</h3>
             <div className="login-filter">

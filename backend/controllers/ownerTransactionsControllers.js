@@ -332,29 +332,29 @@ export const getSalesByCategory = (req, res) => {
     ORDER BY total_amount DESC
   `;
 
-  console.log("📝 SQL Query:", sql);
+  console.log("SQL Query:", sql);
 
   db.query(sql, (err, result) => {
     if (err) {
-      console.error("❌ Error fetching sales by category:", err);
+      console.error("Error fetching sales by category:", err);
       return res.status(500).json({ error: "Database error", details: err.message });
     }
 
-    console.log("✅ Raw DB Result:", result);
-    console.log("📊 Result count:", result ? result.length : 0);
+    console.log("Raw DB Result:", result);
+    console.log("Result count:", result ? result.length : 0);
 
     if (!result || result.length === 0) {
-      console.log("⚠️ No data found, returning empty chart");
+      console.log("No data found, returning empty chart");
       return res.json([["Category", "Amount"]]);
     }
 
     const data = [["Category", "Amount"]];
     result.forEach((row) => {
-      console.log("📈 Adding row:", row.category, "=>", row.total_amount);
+      console.log("Adding row:", row.category, "=>", row.total_amount);
       data.push([row.category, Number(row.total_amount) || 0]);
     });
     
-    console.log("🎯 Final data being sent:", data);
+    console.log("Final data being sent:", data);
     res.json(data);
   });
 };

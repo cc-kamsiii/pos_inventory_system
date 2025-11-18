@@ -86,7 +86,7 @@ function StaffTransactions() {
                     <td>{row.transaction_id}</td>
                     <td>{row.item_name}</td>
                     <td>{row.quantity}</td>
-                    <td>{row.price}</td>
+                    <td>₱{row.price}</td>
                     <td>{row.order_type}</td>
                     <td>{row.payment_method}</td>
                     <td>{row.total_payment}</td>

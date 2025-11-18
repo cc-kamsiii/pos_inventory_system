@@ -9,7 +9,6 @@ exports.login = async (req, res) => {
     return res.json({ success: false, message: "All fields are required" });
   }
 
-  // Check if user is archived
   db.query(
     "SELECT * FROM users WHERE username = ? AND is_archived = FALSE",
     [username],
@@ -103,12 +102,11 @@ exports.archiveUser = async (req, res) => {
   console.log("=== ARCHIVE USER START ===");
   console.log("Attempting to archive user with ID:", id);
 
-  // Simply mark the user as archived instead of deleting
   const sql = "UPDATE users SET is_archived = TRUE, archived_at = NOW() WHERE id = ?";
   
   db.query(sql, [id], (err, result) => {
     if (err) {
-      console.error("❌ Error archiving user:", err);
+      console.error("Error archiving user:", err);
       return res.status(500).json({ 
         error: err.message,
         step: "archive_user"
@@ -116,14 +114,14 @@ exports.archiveUser = async (req, res) => {
     }
 
     if (result.affectedRows === 0) {
-      console.log("❌ User not found with ID:", id);
+      console.log("User not found with ID:", id);
       return res.status(404).json({ 
         success: false, 
         message: "User not found" 
       });
     }
 
-    console.log("✅ Successfully archived user");
+    console.log("Successfully archived user");
     console.log("=== ARCHIVE USER COMPLETE ===");
     
     res.json({ 
@@ -170,7 +168,6 @@ exports.restoreUser = async (req, res) => {
 exports.permanentDeleteUser = async (req, res) => {
   const { id } = req.params;
 
-  // Check if user has transactions
   db.query(
     "SELECT COUNT(*) as count FROM transactions WHERE user_id = ?",
     [id],
@@ -186,7 +183,6 @@ exports.permanentDeleteUser = async (req, res) => {
         });
       }
 
-      // If no transactions, allow permanent deletion
       db.query("DELETE FROM users WHERE id = ? AND is_archived = TRUE", [id], (deleteErr, deleteResult) => {
         if (deleteErr) return res.status(500).json({ error: deleteErr });
 

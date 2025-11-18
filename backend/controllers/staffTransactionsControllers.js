@@ -55,7 +55,6 @@ export const addTransactions = (req, res) => {
 
       const transactionId = result.insertId;
 
-      // Updated to include item_name
       const sqlItems = `
         INSERT INTO transaction_items (transaction_id, menu_id, item_name, quantity, price)
         VALUES ?
@@ -63,7 +62,7 @@ export const addTransactions = (req, res) => {
       const values = cart.map((item) => [
         transactionId, 
         item.id, 
-        item.item_name,  // ADD THIS - saves the menu item name for history
+        item.item_name,  
         item.quantity, 
         item.price
       ]);
@@ -88,7 +87,6 @@ export const addTransactions = (req, res) => {
               );
             });
 
-            // If the item has a recipe 
             if (recipeRows.length > 0) {
               for (const r of recipeRows) {
                 const totalNeeded = r.amount_per_serving * item.quantity;
@@ -125,7 +123,6 @@ export const addTransactions = (req, res) => {
                 });
               }
             } else {
-              // No recipe — direct deduction (e.g. drinks, canned goods)
               const [invRows] = await new Promise((resolve, reject) => {
                 db.query(
                   "SELECT id, quantity, unit, item FROM inventory WHERE LOWER(item) = LOWER(?)",
@@ -141,9 +138,8 @@ export const addTransactions = (req, res) => {
                 const inv = invRows[0];
                 let deductQty = item.quantity;
 
-                //  Deduct per piece if unit is countable
                 if (["pcs", "can", "bottle", "pack"].includes(inv.unit.toLowerCase())) {
-                  deductQty = item.quantity; // one per item sold
+                  deductQty = item.quantity; 
                 }
 
                 const newQuantity = inv.quantity - deductQty;
@@ -166,7 +162,6 @@ export const addTransactions = (req, res) => {
             }
           }
 
-          // Commit if all deductions are successful
           db.commit((err3) => {
             if (err3) {
               db.rollback(() => {});
