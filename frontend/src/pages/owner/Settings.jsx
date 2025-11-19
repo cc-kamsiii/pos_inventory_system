@@ -15,8 +15,8 @@ function Settings() {
           className="settings-option"
           onClick={() => navigate("/EditAcc")}
         >
-          <h3>Edit Account</h3>
-          <p>Manage or create user accounts</p>
+          <h3>Manage Account</h3>
+          <p>Archive or create user accounts</p>
         </div>
 
         <div

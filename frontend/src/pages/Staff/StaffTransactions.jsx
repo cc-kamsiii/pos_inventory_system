@@ -25,9 +25,9 @@ function StaffTransactions () {
             <h2>TRANSACTIONS TODAY</h2>
 
             <div className="title-row">
-              <form>
+              {/*<form>
                 <input type="text" placeholder="Search transactions" />
-              </form>
+              </form>*/}
             </div>
           </div>
 

@@ -33,10 +33,7 @@ const Menu = ({ products, onAddToCart, selectedCategory, onRefresh, mostOrdered,
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className="refresh-btn" onClick={onRefresh}>
-          <RefreshCw className="refresh-icon" />
-          Refresh
-        </button>
+        
       </div>
 
      
