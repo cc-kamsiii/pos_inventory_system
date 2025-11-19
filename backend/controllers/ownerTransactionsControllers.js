@@ -93,7 +93,7 @@ export const addTransactions = (req, res) => {
       const values = cart.map((item) => [
         transactionId,
         item.id,
-        item.item_name,  // ADDED - saves menu item name
+        item.item_name, // ADDED - saves menu item name
         item.quantity,
         item.price,
       ]);
@@ -245,7 +245,8 @@ export const getCashierLogins = (req, res) => {
   let sql = `
     SELECT 
       u.first_name, 
-      DATE_FORMAT(c.login_time, '%Y-%m-%d %H:%i:%s') AS login_time
+      DATE_FORMAT(c.login_time, '%h:%i %p') AS login_time
+
     FROM cashier_logins c
     JOIN users u ON c.user_id = u.id
   `;
@@ -310,11 +311,12 @@ export const getSalesByCategory = (req, res) => {
   console.log("🔍 getSalesByCategory called with period:", period);
 
   let dateFilter = "";
-  
+
   if (period === "weekly") {
     dateFilter = "AND YEARWEEK(t.order_date, 1) = YEARWEEK(CURDATE(), 1)";
   } else if (period === "monthly") {
-    dateFilter = "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
+    dateFilter =
+      "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
   } else if (period === "yearly") {
     dateFilter = "AND YEAR(t.order_date) = YEAR(CURDATE())";
   }
@@ -337,7 +339,9 @@ export const getSalesByCategory = (req, res) => {
   db.query(sql, (err, result) => {
     if (err) {
       console.error("Error fetching sales by category:", err);
-      return res.status(500).json({ error: "Database error", details: err.message });
+      return res
+        .status(500)
+        .json({ error: "Database error", details: err.message });
     }
 
     console.log("Raw DB Result:", result);
@@ -353,7 +357,7 @@ export const getSalesByCategory = (req, res) => {
       console.log("Adding row:", row.category, "=>", row.total_amount);
       data.push([row.category, Number(row.total_amount) || 0]);
     });
-    
+
     console.log("Final data being sent:", data);
     res.json(data);
   });
