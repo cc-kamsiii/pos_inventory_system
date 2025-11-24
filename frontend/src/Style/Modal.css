@@ -1,0 +1,73 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.452);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-body {
+  text-align: center;
+}
+
+.success-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.success-amount {
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+.success-date {
+  color: #7f8c8d;
+  font-size: 18px;
+  margin: 8px 0;
+}
+
+.amount {
+  font-weight: 800;
+  color: #27ae60;
+  font-size: 1.5rem;
+}
+
+.continue-btn {
+  background: #5e239d;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.continue-btn:hover {
+  background: #7c3cb8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(94, 35, 157, 0.3);
+}
+
+.continue-btn:active {
+  transform: translateY(0);
+}

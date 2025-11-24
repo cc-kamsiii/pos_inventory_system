@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Plus, Search, RefreshCw } from "lucide-react";
+import "../../../Style/Menu.css";
 
 const Menu = ({ products, onAddToCart, selectedCategory, onRefresh, mostOrdered, recentOrders }) => {
 
@@ -36,8 +37,6 @@ const Menu = ({ products, onAddToCart, selectedCategory, onRefresh, mostOrdered,
         
       </div>
 
-     
-
       <div className="products-grid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
@@ -45,11 +44,9 @@ const Menu = ({ products, onAddToCart, selectedCategory, onRefresh, mostOrdered,
               key={product.id}
               className={`product-card ${product.stockStatus}`}
             >
-              <div className="product-image">
-                <span className={`available-badge ${product.stockStatus}`}>
-                  {getStockLabel(product.stockStatus)}
-                </span>
-              </div>
+              <span className={`available-badge ${product.stockStatus}`}>
+                {getStockLabel(product.stockStatus)}
+              </span>
 
               <div className="product-info">
                 <h3 className="product-name">

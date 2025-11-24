@@ -5,7 +5,6 @@ import Menu from "../../components/Sidebar/Staff/Menu";
 import Categories from "../../components/Sidebar/Staff/Categories";
 import OrderSummary from "../../components/Sidebar/Staff/OrderSummary";
 import Modal from "../../components/Sidebar/Staff/Modal";
-import "../../Style/POS.css";
 
 function POS() {
   const [categories, setCategories] = useState([]);
@@ -58,21 +57,6 @@ function POS() {
           ...res.data.map((c) => ({ name: c.category, count: c.count })),
         ]);
       })
-      .catch((err) => console.error(err));
-  };
-
-  const fetchMostOrdered = () => {
-    axios
-      .get(`${API_BASE}/analytics/most-ordered`)
-      .then((res) => setMostOrdered(res.data.slice(0, 5)))
-      .catch((err) => console.error(err));
-  };
-
-  const fetchRecentOrders = () => {
-    const userId = localStorage.getItem("user_id");
-    axios
-      .get(`${API_BASE}/transactions/recent/${userId}`)
-      .then((res) => setRecentOrders(res.data.slice(0, 5)))
       .catch((err) => console.error(err));
   };
 
@@ -156,10 +140,9 @@ function POS() {
       return;
     }
 
-    // Map cart items to include item_name explicitly
     const cartWithNames = cart.map((item) => ({
       id: item.id,
-      item_name: item.item_name, // ADD THIS - preserves name in transaction history
+      item_name: item.item_name,
       quantity: item.quantity,
       price: item.price,
       size: item.size,
@@ -167,7 +150,7 @@ function POS() {
     }));
 
     const transactionData = {
-      cart: cartWithNames, // Use the mapped cart with item_name
+      cart: cartWithNames, 
       payment_method: paymentMethod,
       total_payment: total,
       cashier_name: cashierName,
@@ -207,15 +190,23 @@ function POS() {
     setShowOrderSummary(false);
   };
 
+  const toggleOrderSummary = () => {
+    setShowOrderSummary(!showOrderSummary);
+  };
+
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <div className="pos-system">
+      {/* Toggle Button - Hidden when order summary is open */}
       <button
         className={`order-summary-toggle ${showOrderSummary ? "hidden" : ""}`}
-        onClick={() => setShowOrderSummary(true)}
+        onClick={toggleOrderSummary}
+        aria-label="Open order summary"
       >
         <ShoppingCart size={20} />
         <span>Order</span>
-        {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+        {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
       </button>
 
       <div className="pos-main">
@@ -238,17 +229,13 @@ function POS() {
             onUpdateQuantity={updateQuantity}
             onRemoveItem={removeFromCart}
             onCheckout={checkout}
-            onClear={clearCart}
-            onClose={closeOrderSummary} // Pass the close function
+            onClose={closeOrderSummary}
+            isOpen={showOrderSummary}
+            onToggle={toggleOrderSummary}
           />
         </div>
       </div>
 
-      <Modal
-        isVisible={showModal}
-        onClose={closeModal}
-        lastTransaction={lastTransaction}
-      />
       <Modal
         isVisible={showModal}
         onClose={closeModal}

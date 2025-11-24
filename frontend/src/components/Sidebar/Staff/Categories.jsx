@@ -1,4 +1,5 @@
 import React from 'react';
+import "../../../Style/Categories.css";
 
 const Categories = ({ categories, selectedCategory, onCategorySelect }) => {
   return (
