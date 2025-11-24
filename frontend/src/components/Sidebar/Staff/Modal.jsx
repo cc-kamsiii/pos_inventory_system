@@ -1,9 +1,9 @@
 import React from "react";
+import "../../../Style/Modal.css";
 
 const Modal = ({ isVisible, onClose, lastTransaction }) => {
   if (!isVisible) return null;
 
-  // Get current date
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

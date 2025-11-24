@@ -168,7 +168,7 @@ function EditMenu() {
   return (
     <div className="editmenu-container">
       <div className="editmenu-header">
-        <h2>🍴 Edit Menu</h2>
+        <h2>Edit Menu</h2>
         <div className="editAndAddButton">
           <button
             className="btn-add"

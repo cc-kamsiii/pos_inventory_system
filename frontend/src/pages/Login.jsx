@@ -46,8 +46,8 @@ function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-left">
-          <img src={logo} alt="Logo" className="login-logo" />
-          <h2 className="system-title">P.O.S & Inventory System</h2>
+          <img src={logo} alt="Logo"  className="login-logo" />
+        
         </div>
 
         <div className="login-right">
