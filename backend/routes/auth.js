@@ -7,16 +7,18 @@ const {
     getAllUsers,
     archiveUser,
     getArchivedUsers,
-    restoreUser,        // Add this
-    permanentDeleteUser // Add this
+    restoreUser,        
+    permanentDeleteUser,
+    logout,  // ✅ Added logout to destructuring
 } = require("../controllers/authController");
 
 router.post("/login", login);
 router.post("/register", register);
+router.post("/logout", logout);  // ✅ Use logout directly (not authController.logout)
 
 router.delete("/archive/:id", archiveUser);
-router.post("/restore/:id", restoreUser);           // Add this
-router.delete("/permanent/:id", permanentDeleteUser); // Add this
+router.post("/restore/:id", restoreUser);           
+router.delete("/permanent/:id", permanentDeleteUser); 
 
 router.get("/users", getAllUsers);
 router.get("/archived", getArchivedUsers);

@@ -59,6 +59,35 @@ exports.login = async (req, res) => {
   );
 };
 
+exports.logout = async (req, res) => {
+  const { user_id } = req.body;
+
+  if (!user_id) {
+    return res.json({ success: false, message: "User ID is required" });
+  }
+
+  const logoutSql = `
+    UPDATE cashier_logins 
+    SET logout_time = NOW() 
+    WHERE user_id = ? 
+    AND logout_time IS NULL 
+    ORDER BY login_time DESC 
+    LIMIT 1
+  `;
+
+  db.query(logoutSql, [user_id], (err, result) => {
+    if (err) {
+      console.error("Error recording cashier logout:", err);
+      return res.status(500).json({ error: err });
+    }
+
+    return res.json({
+      success: true,
+      message: "Logout recorded successfully"
+    });
+  });
+};
+
 exports.getAllUsers = async (req, res) => {
   const sql = "SELECT id, username, role, name FROM users WHERE is_archived = FALSE";
   db.query(sql, (err, result) => {

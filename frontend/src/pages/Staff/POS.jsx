@@ -150,9 +150,11 @@ function POS() {
     }));
 
     const transactionData = {
-      cart: cartWithNames, 
+      cart: cartWithNames,
       payment_method: paymentMethod,
       total_payment: total,
+      payment_amount: payment, // ADDED
+      change_amount: change, // ADDED
       cashier_name: cashierName,
       order_type: orderType,
       user_id: userId,
@@ -163,6 +165,8 @@ function POS() {
       .then(() => {
         setLastTransaction({
           total_payment: total,
+          payment_amount: payment, // ADDED
+          change_amount: change, // ADDED
           payment_method: paymentMethod,
           cashier_name: cashierName,
           order_type: orderType,

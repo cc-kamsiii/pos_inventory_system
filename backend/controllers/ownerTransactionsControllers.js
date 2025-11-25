@@ -14,6 +14,8 @@ export const getTransactions = (req, res) => {
       t.order_type,
       t.payment_method,
       t.total_payment,
+      t.payment_amount,
+      t.change_amount,
       t.cashier_name,
       DATE_FORMAT(t.order_date, '%Y-%m-%d') AS order_date
     FROM transactions t
@@ -53,6 +55,8 @@ export const addTransactions = (req, res) => {
     cart,
     payment_method,
     total_payment,
+    payment_amount,
+    change_amount,
     cashier_name,
     order_type,
     user_id,
@@ -67,13 +71,29 @@ export const addTransactions = (req, res) => {
   console.log("Received transaction data:", req.body);
 
   const sqlTransaction = `
-    INSERT INTO transactions (order_type, payment_method, total_payment, cashier_name, user_id)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+  INSERT INTO transactions (
+    order_type, 
+    payment_method, 
+    total_payment,
+    payment_amount,
+    change_amount,
+    cashier_name, 
+    user_id
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?)
+`;
 
   db.query(
     sqlTransaction,
-    [order_type, payment_method, total_payment, cashier_name, user_id],
+    [
+      order_type,
+      payment_method,
+      total_payment,
+      payment_amount,
+      change_amount,
+      cashier_name,
+      user_id,
+    ],
     (err, result) => {
       if (err) {
         console.error("Error inserting transaction:", err);
@@ -245,8 +265,8 @@ export const getCashierLogins = (req, res) => {
   let sql = `
     SELECT 
       u.first_name, 
-      DATE_FORMAT(c.login_time, '%h:%i %p') AS login_time
-
+      DATE_FORMAT(c.login_time, '%h:%i %p') AS login_time,
+      DATE_FORMAT(c.logout_time, '%h:%i %p') AS logout_time
     FROM cashier_logins c
     JOIN users u ON c.user_id = u.id
   `;

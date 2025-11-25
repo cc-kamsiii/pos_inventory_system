@@ -258,6 +258,7 @@ const Dashboard = () => {
                   <tr>
                     <th>Cashier Name</th>
                     <th>Login Time</th>
+                    <th>Logout Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -266,11 +267,19 @@ const Dashboard = () => {
                       <tr key={index}>
                         <td>{log.first_name}</td>
                         <td>{log.login_time}</td>
+                        <td>
+                          {log.logout_time || (
+                            <span style={{ color: '#999', fontStyle: 'italic' }}>
+                            </span>
+                          )}
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="2">No login records found</td>
+                      <td colSpan="3" style={{ textAlign: 'center' }}>
+                        No login records found
+                      </td>
                     </tr>
                   )}
                 </tbody>

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import axios from "axios";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import noTransaction from "../../assets/noTransaction.png";
 
-function StaffTransactions() {
+function OwnerTransactions() {
   const [data, setData] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const [date, setDate] = useState("");
@@ -19,7 +19,7 @@ function StaffTransactions() {
       })
       .then((res) => {
         setData(res.data);
-      
+
         const grouped = groupTransactionsByOrder(res.data);
         setGroupedData(grouped);
       })
@@ -32,31 +32,33 @@ function StaffTransactions() {
 
   const groupTransactionsByOrder = (transactions) => {
     const grouped = {};
-    
-    transactions.forEach(transaction => {
+
+    transactions.forEach((transaction) => {
       const orderId = transaction.order_id || transaction.transaction_id;
-      
+
       if (!grouped[orderId]) {
         grouped[orderId] = {
           order_id: orderId,
           order_type: transaction.order_type,
           payment_method: transaction.payment_method,
           total_payment: transaction.total_payment,
+          payment_amount: transaction.payment_amount || 0,
+          change_amount: transaction.change_amount || 0,
           cashier_name: transaction.cashier_name,
           order_date: transaction.order_date,
-          items: []
+          items: [],
         };
       }
-      
+
       grouped[orderId].items.push({
         transaction_id: transaction.transaction_id,
         item_name: transaction.item_name,
         quantity: transaction.quantity,
-        price: transaction.price
+        price: transaction.price,
       });
     });
-    
-    return Object.values(grouped);
+
+    return Object.values(grouped).sort((a, b) => b.order_id - a.order_id);
   };
 
   const toggleOrder = (orderId) => {
@@ -112,7 +114,7 @@ function StaffTransactions() {
               {groupedData.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="8"
                     style={{ textAlign: "center", padding: "15px" }}
                   >
                     <img
@@ -123,53 +125,67 @@ function StaffTransactions() {
                   </td>
                 </tr>
               ) : (
-                groupedData.map((order, index) => (
-                  <>
-          
-                    <tr 
-                      key={`order-${order.order_id}`} 
+                groupedData.map((order) => (
+                  <Fragment key={`order-${order.order_id}`}>
+                    <tr
                       className="order-row clickable"
                       onClick={() => toggleOrder(order.order_id)}
                     >
                       <td className="order-id-cell">
-                        <span className={`expand-icon ${expandedOrders.has(order.order_id) ? 'expanded' : ''}`}>
+                        <span
+                          className={`expand-icon ${
+                            expandedOrders.has(order.order_id) ? "expanded" : ""
+                          }`}
+                        >
                           ▶
                         </span>
                         {order.order_id}
                       </td>
+
                       <td>{order.order_type}</td>
                       <td>{order.payment_method}</td>
                       <td>₱{parseFloat(order.total_payment).toFixed(2)}</td>
+
+                      <td>₱{parseFloat(order.payment_amount).toFixed(2)}</td>
+                      <td>₱{parseFloat(order.change_amount).toFixed(2)}</td>
+
                       <td>{order.cashier_name}</td>
                       <td>
-                        {new Date(order.order_date).toLocaleDateString("en-US", {
-                          year: "2-digit",
-                          month: "numeric",
-                          day: "numeric",
-                        })}
+                        {new Date(order.order_date).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "2-digit",
+                            month: "numeric",
+                            day: "numeric",
+                          }
+                        )}
                       </td>
                     </tr>
-                    
+
                     {expandedOrders.has(order.order_id) && (
                       <>
                         <tr className="items-header">
-                          <td colSpan="6">
+                          <td colSpan="8">
                             <strong>Items in Order #{order.order_id}</strong>
                           </td>
                         </tr>
-                        {order.items.map((item, itemIndex) => (
-                          <tr key={`item-${item.transaction_id}`} className="item-row">
+                        {order.items.map((item) => (
+                          <tr
+                            key={`item-${item.transaction_id}`}
+                            className="item-row"
+                          >
                             <td></td>
                             <td>{item.item_name}</td>
-                            <td>{item.quantity}</td>
-                            <td colSpan="3">
-                              Total: ₱{parseFloat(order.total_payment).toFixed(2)}
+                            <td>Qty: {item.quantity}</td>
+                            <td>₱{parseFloat(item.price).toFixed(2)}</td>
+                            <td colSpan="4">
+                              Subtotal: ₱{(parseFloat(item.price) * item.quantity).toFixed(2)}
                             </td>
                           </tr>
                         ))}
                       </>
                     )}
-                  </>
+                  </Fragment>
                 ))
               )}
             </tbody>
@@ -180,4 +196,4 @@ function StaffTransactions() {
   );
 }
 
-export default StaffTransactions;
+export default OwnerTransactions;
