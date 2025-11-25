@@ -78,7 +78,9 @@ function StaffTransactions() {
                 <th>Order ID</th>
                 <th>Order Type</th>
                 <th>Payment Method</th>
-                <th>Total Payment</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Change</th>
                 <th>Cashier</th>
                 <th>Order Date</th>
               </tr>

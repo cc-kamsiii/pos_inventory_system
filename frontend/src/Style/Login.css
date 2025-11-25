@@ -55,7 +55,7 @@
 }
 
 .system-title {
-  font-size: 2rem;
+  font-size: 5rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   position: relative;
@@ -73,6 +73,7 @@
 .login-right {
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 40px;
@@ -84,18 +85,21 @@
   max-width: 380px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1.5rem;
 }
 
 .login-header {
   text-align: center;
   margin-bottom: 0.75rem;
+  width: 100%;
 }
 
 .login-title {
-  font-size: 30px;
+  font-size: 3rem;
   font-weight: 700;
   text-align: center;
+  color: #6d28d9;
 }
 
 .login-subtitle {
@@ -107,6 +111,7 @@
 
 .login-form input {
   width: 100%;
+  max-width: 100%;
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 2px solid #e5e7eb;
@@ -115,6 +120,7 @@
   transition: all 0.15s ease;
   background: #ffffff;
   color: #1f2937;
+  box-sizing: border-box;
 }
 
 .login-form input::placeholder {
@@ -183,14 +189,21 @@
     max-width: 1400px;
   }
   
-  .system-title,
+  .system-title {
+    font-size: 5rem;
+  }
+  
   .login-title {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
   }
   
   .login-logo {
-    width: 12rem;
-    height: 12rem;
+    width: 24rem;
+    height: 24rem;
+  }
+  
+  .login-form {
+    max-width: 450px;
   }
 }
 
@@ -202,12 +215,32 @@
   
   .login-left,
   .login-right {
-    padding: 30px;
+    padding: 35px;
   }
   
   .login-logo {
-    width: 8rem;
-    height: 8rem;
+    width: 16rem;
+    height: 16rem;
+  }
+  
+  .system-title {
+    font-size: 4rem;
+  }
+  
+  .system-subtitle {
+    font-size: 1rem;
+  }
+  
+  .login-title {
+    font-size: 2.5rem;
+  }
+  
+  .login-subtitle {
+    font-size: 1.125rem;
+  }
+  
+  .login-form {
+    max-width: 350px;
   }
 }
 
@@ -217,48 +250,62 @@
   }
   
   .login-container {
-    padding: 0;
+    padding: 10px;
   }
   
   .login-card {
     flex-direction: column;
     max-width: 100%;
     min-height: auto;
+    border-radius: 1.25rem;
   }
   
   .login-left {
-    padding: 30px 20px;
+    padding: 40px 25px;
   }
   
   .login-right {
-    padding: 30px 20px;
+    padding: 40px 25px;
     width: 100%;
   }
   
   .login-logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 20px;
+    width: 10rem;
+    height: 10rem;
+    margin-bottom: 1.5rem;
   }
   
   .system-title {
-    font-size: 24px;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
   }
   
   .system-subtitle {
-    font-size: 14px;
+    font-size: 1rem;
   }
 
   .login-form {
-    max-width: 100%;
+    max-width: 90%;
+    gap: 1.25rem;
+  }
+  
+  .login-header {
+    margin-bottom: 0.75rem;
   }
   
   .login-title {
-    font-size: 24px;
+    font-size: 2rem;
   }
 
   .login-subtitle {
-    font-size: 14px;
+    font-size: 1rem;
+  }
+  
+  .login-form input,
+  .login-btn {
+    padding: 1.25rem;
+    font-size: 1rem;
+    max-width: 100%;
   }
 }
 
@@ -267,40 +314,61 @@
     padding: 5px;
   }
   
+  .login-container {
+    padding: 5px;
+  }
+  
   .login-card {
-    border-radius: 12px;
+    border-radius: 1rem;
   }
   
   .login-left,
   .login-right {
-    padding: 25px 15px;
+    padding: 30px 1px;
   }
   
   .login-logo {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 15px;
+    width: 7rem;
+    height: 7rem;
+    margin-bottom: 1rem;
+    border: 3px solid rgba(255, 255, 255, 0.2);
   }
   
   .system-title {
-    font-size: 20px;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .system-subtitle {
-    font-size: 13px;
+    font-size: 0.875rem;
+  }
+  
+  .login-form {
+    gap: 1rem;
+    max-width: 85%;
+  }
+  
+  .login-header {
+    margin-bottom: 0.5rem;
   }
   
   .login-title {
-    font-size: 20px;
+    font-size: 1.5rem;
   }
 
   .login-subtitle {
-    font-size: 13px;
+    font-size: 0.875rem;
   }
   
   .login-form input,
   .login-btn {
-    padding: 12px;
-    font-size: 14px;
+    padding: 1rem;
+    font-size: 0.9375rem;
+    border-radius: 0.625rem;
+    max-width: 100%;
+  }
+  
+  .login-form input {
+    border-width: 1.5px;
   }
 }

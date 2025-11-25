@@ -39,6 +39,45 @@ body {
   flex-direction: column;
 }
 
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.available-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+  min-width: 100px;
+}
+
+.count-number {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+}
+
+.count-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 200px;
+}
+
 .quick-access-sections {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -121,7 +160,6 @@ body {
   background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
 }
 
-/* Compact Product Grid */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -148,6 +186,34 @@ body {
   transform: translateY(-4px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   border-color: #5e239d;
+}
+
+.stock-qty-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 30px;
+  text-align: center;
+}
+
+.stock-qty-badge.available {
+  background: #27ae60;
+  color: white;
+}
+
+.stock-qty-badge.low-stock {
+  background: #f39c12;
+  color: #000;
+}
+
+.stock-qty-badge.no-stock {
+  background: #e74c3c;
+  color: #000;
 }
 
 .available-badge {
@@ -255,7 +321,6 @@ body {
   font-weight: 500;
 }
 
-/* Mobile Overlay and Scroll Prevention */
 .mobile-overlay {
   display: none;
   position: fixed;
@@ -325,7 +390,6 @@ body {
     right: 0;
   }
 
-  /* Prevent body scroll when cart is open */
   body.cart-open {
     overflow: hidden;
   }
@@ -348,6 +412,24 @@ body {
     padding: 0.6rem;
   }
 
+  .menu-header {
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .available-count {
+    padding: 0.6rem 1rem;
+    min-width: 85px;
+  }
+  
+  .count-number {
+    font-size: 1.5rem;
+  }
+  
+  .count-label {
+    font-size: 0.65rem;
+  }
+
   .products-grid {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 0.5rem;
@@ -359,6 +441,13 @@ body {
     padding: 0.6rem;
     min-height: 140px;
     gap: 0.4rem;
+  }
+
+  .stock-qty-badge {
+    top: 0.4rem;
+    left: 0.4rem;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
   }
 
   .product-info {
