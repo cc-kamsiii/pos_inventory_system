@@ -36,7 +36,6 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClos
   };
 
   const handleCheckout = () => {
-    // Check if payment is sufficient
     if (payment < total) {
       alert(`Payment of ₱${payment.toFixed(2)} is insufficient. Total amount is ₱${total.toFixed(2)}. Please enter sufficient payment.`);
       return;

@@ -198,7 +198,6 @@ function POS() {
 
   return (
     <div className="pos-system">
-      {/* Toggle Button - Hidden when order summary is open */}
       <button
         className={`order-summary-toggle ${showOrderSummary ? "hidden" : ""}`}
         onClick={toggleOrderSummary}
