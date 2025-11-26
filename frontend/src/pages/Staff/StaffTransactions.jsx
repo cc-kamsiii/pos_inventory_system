@@ -133,7 +133,7 @@ function StaffTransactions() {
                             <td></td>
                             <td>{item.item_name}</td>
                             <td>Qty: {item.quantity}</td>
-                            <td>₱{parseFloat(item.price).toFixed(2)}</td>
+                            <td>Price: ₱{parseFloat(item.price).toFixed(2)}</td>
                             <td colSpan="4">
                               Subtotal: ₱{(parseFloat(item.price) * item.quantity).toFixed(2)}
                             </td>

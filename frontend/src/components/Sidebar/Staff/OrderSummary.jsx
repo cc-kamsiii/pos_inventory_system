@@ -11,6 +11,8 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClos
   const [change, setChange] = useState(0);
   const [orderType, setOrderType] = useState('Dine-in');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editValue, setEditValue] = useState('');
 
   const handleNumberClick = (num) => {
     setDisplay(prev => prev === '0' ? num.toString() : prev + num.toString());
@@ -49,6 +51,36 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClos
     }
   };
 
+  const handleQuantityClick = (item) => {
+    setEditingItemId(item.id);
+    setEditValue(item.quantity.toString());
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      setEditValue(value);
+    }
+  };
+
+  const handleQuantityBlur = (itemId) => {
+    const newQuantity = parseInt(editValue) || 1;
+    if (newQuantity > 0) {
+      onUpdateQuantity(itemId, newQuantity);
+    }
+    setEditingItemId(null);
+    setEditValue('');
+  };
+
+  const handleQuantityKeyDown = (e, itemId) => {
+    if (e.key === 'Enter') {
+      handleQuantityBlur(itemId);
+    } else if (e.key === 'Escape') {
+      setEditingItemId(null);
+      setEditValue('');
+    }
+  };
+
   const renderOrderItems = () => {
     if (cart.length === 0) {
       return <div className="empty-cart-message">Your cart is empty</div>;
@@ -65,7 +97,25 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClos
             >
               <Minus size={12} />
             </button>
-            <span className="quantity">{item.quantity}</span>
+            {editingItemId === item.id ? (
+              <input
+                type="text"
+                value={editValue}
+                onChange={handleQuantityChange}
+                onBlur={() => handleQuantityBlur(item.id)}
+                onKeyDown={(e) => handleQuantityKeyDown(e, item.id)}
+                className="quantity-input"
+                autoFocus
+              />
+            ) : (
+              <span 
+                className="quantity"
+                onClick={() => handleQuantityClick(item)}
+                style={{ cursor: 'pointer' }}
+              >
+                {item.quantity}
+              </span>
+            )}
             <button
               onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
               className="qty-btn"
@@ -171,7 +221,7 @@ const OrderSummary = ({ cart, onUpdateQuantity, onRemoveItem, onCheckout, onClos
                 )}
                 {payment < total && (
                   <div className="payment-warning">
-                    Insufficient Payment! Add ₱{(total - payment).toFixed(2)} ore.
+                    Insufficient Payment! Add ₱{(total - payment).toFixed(2)} more.
                   </div>
                 )}
               </div>

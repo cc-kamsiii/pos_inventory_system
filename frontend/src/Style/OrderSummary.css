@@ -427,6 +427,28 @@
   justify-content: center;
 }
 
+.quantity-input {
+  width: 40px;
+  text-align: center;
+  border: 1px solid #5e239d;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5e239d;
+  font-size: large;
+}
+
+.quantity-input:focus {
+  outline: none;
+  border-color: #5e239d;
+}
+
+.quantity {
+  min-width: 40px;
+  text-align: center;
+        }
+
 @media (min-width: 901px) {
   .close-summary-btn {
     display: none;
