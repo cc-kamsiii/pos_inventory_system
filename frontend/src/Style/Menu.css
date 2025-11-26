@@ -188,34 +188,6 @@ body {
   border-color: #5e239d;
 }
 
-.stock-qty-badge {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  min-width: 30px;
-  text-align: center;
-}
-
-.stock-qty-badge.available {
-  background: #27ae60;
-  color: white;
-}
-
-.stock-qty-badge.low-stock {
-  background: #f39c12;
-  color: #000;
-}
-
-.stock-qty-badge.no-stock {
-  background: #e74c3c;
-  color: #000;
-}
-
 .available-badge {
   position: absolute;
   top: 0.5rem;
@@ -307,7 +279,7 @@ body {
 }
 
 .add-to-cart-btn:disabled {
-  background: #cbd5e0;
+  background: #bf94ee;
   cursor: not-allowed;
   transform: none;
 }
