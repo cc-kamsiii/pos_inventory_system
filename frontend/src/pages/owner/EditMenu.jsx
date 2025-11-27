@@ -1,4 +1,4 @@
-import { Trash2, Pencil, ArchiveIcon } from "lucide-react";
+import { Trash2, Pencil, ArchiveIcon, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "../../Style/EditMenu.css";
@@ -167,8 +167,13 @@ function EditMenu() {
 
   return (
     <div className="editmenu-container">
+      <button className="btn-back" onClick={() => navigate("/Settings")}>
+        <ArrowLeft size={20} />
+        Back
+      </button>
       <div className="editmenu-header">
-        <h2>Edit Menu</h2>
+        <h1>Edit Menu</h1>
+        <p>Manage your Menu</p>
         <div className="editAndAddButton">
           <button
             className="btn-add"

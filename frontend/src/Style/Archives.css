@@ -9,26 +9,46 @@
   margin-bottom: 30px;
   position: relative;
 }
- 
-/*
-.btn-back {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
+
+.action-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
 }
 
-.btn-back:hover {
-  background: #0056b3;
-} 
-  */
+.btn-restore,
+.btn-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 36px;
+  height: 36px;
+}
+
+.btn-restore {
+  background-color: #bdeebd;
+  color: #2e7d32;
+}
+
+.btn-restore:hover {
+  background-color: #d4edda;
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background-color: #f7b7b7;
+  color: #c62828;
+}
+
+.btn-delete:hover {
+  background-color: #f8d7da;
+  transform: translateY(-1px);
+}
 
 .archives-header h1 {
   color: #333;
@@ -59,13 +79,13 @@
 }
 
 .tab-button:hover {
-  color:#A640FA ;
+  color: #A640FA;
   background-color: #f8f9fa;
 }
 
 .tab-button.active {
-  color:#A640FA ;
-  border-bottom-color: #A640FA ;
+  color: #A640FA;
+  border-bottom-color: #A640FA;
   font-weight: bold;
 }
 
@@ -102,39 +122,6 @@
   background-color: #f8f9fa;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-restore,
-.btn-delete {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-restore {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-restore:hover {
-  background-color: #218838;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete:hover {
-  background-color: #c82333;
-}
-
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -167,13 +154,14 @@
   }
   
   .action-buttons {
-    flex-direction: column;
+    flex-direction: row;
     gap: 5px;
   }
   
   .btn-restore,
   .btn-delete {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 6px;
+    width: 32px;
+    height: 32px;
   }
 }

@@ -1,60 +1,97 @@
 .editmenu-container {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 30px;
-  font-family: "Poppins", sans-serif;
-  background-color: #f5f6fa;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 2px solid #A640FA;
+  color: #A640FA;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: #A640FA;
+  color: white;
+  transform: translateX(-4px);
 }
 
 .editmenu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  text-align: center;
   margin-bottom: 30px;
 }
 
-.editmenu-header h2 {
-  font-size: 24px;
+.editmenu-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
   font-weight: 600;
-  color: #2f3640;
+}
+
+.editmenu-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.editAndAddButton {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 30px;
 }
 
 .btn-add {
-  background: #8e24e4;
+  background: #A640FA;
   color: #fff;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .btn-add:hover {
-  background: #a344f0;
+  background: #8e24e4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(166, 64, 250, 0.3);
 }
 
 .menu-list {
-  display: grid;
-  gap: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .menu-category {
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #eee;
+  padding: 20px;
+}
+
+.menu-category:last-child {
+  border-bottom: none;
 }
 
 .menu-category h3 {
-  font-size: 18px;
+  font-size: 1.2rem;
   color: #333;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 5px;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #A640FA;
 }
 
 .menu-category ul {
@@ -64,15 +101,78 @@
 }
 
 .menu-category li {
-  padding: 8px 0;
+  padding: 15px 0;
   border-bottom: 1px solid #f1f1f1;
-  color: #444;
-  display: flex;
-  justify-content: space-between;
+  color: #333;
 }
 
 .menu-category li:last-child {
   border-bottom: none;
+}
+
+.menu-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item-row:hover {
+  background-color: #f8f9fa;
+  padding-left: 10px;
+  margin-left: -10px;
+  padding-right: 10px;
+  margin-right: -10px;
+  border-radius: 4px;
+}
+
+.action-grid {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-grid button {
+  background: none;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-edit svg {
+  stroke: #28a745;
+  width: 20px;
+  height: 20px;
+}
+
+.btn-edit:hover {
+  background-color: #28a745;
+}
+
+.btn-edit:hover svg {
+  stroke: white;
+}
+
+.btn-archive svg {
+  stroke: #dc3545;
+  width: 20px;
+  height: 20px;
+}
+
+.btn-archive:hover {
+  background-color: #dc3545;
+}
+
+.btn-archive:hover svg {
+  stroke: white;
+}
+
+.no-items {
+  color: #666;
+  font-style: italic;
+  padding: 20px 0;
+  text-align: center;
 }
 
 .modal-overlay {
@@ -81,11 +181,54 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 998;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  width: 700px;
+  max-width: 95%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal h3 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.modal label {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  margin-top: 10px;
 }
 
 .modal .checkbox-label {
@@ -94,58 +237,16 @@
   gap: 8px;
   cursor: pointer;
   margin-top: 12px;
-  width: auto; 
+  width: auto;
+  font-weight: normal;
 }
 
 .modal .checkbox-label input[type="checkbox"] {
   margin: 0;
-  accent-color: #4a90e2;
+  accent-color: #A640FA;
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-}
-
-.modal {
-  background: #fff;
-  border-radius: 12px;
-  padding: 25px;
-  width: 700px; 
-  max-width: 95%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.modal h3 {
-  margin-top: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 15px;
-}
-
-.modal label {
-  display: block;
-  font-size: 14px;
-  color: #555;
-  margin-top: 10px;
-}
-
-.modal label input[type="checkbox"] {
-  margin-right: 8px;
-  vertical-align: middle;
-  accent-color: #4a90e2;
-}
-
-.modal label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
 }
 
 .modal select,
@@ -153,7 +254,7 @@
   width: 100%;
   padding: 8px;
   margin-top: 5px;
-  border: 1px solid #dcdde1;
+  border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
   outline: none;
@@ -163,7 +264,8 @@
 
 .modal input:focus,
 .modal select:focus {
-  border-color:#8e24e4;
+  border-color: #A640FA;
+  box-shadow: 0 0 0 2px rgba(166, 64, 250, 0.1);
 }
 
 .modal-actions {
@@ -184,7 +286,7 @@
 }
 
 .btn-submit {
-  background: #8e24e4;
+  background: #28a745;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -198,61 +300,7 @@
 }
 
 .btn-submit:hover {
-  background: #a14fe5;
-}
-
-.no-items {
-  color: #999;
-  font-style: italic;
-  padding-left: 10px;
-}
-
-.editAndAddButton{
-  display: flex;
-  gap: 1rem;
-}
-
-.menu-item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.action-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-top: auto;
-}
-
-.action-grid button {
-  background: none;
-  padding: 5px;
-  border: none;
-  cursor: pointer;
-  margin-left: 1px;
-}
-
-.btn-edit svg{
-  stroke: green;
-  padding: 10px;
-}
-
-.btn-edit svg:hover{
-  stroke: white;
-  background-color: green;
-  border-radius: 5px;
-}
-
-.btn-archive svg {
-  stroke: red;
-  padding: 10px;
-}
-
-.btn-archive svg:hover{
-  stroke: white;
-  background-color: red;
-  border-radius: 5px;
+  background: #218838;
 }
 
 .popup-overlay {
@@ -282,8 +330,23 @@
   border: none;
 }
 
-.yes-btn { background: #4caf50; color: white; }
-.no-btn { background: #d32f2f; color: white; }
+.yes-btn { 
+  background: #28a745; 
+  color: white; 
+}
+
+.yes-btn:hover {
+  background: #218838;
+}
+
+.no-btn { 
+  background: #dc3545; 
+  color: white; 
+}
+
+.no-btn:hover {
+  background: #c82333;
+}
 
 .modal.modal-landscape {
   width: 950px;
@@ -322,7 +385,7 @@
   width: 100%;
   padding: 10px;
   margin-top: 5px;
-  border: 1px solid #d1d1d1;
+  border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
   transition: 0.2s;
@@ -331,14 +394,14 @@
 
 .modal-left input:focus,
 .modal-left select:focus {
-  border-color: #8e24e4;
-  box-shadow: 0 0 0 2px rgba(142, 36, 228, 0.1);
+  border-color: #A640FA;
+  box-shadow: 0 0 0 2px rgba(166, 64, 250, 0.1);
 }
 
 .modal-right h4 {
   font-size: 16px;
   font-weight: 600;
-  color: #4b4b4b;
+  color: #333;
   margin-bottom: 10px;
 }
 
@@ -361,7 +424,7 @@
 }
 
 .ingredient-table th {
-  background: #8e24e4;
+  background: #A640FA;
   color: #fff;
   padding: 10px 12px;
   font-weight: 600;
@@ -378,14 +441,14 @@
 }
 
 .ingredient-table tr:hover {
-  background: #faf7ff;
+  background: #f8f9fa;
 }
 
 .delete-button-small {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #e53935;
+  color: #dc3545;
   padding: 6px;
   border-radius: 5px;
   transition: 0.2s;
@@ -393,16 +456,15 @@
 
 .delete-button-small:hover {
   background: #fde8e8;
-  color: #e53935;
+  color: #dc3545;
   transform: scale(1.1);
 }
-
 
 .modal-right select,
 .modal-right input {
   width: 100%;
   padding: 8px;
-  border: 1px solid #d1d1d1;
+  border: 1px solid #ddd;
   border-radius: 6px;
   margin-top: 6px;
   font-size: 14px;
@@ -411,7 +473,7 @@
 
 .btn-add-ing {
   margin-top: 10px;
-  background: #8e24e4;
+  background: #A640FA;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -423,62 +485,20 @@
 }
 
 .btn-add-ing:hover {
-  background: #9b41f5;
-}
-
-.modal-actions {
-  margin-top: 25px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.btn-cancel,
-.btn-submit {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-cancel {
-  background: #e0e0e0;
-  color: #333;
-}
-
-.btn-cancel:hover {
-  background: #c9c9c9;
-}
-
-.btn-submit {
   background: #8e24e4;
-  color: white;
 }
-
-.btn-submit:hover {
-  background: #a344f0;
-}
-
 
 @media (max-width: 768px) {
   .editmenu-container {
-    margin: 20px auto;
-    padding: 15px;
-  }
-
-  .editmenu-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-    margin-bottom: 20px;
+    padding: 10px;
   }
 
   .editmenu-header h2 {
-    font-size: 22px;
-    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  .editAndAddButton {
+    flex-direction: column;
   }
 
   .btn-add {
@@ -503,8 +523,9 @@
   }
 
   .btn-edit svg,
-  .btn-dlt svg {
-    padding: 8px;
+  .btn-archive svg {
+    width: 18px;
+    height: 18px;
   }
   
   .modal {
@@ -525,16 +546,16 @@
 
   .modal-left,
   .modal-right {
-     padding: 15px;
+    padding: 15px;
   }
 
   .ingredient-table-wrapper {
-     overflow-x: auto;
-     -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .ingredient-table {
-     min-width: 450px;
+    min-width: 450px;
   }
   
   .modal-actions {
@@ -544,6 +565,6 @@
 
   .btn-cancel,
   .btn-submit {
-     width: 100%;
+    width: 100%;
   }
 }
