@@ -8,13 +8,51 @@ function OwnerTransactions() {
   const [data, setData] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [timeRange, setTimeRange] = useState("");
   const [cashierName, setCashierName] = useState("");
   const [menuSearch, setMenuSearch] = useState("");
   const [page, setPage] = useState(1);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
+  
+  // Time range states
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+  const convertTimeToHour = (timeStr) => {
+    if (!timeStr) return null;
+    const [hours] = timeStr.split(':');
+    return parseInt(hours);
+  };
+
+  const updateTimeRange = (newStartTime, newEndTime) => {
+    if (newStartTime && newEndTime) {
+      const startHour = convertTimeToHour(newStartTime);
+      const endHour = convertTimeToHour(newEndTime);
+      setTimeRange(`${startHour}-${endHour}`);
+    } else {
+      setTimeRange("");
+    }
+  };
+
+  const handleStartTimeChange = (e) => {
+    const newStartTime = e.target.value;
+    setStartTime(newStartTime);
+    updateTimeRange(newStartTime, endTime);
+  };
+
+  const handleEndTimeChange = (e) => {
+    const newEndTime = e.target.value;
+    setEndTime(newEndTime);
+    updateTimeRange(startTime, newEndTime);
+  };
+
+  const clearTimeRange = () => {
+    setStartTime("");
+    setEndTime("");
+    setTimeRange("");
+  };
 
   const fetchAccounts = async () => {
     try {
@@ -30,7 +68,7 @@ function OwnerTransactions() {
       .get(`${API_BASE}/ownerTransactions`, {
         params: { 
           date: date, 
-          time: time,
+          time_range: timeRange,
           cashier_name: cashierName,
           menu_search: menuSearch,
           page 
@@ -51,7 +89,7 @@ function OwnerTransactions() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [date, time, cashierName, menuSearch, page]);
+  }, [date, timeRange, cashierName, menuSearch, page]);
 
   const groupTransactionsByOrder = (transactions) => {
     const grouped = {};
@@ -125,12 +163,32 @@ function OwnerTransactions() {
               onChange={(e) => setDate(e.target.value)}
             />
 
-            <input
-              type="time"
-              value={time}
-              step="60"
-              onChange={(e) => setTime(e.target.value)}
-            />
+            <div className="time-range-container">
+              <input
+                type="time"
+                value={startTime}
+                onChange={handleStartTimeChange}
+                placeholder="Start time"
+                className="time-input"
+              />
+              <span className="time-separator">to</span>
+              <input
+                type="time"
+                value={endTime}
+                onChange={handleEndTimeChange}
+                placeholder="End time"
+                className="time-input"
+              />
+              {(startTime || endTime) && (
+                <button 
+                  onClick={clearTimeRange}
+                  className="clear-time-btn"
+                  title="Clear time range"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
             <select value={cashierName} onChange={(e) => setCashierName(e.target.value)} className="cashierName">
               <option value="">All Cashiers</option>

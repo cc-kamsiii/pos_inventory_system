@@ -1,7 +1,7 @@
 import db from "../config/db.js";
 
 export const getTransactions = (req, res) => {
-  const { date, time, page = 1, limit = 10, cashier_name, menu_search } = req.query;
+  const { date, time_range, page = 1, limit = 10, cashier_name, menu_search } = req.query;
   const offset = (page - 1) * limit;
 
   let sql = `
@@ -32,12 +32,21 @@ export const getTransactions = (req, res) => {
     params.push(date);
   }
 
-  // Handle time filter - matches the hour and minute
-  if (time) {
-    whereClause += whereClause 
-      ? ` AND TIME_FORMAT(t.order_date, '%H:%i') = ?` 
-      : `WHERE TIME_FORMAT(t.order_date, '%H:%i') = ?`;
-    params.push(time);
+  // Handle time range filter (e.g., "8-10" means 8:00 to 10:00)
+  if (time_range) {
+    const rangeParts = time_range.split('-');
+    if (rangeParts.length === 2) {
+      const startHour = parseInt(rangeParts[0].trim());
+      const endHour = parseInt(rangeParts[1].trim());
+      
+      if (!isNaN(startHour) && !isNaN(endHour)) {
+        whereClause += whereClause 
+          ? ` AND HOUR(t.order_date) >= ? AND HOUR(t.order_date) < ?` 
+          : `WHERE HOUR(t.order_date) >= ? AND HOUR(t.order_date) < ?`;
+        
+        params.push(startHour, endHour);
+      }
+    }
   }
 
   // Handle cashier name filter
@@ -81,6 +90,7 @@ export const getTransactions = (req, res) => {
     res.json(result);
   });
 };
+
 export const addTransactions = (req, res) => {
   const {
     cart,
