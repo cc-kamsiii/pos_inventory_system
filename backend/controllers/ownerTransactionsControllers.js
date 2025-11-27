@@ -1,13 +1,13 @@
 import db from "../config/db.js";
 
 export const getTransactions = (req, res) => {
-  const { date, page = 1, limit = 10 } = req.query;
-
+  const { date, time, page = 1, limit = 10, cashier_name } = req.query;
   const offset = (page - 1) * limit;
 
   let sql = `
-    SELECT
+    SELECT 
       t.id AS transaction_id,
+      t.id AS order_id,
       COALESCE(m.item_name, ti.item_name, 'Unknown Item') AS item_name,
       ti.quantity,
       ti.price,
@@ -17,35 +17,49 @@ export const getTransactions = (req, res) => {
       t.payment_amount,
       t.change_amount,
       t.cashier_name,
-      DATE_FORMAT(t.order_date, '%Y-%m-%d') AS order_date
+      t.order_date
     FROM transactions t
     JOIN transaction_items ti ON t.id = ti.transaction_id
     LEFT JOIN menu m ON ti.menu_id = m.id
   `;
 
   let whereClause = "";
+  const params = [];
 
+  // Handle date filter
   if (date) {
     whereClause = `WHERE DATE(t.order_date) = ?`;
+    params.push(date);
+  }
+
+  // Handle time filter - matches the hour and minute
+  if (time) {
+    whereClause += whereClause 
+      ? ` AND TIME_FORMAT(t.order_date, '%H:%i') = ?` 
+      : `WHERE TIME_FORMAT(t.order_date, '%H:%i') = ?`;
+    params.push(time);
+  }
+
+  // Handle cashier name filter
+  if (cashier_name) {
+    whereClause += whereClause ? ` AND t.cashier_name = ?` : `WHERE t.cashier_name = ?`;
+    params.push(cashier_name);
   }
 
   const finalSQL = `
-    ${sql} 
+    ${sql}
     ${whereClause}
     ORDER BY t.order_date DESC
     LIMIT ? OFFSET ?
   `;
 
-  const params = date
-    ? [date, Number(limit), Number(offset)]
-    : [Number(limit), Number(offset)];
+  params.push(Number(limit), Number(offset));
 
   db.query(finalSQL, params, (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
     }
-
     res.json(result);
   });
 };
@@ -104,7 +118,6 @@ export const addTransactions = (req, res) => {
 
       const transactionId = result.insertId;
 
-      // Updated to include item_name
       const sqlItems = `
         INSERT INTO transaction_items (transaction_id, menu_id, item_name, quantity, price)
         VALUES ?
@@ -113,7 +126,7 @@ export const addTransactions = (req, res) => {
       const values = cart.map((item) => [
         transactionId,
         item.id,
-        item.item_name, // ADDED - saves menu item name
+        item.item_name,
         item.quantity,
         item.price,
       ]);
@@ -336,7 +349,7 @@ export const getSalesByCategory = (req, res) => {
     dateFilter = "AND YEARWEEK(t.order_date, 1) = YEARWEEK(CURDATE(), 1)";
   } else if (period === "monthly") {
     dateFilter =
-      "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(t.order_date) = YEAR(CURDATE())";
+      "AND MONTH(t.order_date) = MONTH(CURDATE()) AND YEAR(order_date) = YEAR(CURDATE())";
   } else if (period === "yearly") {
     dateFilter = "AND YEAR(t.order_date) = YEAR(CURDATE())";
   }

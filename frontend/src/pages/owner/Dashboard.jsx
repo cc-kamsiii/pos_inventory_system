@@ -269,7 +269,7 @@ const Dashboard = () => {
                         <td>{log.login_time}</td>
                         <td>
                           {log.logout_time || (
-                            <span style={{ color: '#999', fontStyle: 'italic' }}>
+                            <span style={{ color: '#999', fontStyle: 'italic' }}> 
                             </span>
                           )}
                         </td>

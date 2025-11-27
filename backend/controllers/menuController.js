@@ -13,7 +13,7 @@ export const getMenu = (req, res) => {
         WHEN COUNT(ri.ingredient_id) = 0 THEN
           CASE
             WHEN inv.quantity IS NULL OR inv.quantity <= 0 THEN 'no-stock'
-            WHEN inv.quantity <= 10 THEN 'low-stock'   -- 🔹 low stock if ≤10 units
+            WHEN inv.quantity <= 10 THEN 'low-stock'
             ELSE 'available'
           END
         ELSE
@@ -32,7 +32,7 @@ export const getMenu = (req, res) => {
                 WHEN ri.amount_per_serving <= 0 THEN 999999
                 ELSE i.quantity / ri.amount_per_serving
               END
-            ) <= 10 THEN 'low-stock'   -- 🔹 low stock if ≤10 servings
+            ) <= 10 THEN 'low-stock'
             ELSE 'available'
           END
       END AS stockStatus
@@ -46,6 +46,69 @@ export const getMenu = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Error fetching menu:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+};
+
+export const searchMenuWithIngredients = (req, res) => {
+  const { query } = req.query;
+  
+  const sql = `
+    SELECT DISTINCT
+      m.id,
+      m.item_name,
+      m.price,
+      m.size,
+      m.category,
+      CASE
+        WHEN COUNT(ri.ingredient_id) = 0 THEN
+          CASE
+            WHEN inv.quantity IS NULL OR inv.quantity <= 0 THEN 'no-stock'
+            WHEN inv.quantity <= 10 THEN 'low-stock'
+            ELSE 'available'
+          END
+        ELSE
+          CASE
+            WHEN MIN(
+              CASE 
+                WHEN i.quantity IS NULL THEN 0
+                WHEN ri.amount_per_serving <= 0 THEN 999999
+                ELSE i.quantity / ri.amount_per_serving
+              END
+            ) <= 0 THEN 'no-stock'
+            WHEN MIN(
+              CASE 
+                WHEN i.quantity IS NULL THEN 0
+                WHEN ri.amount_per_serving <= 0 THEN 999999
+                ELSE i.quantity / ri.amount_per_serving
+              END
+            ) <= 10 THEN 'low-stock'
+            ELSE 'available'
+          END
+      END AS stockStatus,
+      GROUP_CONCAT(DISTINCT inv_ing.item SEPARATOR ', ') AS ingredients
+    FROM menu m
+    LEFT JOIN recipe_ingredients ri ON m.id = ri.menu_id
+    LEFT JOIN inventory i ON ri.ingredient_id = i.id
+    LEFT JOIN inventory inv ON LOWER(inv.item) = LOWER(m.item_name)
+    LEFT JOIN inventory inv_ing ON ri.ingredient_id = inv_ing.id
+    WHERE 
+      LOWER(m.item_name) LIKE LOWER(?) OR
+      EXISTS (
+        SELECT 1 FROM recipe_ingredients ri2
+        LEFT JOIN inventory i2 ON ri2.ingredient_id = i2.id
+        WHERE ri2.menu_id = m.id AND LOWER(i2.item) LIKE LOWER(?)
+      )
+    GROUP BY m.id, m.item_name, m.price, m.category, m.size, inv.quantity
+  `;
+  
+  const searchTerm = `%${query}%`;
+  
+  db.query(sql, [searchTerm, searchTerm], (err, results) => {
+    if (err) {
+      console.error("Error searching menu:", err);
       return res.status(500).json({ error: "Database error" });
     }
     res.json(results);
@@ -160,7 +223,6 @@ export const updateMenuItem = (req, res) => {
 export const deleteMenuItem = (req, res) => {
   const { id } = req.params;
 
-  // Check if menu item is used in any transactions
   db.query(
     "SELECT COUNT(*) as count FROM transaction_items WHERE menu_id = ?",
     [id],
@@ -180,7 +242,6 @@ export const deleteMenuItem = (req, res) => {
         });
       }
 
-      // If not used in transactions, proceed with deletion
       db.query(
         "DELETE FROM recipe_ingredients WHERE menu_id = ?",
         [id],
@@ -320,7 +381,6 @@ export const archiveMenu = (req, res) => {
 
     const item = rows[0];
 
-    // Insert into archived_menu
     db.query(
       `INSERT INTO archived_menu 
         (item_name, price, category, size, archived_at) 
@@ -337,16 +397,12 @@ export const archiveMenu = (req, res) => {
           return res.status(500).json({ error: err2.message });
         }
 
-        // Delete recipe ingredients
         db.query("DELETE FROM recipe_ingredients WHERE menu_id = ?", [id], (err3) => {
           if (err3) {
             console.error("Error deleting recipe ingredients:", err3);
             return res.status(500).json({ error: err3.message });
           }
 
-          // Delete from menu
-          // The FK constraint with ON DELETE SET NULL will automatically set menu_id to NULL in transaction_items
-          // But item_name will remain, preserving the transaction history!
           db.query("DELETE FROM menu WHERE id = ?", [id], (err4) => {
             if (err4) {
               console.error("Error deleting menu item:", err4);
@@ -374,7 +430,6 @@ export const restoreMenu = (req, res) => {
 
       const item = rows[0];
 
-      // Check for duplicates
       db.query(
         "SELECT * FROM menu WHERE item_name = ? AND category = ?",
         [item.item_name, item.category],
@@ -387,14 +442,12 @@ export const restoreMenu = (req, res) => {
             });
           }
 
-          // Insert back into menu
           db.query(
             "INSERT INTO menu (item_name, price, category, size) VALUES (?, ?, ?, ?)",
             [item.item_name, item.price, item.category, item.size],
             (err3) => {
               if (err3) return res.status(500).json(err3);
 
-              // Delete from archived_menu
               db.query(
                 "DELETE FROM archived_menu WHERE id = ?",
                 [id],

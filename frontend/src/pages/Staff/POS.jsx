@@ -17,6 +17,7 @@ function POS() {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [mostOrdered, setMostOrdered] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,6 +32,15 @@ function POS() {
     }
   }, [inventory]);
 
+  // New effect to handle search
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      handleSearch(searchQuery);
+    } else {
+      fetchProducts();
+    }
+  }, [searchQuery]);
+
   const fetchInventory = () => {
     axios
       .get(`${API_BASE}/inventory`)
@@ -44,6 +54,23 @@ function POS() {
       setProducts(res.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      fetchProducts();
+      return;
+    }
+
+    try {
+      const res = await axios.get(`${API_BASE}/menu/search`, {
+        params: { query }
+      });
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Search error:", err);
+      setProducts([]);
     }
   };
 
@@ -153,8 +180,8 @@ function POS() {
       cart: cartWithNames,
       payment_method: paymentMethod,
       total_payment: total,
-      payment_amount: payment, // ADDED
-      change_amount: change, // ADDED
+      payment_amount: payment,
+      change_amount: change,
       cashier_name: cashierName,
       order_type: orderType,
       user_id: userId,
@@ -165,8 +192,8 @@ function POS() {
       .then(() => {
         setLastTransaction({
           total_payment: total,
-          payment_amount: payment, // ADDED
-          change_amount: change, // ADDED
+          payment_amount: payment,
+          change_amount: change,
           payment_method: paymentMethod,
           cashier_name: cashierName,
           order_type: orderType,
@@ -223,6 +250,8 @@ function POS() {
             products={products}
             onAddToCart={addToCart}
             selectedCategory={selectedCategory}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
           />
         </div>
 

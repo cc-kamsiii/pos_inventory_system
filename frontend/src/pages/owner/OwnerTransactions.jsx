@@ -4,18 +4,35 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import noTransaction from "../../assets/noTransaction.png";
 
 function OwnerTransactions() {
+  const [accounts, setAccounts] = useState([]);
   const [data, setData] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [cashierName, setCashierName] = useState("");
   const [page, setPage] = useState(1);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
+  const fetchAccounts = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/auth/users`);
+      setAccounts(res.data);
+    } catch (err) {
+      console.log("Error fetching accounts:", err);
+    }
+  };
+
   const fetchTransactions = () => {
     axios
       .get(`${API_BASE}/ownerTransactions`, {
-        params: { date, page },
+        params: { 
+          date: date, 
+          time: time,
+          cashier_name: cashierName,
+          page 
+        },
       })
       .then((res) => {
         setData(res.data);
@@ -27,8 +44,12 @@ function OwnerTransactions() {
   };
 
   useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  useEffect(() => {
     fetchTransactions();
-  }, [date, page]);
+  }, [date, time, cashierName, page]);
 
   const groupTransactionsByOrder = (transactions) => {
     const grouped = {};
@@ -93,6 +114,24 @@ function OwnerTransactions() {
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
+
+            <input
+              type="time"
+              value={time}
+              step="60"
+              onChange={(e) => setTime(e.target.value)}
+            />
+
+            <select value={cashierName} onChange={(e) => setCashierName(e.target.value)} className="cashierName">
+              <option value="">All Cashiers</option>
+              {accounts
+                .filter((account) => account.role === "staff")
+                .map((account) => (
+                  <option key={account.id} value={account.name}>
+                    {account.name}
+                  </option>
+                ))}
+            </select>
           </div>
         </div>
 
@@ -108,6 +147,7 @@ function OwnerTransactions() {
                 <th>Change</th>
                 <th>Cashier</th>
                 <th>Order Date</th>
+                <th>Order Time</th>
               </tr>
             </thead>
             <tbody>
@@ -160,6 +200,15 @@ function OwnerTransactions() {
                           }
                         )}
                       </td>
+                      <td>
+                        {new Date(order.order_date).toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
+                      </td>
                     </tr>
 
                     {expandedOrders.has(order.order_id) && (
@@ -179,7 +228,10 @@ function OwnerTransactions() {
                             <td>Qty: {item.quantity}</td>
                             <td>Price: ₱{parseFloat(item.price).toFixed(2)}</td>
                             <td colSpan="4">
-                              Subtotal: ₱{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                              Subtotal: ₱
+                              {(parseFloat(item.price) * item.quantity).toFixed(
+                                2
+                              )}
                             </td>
                           </tr>
                         ))}

@@ -1,8 +1,10 @@
 import db from "../config/db.js";
 
 export const getTransactions = (req, res) => {
-  const sql = `
-    SELECT
+  const { date, cashier_name } = req.query;
+  
+  let sql = `
+    SELECT 
       t.id AS transaction_id,
       t.id AS order_id,
       COALESCE(m.item_name, ti.item_name) AS item_name,
@@ -18,11 +20,26 @@ export const getTransactions = (req, res) => {
     FROM transactions t
     JOIN transaction_items ti ON t.id = ti.transaction_id
     LEFT JOIN menu m ON ti.menu_id = m.id
-    WHERE DATE(t.order_date) = CURDATE()
-    ORDER BY t.order_date DESC
   `;
 
-  db.query(sql, (err, result) => {
+  let whereClause = date 
+    ? `WHERE DATE(t.order_date) = ?` 
+    : `WHERE DATE(t.order_date) = CURDATE()`;
+  
+  const params = [];
+  
+  if (date) {
+    params.push(date);
+  }
+
+  if (cashier_name) {
+    whereClause += ` AND t.cashier_name = ?`;
+    params.push(cashier_name);
+  }
+
+  sql += ` ${whereClause} ORDER BY t.order_date DESC`;
+
+  db.query(sql, params, (err, result) => {
     if (err) {
       console.log("Error fetching transactions:", err);
       return res.status(500).json({ error: "Database error" });

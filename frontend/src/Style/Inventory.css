@@ -37,12 +37,20 @@
   gap: 0.5rem;
 }
 
+.cashierName{
+  padding: 10px 15px 8px;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  outline: none;
+  width: 200px;
+}
+
 .title-row input {
   padding: 10px 15px 8px;
   border: 1px solid lightgray;
   border-radius: 4px;
   outline: none;
-  width: 300px;
+   width: 200px;
 }
 
 .table {
@@ -176,7 +184,6 @@
   border: 1px solid lightgray;
   cursor: pointer;
   background-color: white;
-  padding: 8px 12px; 
 }
 
 .pagination button:active {

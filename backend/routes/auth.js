@@ -9,12 +9,12 @@ const {
     getArchivedUsers,
     restoreUser,        
     permanentDeleteUser,
-    logout,  // ✅ Added logout to destructuring
+    logout, 
 } = require("../controllers/authController");
 
 router.post("/login", login);
 router.post("/register", register);
-router.post("/logout", logout);  // ✅ Use logout directly (not authController.logout)
+router.post("/logout", logout);  
 
 router.delete("/archive/:id", archiveUser);
 router.post("/restore/:id", restoreUser);           

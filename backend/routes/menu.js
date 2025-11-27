@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getMenu,
+  searchMenuWithIngredients, 
   getCategories,
   addCategory,
   addMenuItem,
@@ -20,6 +21,7 @@ import {
 const router = express.Router();
 
 router.get("/categories", getCategories);
+router.get('/search', searchMenuWithIngredients); 
 router.get("/sales_by_category", getSalesByCategory);
 router.get("/recipe_ingredients", getRecipeIngredients);
 router.get("/archived", getArchivedMenu);

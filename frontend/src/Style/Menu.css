@@ -250,6 +250,11 @@ body {
   text-align: center;
 }
 
+.no-items-message{
+  color: black;
+  font-style: italic;
+}
+
 .add-to-cart-btn {
   width: 100%;
   background: #5e239d;

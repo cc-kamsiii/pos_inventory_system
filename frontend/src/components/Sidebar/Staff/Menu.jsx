@@ -1,19 +1,14 @@
-import React, { useState } from "react";
-import { Plus, Search, RefreshCw } from "lucide-react";
+import React from "react";
+import { Plus, Search } from "lucide-react";
 import "../../../Style/Menu.css";
 import "../../../Style/Search.css";
 
-const Menu = ({ products, onAddToCart, selectedCategory }) => {
-
-  const [searchQuery, setSearchQuery] = useState("");
+const Menu = ({ products, onAddToCart, selectedCategory, searchQuery, onSearchChange }) => {
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === "All" || product.category === selectedCategory;
-    const matchesSearch = product.item_name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesCategory;
   });
 
   const getStockLabel = (status) => {
@@ -32,10 +27,9 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
             placeholder="Search Menu"
             className="search-input"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
-        
       </div>
 
       <div className="products-grid">
@@ -57,6 +51,7 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
                   )}
                 </h3>
 
+
                 <p className="product-price">
                   ₱{parseFloat(product.price).toFixed(2)}
                 </p>
@@ -72,7 +67,12 @@ const Menu = ({ products, onAddToCart, selectedCategory }) => {
             </div>
           ))
         ) : (
-          <p>No items found</p>
+          <p className="no-items-message">
+            {searchQuery 
+              ? `No menu items found matching "${searchQuery}"`
+              : "No items found"
+            }
+          </p>
         )}
       </div>
     </div>
