@@ -21,6 +21,7 @@ import EditAcc from "./pages/owner/EditAcc.jsx";
 import EditMenu from "./pages/owner/EditMenu.jsx";
 import Archives from "./pages/owner/Archives.jsx";
 import LockScreen from "./components/LockScreen.jsx";
+import StaffInventory from "./pages/staff/StaffInventory.jsx"
 import "./Style/App.css";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -149,6 +150,14 @@ function Layout() {
             element={
               <ProtectedRoute allowedRoles={["staff"]}>
                 <StaffTransactions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/staffinventory"
+            element={
+              <ProtectedRoute allowedRoles={["staff"]}>
+                <StaffInventory/>
               </ProtectedRoute>
             }
           />

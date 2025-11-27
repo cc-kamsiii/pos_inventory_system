@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [cashierLogins, setCashierLogins] = useState([]);
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
+  const [searchName, setSearchName] = useState(""); // New state for name search
 
   const [totalSales, setTotalSales] = useState(0);
   const [cashSales, setCashSales] = useState(0);
@@ -35,7 +36,10 @@ const Dashboard = () => {
       const res = await axios.get(
         `${API_BASE}/ownerTransactions/cashier_logins`,
         {
-          params: { date: selectedDate || undefined },
+          params: {
+            date: selectedDate || undefined,
+            name: searchName || undefined, // Add name parameter
+          },
         }
       );
       setCashierLogins(res.data || []);
@@ -46,33 +50,28 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchCashierLogins();
-  }, [selectedDate]);
+  }, [selectedDate, searchName]); // Add searchName to dependencies
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const [
-          salesRes,
-          ordersRes,
-          inventoryRes,
-          mostSellingRes,
-          barRes,
-        ] = await Promise.all([
-          axios.get(
-            `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${chartPeriod}`
-          ),
-          axios.get(
-            `${API_BASE}/ownerTransactions/orders_summary?period=${chartPeriod}`
-          ),
-          axios.get(`${API_BASE}/inventory/summary`),
-          axios.get(
-            `${API_BASE}/ownerTransactions/most_selling_menu?period=${chartPeriod}`
-          ),
-          axios.get(
-            `${API_BASE}/ownerTransactions/sales_chart?period=${chartPeriod}`
-          ),
-        ]);
+        const [salesRes, ordersRes, inventoryRes, mostSellingRes, barRes] =
+          await Promise.all([
+            axios.get(
+              `${API_BASE}/ownerTransactions/total_sales_breakdown?period=${chartPeriod}`
+            ),
+            axios.get(
+              `${API_BASE}/ownerTransactions/orders_summary?period=${chartPeriod}`
+            ),
+            axios.get(`${API_BASE}/inventory/summary`),
+            axios.get(
+              `${API_BASE}/ownerTransactions/most_selling_menu?period=${chartPeriod}`
+            ),
+            axios.get(
+              `${API_BASE}/ownerTransactions/sales_chart?period=${chartPeriod}`
+            ),
+          ]);
 
         setTotalSales(salesRes.data?.total_sales || 0);
         setCashSales(salesRes.data?.cash_sales || 0);
@@ -113,28 +112,35 @@ const Dashboard = () => {
   };
 
   const formatNumber = (num) => {
-    return Number(num).toLocaleString('en-US', { 
+    return Number(num).toLocaleString("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2 
+      maximumFractionDigits: 2,
     });
   };
 
+  const handleShowAll = () => {
+    setSelectedDate("");
+    setSearchName("");
+  };
+
   const barOptions = {
-    title: `${chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)} Sales`,
+    title: `${
+      chartPeriod.charAt(0).toUpperCase() + chartPeriod.slice(1)
+    } Sales`,
     backgroundColor: "transparent",
     legend: { position: "none" },
-    vAxis: { 
+    vAxis: {
       format: "decimal",
-      textStyle: { fontSize: 12 }
+      textStyle: { fontSize: 12 },
     },
     hAxis: {
-      textStyle: { fontSize: 12 }
+      textStyle: { fontSize: 12 },
     },
-    tooltip: { 
+    tooltip: {
       isHtml: true,
-      trigger: 'both'
+      trigger: "both",
     },
-    chartArea: { width: '80%', height: '70%' }
+    chartArea: { width: "80%", height: "70%" },
   };
 
   const pieOptions = {
@@ -142,12 +148,12 @@ const Dashboard = () => {
     pieHole: 0.4,
     backgroundColor: "transparent",
     legend: { position: "right" },
-    tooltip: { 
+    tooltip: {
       text: "value",
-      trigger: 'both'
+      trigger: "both",
     },
     colors: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"],
-    chartArea: { width: '90%', height: '80%' }
+    chartArea: { width: "90%", height: "80%" },
   };
 
   return (
@@ -243,13 +249,26 @@ const Dashboard = () => {
           <div className="chart-card">
             <h3>Cashier Login Records</h3>
             <div className="login-filter">
-              <label>Filter by date: </label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-              <button onClick={() => setSelectedDate("")}>Show All</button>
+              <div className="filterNewLine">
+                <label>Filter by date: </label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                />
+              </div>
+              <div className="filterNewLine">
+                <label style={{ marginLeft: "15px" }}>Search name: </label>
+                <input
+                  type="text"
+                  placeholder="Enter cashier name..."
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                  style={{ padding: "5px 10px", marginLeft: "5px" }}
+                />
+              </div>
+
+              <button onClick={handleShowAll}>Show All</button>
             </div>
 
             <div className="login-table-container">
@@ -269,15 +288,16 @@ const Dashboard = () => {
                         <td>{log.login_time}</td>
                         <td>
                           {log.logout_time || (
-                            <span style={{ color: '#999', fontStyle: 'italic' }}> 
-                            </span>
+                            <span
+                              style={{ color: "#999", fontStyle: "italic" }}
+                            ></span>
                           )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" style={{ textAlign: 'center' }}>
+                      <td colSpan="3" style={{ textAlign: "center" }}>
                         No login records found
                       </td>
                     </tr>

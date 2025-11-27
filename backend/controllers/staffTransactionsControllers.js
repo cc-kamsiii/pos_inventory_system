@@ -67,155 +67,178 @@ export const addTransactions = (req, res) => {
 
   console.log("Received transaction data:", req.body);
 
-  db.beginTransaction((err) => {
-    if (err) return res.status(500).json({ error: "Transaction start failed" });
+  const validateAndPrepareDeductions = async () => {
+    const deductions = [];
 
-    const sqlTransaction = `
-      INSERT INTO transactions (
-        order_type, 
-        payment_method, 
-        total_payment, 
-        payment_amount,
-        change_amount,
-        cashier_name, 
-        user_id
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
+    for (const item of cart) {
+      // Check if recipe exists
+      const [recipeRows] = await new Promise((resolve, reject) => {
+        db.query(
+          "SELECT ingredient_id, amount_per_serving FROM recipe_ingredients WHERE menu_id = ?",
+          [item.id],
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve([rows]);
+          }
+        );
+      });
 
-    db.query(
-      sqlTransaction, 
-      [order_type, payment_method, total_payment, payment_amount, change_amount, cashier_name, user_id], 
-      (err, result) => {
-        if (err) {
-          db.rollback(() => {});
-          console.error("Error inserting transaction:", err);
-          return res.status(500).json({ error: "Database error: " + err.message });
-        }
+      if (recipeRows.length > 0) {
+        for (const r of recipeRows) {
+          const totalNeeded = r.amount_per_serving * item.quantity;
 
-        const transactionId = result.insertId;
+          const [invRows] = await new Promise((resolve, reject) => {
+            db.query(
+              "SELECT id, quantity, item, unit FROM inventory WHERE id = ?",
+              [r.ingredient_id],
+              (err, rows) => {
+                if (err) reject(err);
+                else resolve([rows]);
+              }
+            );
+          });
 
-        const sqlItems = `
-          INSERT INTO transaction_items (transaction_id, menu_id, item_name, quantity, price)
-          VALUES ?
-        `;
-        const values = cart.map((item) => [
-          transactionId, 
-          item.id, 
-          item.item_name,  
-          item.quantity, 
-          item.price
-        ]);
-
-        db.query(sqlItems, [values], async (err2) => {
-          if (err2) {
-            db.rollback(() => {});
-            console.error("Error inserting transaction items:", err2);
-            return res.status(500).json({ error: "Database error: " + err2.message });
+          if (invRows.length === 0) {
+            throw new Error(`Ingredient not found in inventory for ${item.item_name}`);
           }
 
-          try {
-            for (const item of cart) {
-              const [recipeRows] = await new Promise((resolve, reject) => {
-                db.query(
-                  "SELECT ingredient_id, amount_per_serving FROM recipe_ingredients WHERE menu_id = ?",
-                  [item.id],
-                  (err, rows) => {
-                    if (err) reject(err);
-                    else resolve([rows]);
-                  }
-                );
-              });
+          const inv = invRows[0];
+          const newQuantity = inv.quantity - totalNeeded;
 
-              if (recipeRows.length > 0) {
-                for (const r of recipeRows) {
-                  const totalNeeded = r.amount_per_serving * item.quantity;
+          if (newQuantity < 0) {
+            throw new Error(`Not enough stock for ingredient ${inv.item}. Available: ${inv.quantity}, Required: ${totalNeeded}`);
+          }
 
-                  const [invRows] = await new Promise((resolve, reject) => {
-                    db.query(
-                      "SELECT id, quantity, item, unit FROM inventory WHERE id = ?",
-                      [r.ingredient_id],
-                      (err, rows) => {
-                        if (err) reject(err);
-                        else resolve([rows]);
-                      }
-                    );
-                  });
+          deductions.push({
+            id: inv.id,
+            newQuantity: newQuantity,
+            itemName: inv.item
+          });
+        }
+      } else {
+        const [invRows] = await new Promise((resolve, reject) => {
+          db.query(
+            "SELECT id, quantity, unit, item FROM inventory WHERE LOWER(item) = LOWER(?)",
+            [item.item_name],
+            (err, rows) => {
+              if (err) reject(err);
+              else resolve([rows]);
+            }
+          );
+        });
 
-                  if (invRows.length === 0) continue;
+        if (invRows.length > 0) {
+          const inv = invRows[0];
+          let deductQty = item.quantity;
 
-                  const inv = invRows[0];
-                  const newQuantity = inv.quantity - totalNeeded;
+          if (["pcs", "can", "bottle", "pack"].includes(inv.unit.toLowerCase())) {
+            deductQty = item.quantity; 
+          }
 
-                  if (newQuantity < 0) {
-                    db.rollback(() => {});
-                    return res.status(400).json({
-                      error: `Not enough stock for ingredient ${inv.item}`,
-                    });
-                  }
+          const newQuantity = inv.quantity - deductQty;
 
-                  await new Promise((resolve, reject) => {
-                    db.query(
-                      "UPDATE inventory SET quantity = ?, last_update = NOW() WHERE id = ?",
-                      [newQuantity, inv.id],
-                      (err) => (err ? reject(err) : resolve())
-                    );
-                  });
-                }
-              } else {
-                const [invRows] = await new Promise((resolve, reject) => {
-                  db.query(
-                    "SELECT id, quantity, unit, item FROM inventory WHERE LOWER(item) = LOWER(?)",
-                    [item.item_name],
-                    (err, rows) => {
-                      if (err) reject(err);
-                      else resolve([rows]);
-                    }
-                  );
-                });
+          if (newQuantity < 0) {
+            throw new Error(`Not enough stock for ${inv.item}. Available: ${inv.quantity}, Required: ${deductQty}`);
+          }
 
-                if (invRows.length > 0) {
-                  const inv = invRows[0];
-                  let deductQty = item.quantity;
+          deductions.push({
+            id: inv.id,
+            newQuantity: newQuantity,
+            itemName: inv.item
+          });
+        }
+      }
+    }
 
-                  if (["pcs", "can", "bottle", "pack"].includes(inv.unit.toLowerCase())) {
-                    deductQty = item.quantity; 
-                  }
+    return deductions;
+  };
 
-                  const newQuantity = inv.quantity - deductQty;
+  validateAndPrepareDeductions()
+    .then((deductions) => {
+      db.beginTransaction((err) => {
+        if (err) return res.status(500).json({ error: "Transaction start failed" });
 
-                  if (newQuantity < 0) {
-                    db.rollback(() => {});
-                    return res.status(400).json({
-                      error: `Not enough stock for ${inv.item}`,
-                    });
-                  }
+        const sqlTransaction = `
+          INSERT INTO transactions (
+            order_type, 
+            payment_method, 
+            total_payment, 
+            payment_amount,
+            change_amount,
+            cashier_name, 
+            user_id
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
 
-                  await new Promise((resolve, reject) => {
-                    db.query(
-                      "UPDATE inventory SET quantity = ?, last_update = NOW() WHERE id = ?",
-                      [newQuantity, inv.id],
-                      (err) => (err ? reject(err) : resolve())
-                    );
-                  });
-                }
-              }
+        db.query(
+          sqlTransaction, 
+          [order_type, payment_method, total_payment, payment_amount, change_amount, cashier_name, user_id], 
+          (err, result) => {
+            if (err) {
+              db.rollback(() => {});
+              console.error("Error inserting transaction:", err);
+              return res.status(500).json({ error: "Database error: " + err.message });
             }
 
-            db.commit((err3) => {
-              if (err3) {
+            const transactionId = result.insertId;
+
+            const sqlItems = `
+              INSERT INTO transaction_items (transaction_id, menu_id, item_name, quantity, price)
+              VALUES ?
+            `;
+            const values = cart.map((item) => [
+              transactionId, 
+              item.id, 
+              item.item_name,  
+              item.quantity, 
+              item.price
+            ]);
+
+            db.query(sqlItems, [values], (err2) => {
+              if (err2) {
                 db.rollback(() => {});
-                return res.status(500).json({ error: "Commit failed" });
+                console.error("Error inserting transaction items:", err2);
+                return res.status(500).json({ error: "Database error: " + err2.message });
               }
-              res.json({ message: "Transaction saved and inventory deducted", transactionId });
+
+              const updatePromises = deductions.map((deduction) => {
+                return new Promise((resolve, reject) => {
+                  db.query(
+                    "UPDATE inventory SET quantity = ?, last_update = NOW() WHERE id = ?",
+                    [deduction.newQuantity, deduction.id],
+                    (err) => (err ? reject(err) : resolve())
+                  );
+                });
+              });
+
+              Promise.all(updatePromises)
+                .then(() => {
+                  db.commit((err3) => {
+                    if (err3) {
+                      db.rollback(() => {});
+                      return res.status(500).json({ error: "Commit failed" });
+                    }
+                    res.json({ 
+                      message: "Transaction saved and inventory deducted", 
+                      transactionId 
+                    });
+                  });
+                })
+                .catch((err) => {
+                  db.rollback(() => {});
+                  console.error("Error updating inventory:", err);
+                  return res.status(500).json({ error: "Error updating inventory" });
+                });
             });
-          } catch (e) {
-            db.rollback(() => {});
-            console.error("Deduction error:", e);
-            return res.status(500).json({ error: "Error deducting inventory" });
           }
-        });
-      }
-    );
-  });
+        );
+      });
+    })
+    .catch((error) => {
+      console.error("Stock validation failed:", error.message);
+      return res.status(400).json({ 
+        error: error.message 
+      });
+    });
 };

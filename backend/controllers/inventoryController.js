@@ -17,7 +17,6 @@ function getCategoryFromItem(itemName) {
     return "meat";
   }
 
-  // Seafood
   if (
     lower.includes("bangus") ||
     lower.includes("pulpo") ||

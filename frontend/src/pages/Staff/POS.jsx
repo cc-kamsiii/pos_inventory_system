@@ -32,7 +32,6 @@ function POS() {
     }
   }, [inventory]);
 
-  // New effect to handle search
   useEffect(() => {
     if (searchQuery.trim()) {
       handleSearch(searchQuery);

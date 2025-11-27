@@ -245,7 +245,7 @@
 
 .calculator-display {
   background: linear-gradient(135deg, #5e239d 0%, #7c3cb8 100%);
-  padding: 1.5rem;
+  padding: 0.7rem;
   margin-bottom: 1rem;
   border-radius: 16px;
   flex-shrink: 0;

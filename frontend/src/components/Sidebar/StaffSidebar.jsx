@@ -6,6 +6,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Box,
 } from "lucide-react";  
 import "../../Style/Sidebar.css";
 
@@ -66,6 +67,15 @@ useState(() => {
               {!isCollapsed && <span>POS</span>}
             </Link>
           </li>
+
+          <li>
+            <Link to="/staffinventory" title="Inventory">
+              <Box size={20} className="icon-side" />
+              {!isCollapsed && <span>Inventory</span>}
+            </Link>
+          </li>
+
+
         </ul>
 
         <div className="bottom-log-out">

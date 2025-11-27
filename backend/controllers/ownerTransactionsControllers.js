@@ -1,7 +1,7 @@
 import db from "../config/db.js";
 
 export const getTransactions = (req, res) => {
-  const { date, time, page = 1, limit = 10, cashier_name } = req.query;
+  const { date, time, page = 1, limit = 10, cashier_name, menu_search } = req.query;
   const offset = (page - 1) * limit;
 
   let sql = `
@@ -46,6 +46,24 @@ export const getTransactions = (req, res) => {
     params.push(cashier_name);
   }
 
+  // Handle menu search filter - finds orders containing the searched menu item
+  if (menu_search) {
+    whereClause += whereClause 
+      ? ` AND t.id IN (
+          SELECT ti2.transaction_id 
+          FROM transaction_items ti2 
+          LEFT JOIN menu m2 ON ti2.menu_id = m2.id 
+          WHERE COALESCE(m2.item_name, ti2.item_name) LIKE ?
+        )`
+      : `WHERE t.id IN (
+          SELECT ti2.transaction_id 
+          FROM transaction_items ti2 
+          LEFT JOIN menu m2 ON ti2.menu_id = m2.id 
+          WHERE COALESCE(m2.item_name, ti2.item_name) LIKE ?
+        )`;
+    params.push(`%${menu_search}%`);
+  }
+
   const finalSQL = `
     ${sql}
     ${whereClause}
@@ -63,7 +81,6 @@ export const getTransactions = (req, res) => {
     res.json(result);
   });
 };
-
 export const addTransactions = (req, res) => {
   const {
     cart,
@@ -273,7 +290,7 @@ export const getSalesChart = (req, res) => {
 };
 
 export const getCashierLogins = (req, res) => {
-  const { date } = req.query;
+  const { date, name } = req.query;
 
   let sql = `
     SELECT 
@@ -285,9 +302,20 @@ export const getCashierLogins = (req, res) => {
   `;
 
   const params = [];
+  const conditions = [];
+
   if (date) {
-    sql += ` WHERE DATE(c.login_time) = ?`;
+    conditions.push(`DATE(c.login_time) = ?`);
     params.push(date);
+  }
+
+  if (name) {
+    conditions.push(`u.first_name LIKE ?`);
+    params.push(`%${name}%`);
+  }
+
+  if (conditions.length > 0) {
+    sql += ` WHERE ${conditions.join(' AND ')}`;
   }
 
   sql += ` ORDER BY c.login_time DESC`;

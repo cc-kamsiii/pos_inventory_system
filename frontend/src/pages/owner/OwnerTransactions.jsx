@@ -10,6 +10,7 @@ function OwnerTransactions() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [cashierName, setCashierName] = useState("");
+  const [menuSearch, setMenuSearch] = useState("");
   const [page, setPage] = useState(1);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
 
@@ -31,6 +32,7 @@ function OwnerTransactions() {
           date: date, 
           time: time,
           cashier_name: cashierName,
+          menu_search: menuSearch,
           page 
         },
       })
@@ -49,7 +51,7 @@ function OwnerTransactions() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [date, time, cashierName, page]);
+  }, [date, time, cashierName, menuSearch, page]);
 
   const groupTransactionsByOrder = (transactions) => {
     const grouped = {};
@@ -110,6 +112,14 @@ function OwnerTransactions() {
             </div>
 
             <input
+              type="text"
+              placeholder="Search menu"
+              value={menuSearch}
+              onChange={(e) => setMenuSearch(e.target.value)}
+              className="menu-search"
+            />
+
+            <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -154,7 +164,7 @@ function OwnerTransactions() {
               {groupedData.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="9"
                     style={{ textAlign: "center", padding: "15px" }}
                   >
                     <img
@@ -214,7 +224,7 @@ function OwnerTransactions() {
                     {expandedOrders.has(order.order_id) && (
                       <>
                         <tr className="items-header">
-                          <td colSpan="8">
+                          <td colSpan="9">
                             <strong>Items in Order #{order.order_id}</strong>
                           </td>
                         </tr>
@@ -227,7 +237,7 @@ function OwnerTransactions() {
                             <td>{item.item_name}</td>
                             <td>Qty: {item.quantity}</td>
                             <td>Price: ₱{parseFloat(item.price).toFixed(2)}</td>
-                            <td colSpan="4">
+                            <td colSpan="5">
                               Subtotal: ₱
                               {(parseFloat(item.price) * item.quantity).toFixed(
                                 2

@@ -198,9 +198,13 @@
 
 .login-filter {
   display: flex;
-  align-items: center;
   gap: 10px;
   margin-bottom: 1rem;
+  flex-direction: column;
+}
+
+.filterNewLine {
+  margin: 0;
 }
 
 .login-filter input {
