@@ -1,6 +1,6 @@
 import { useEffect, useState, Fragment } from "react";
 import axios from "axios";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft, Calendar, ChevronDown } from "lucide-react";
 import noTransaction from "../../assets/noTransaction.png";
 
 function OwnerTransactions() {
@@ -14,7 +14,6 @@ function OwnerTransactions() {
   const [page, setPage] = useState(1);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   
-  // Time range states
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
@@ -48,12 +47,6 @@ function OwnerTransactions() {
     updateTimeRange(startTime, newEndTime);
   };
 
-  const clearTimeRange = () => {
-    setStartTime("");
-    setEndTime("");
-    setTimeRange("");
-  };
-
   const fetchAccounts = async () => {
     try {
       const res = await axios.get(`${API_BASE}/auth/users`);
@@ -76,7 +69,6 @@ function OwnerTransactions() {
       })
       .then((res) => {
         setData(res.data);
-
         const grouped = groupTransactionsByOrder(res.data);
         setGroupedData(grouped);
       })
@@ -135,75 +127,82 @@ function OwnerTransactions() {
   return (
     <div className="inventory">
       <div className="inventory-container">
-        <div className="title-search-create">
-          <h2>TRANSACTIONS HISTORY</h2>
+        <div className="title-section">
+          <h2>TRANSACTION HISTORY</h2>
+        </div>
 
-          <div className="title-row">
-            <div className="pagination">
+        <div className="controls-section">
+          <div className="pagination-controls">
+            <span className="page-label">PAGE {page}</span>
+            <div className="pagination-buttons">
               <button onClick={() => setPage((prev) => Math.max(prev - 1, 1))}>
-                <ChevronLeft size={20} />
+                <ChevronLeft size={16} />
               </button>
-              <span>Page: {page}</span>
               <button onClick={() => setPage((prev) => prev + 1)}>
-                <ChevronRight size={20} />
+                <ChevronRight size={16} />
               </button>
             </div>
+          </div>
 
-            <input
-              type="text"
-              placeholder="Search menu"
-              value={menuSearch}
-              onChange={(e) => setMenuSearch(e.target.value)}
-              className="menu-search"
-            />
+          <div className="filters-row">
+            <div className="search-container">
+              <Search className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search Menu"
+                value={menuSearch}
+                onChange={(e) => setMenuSearch(e.target.value)}
+                className="filter-input search-input"
+              />
+            </div>
 
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <div className="date-container">
+              
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="filter-input date-input"
+              />
+            </div>
 
-            <div className="time-range-container">
+            <div className="time-range-group">
               <input
                 type="time"
                 value={startTime}
                 onChange={handleStartTimeChange}
-                placeholder="Start time"
-                className="time-input"
+                className="filter-input time-input"
               />
-              <span className="time-separator">to</span>
+              <span className="time-separator">-</span>
               <input
                 type="time"
                 value={endTime}
                 onChange={handleEndTimeChange}
-                placeholder="End time"
-                className="time-input"
+                className="filter-input time-input"
               />
-              {(startTime || endTime) && (
-                <button 
-                  onClick={clearTimeRange}
-                  className="clear-time-btn"
-                  title="Clear time range"
-                >
-                  ✕
-                </button>
-              )}
             </div>
 
-            <select value={cashierName} onChange={(e) => setCashierName(e.target.value)} className="cashierName">
-              <option value="">All Cashiers</option>
-              {accounts
-                .filter((account) => account.role === "staff")
-                .map((account) => (
-                  <option key={account.id} value={account.name}>
-                    {account.name}
-                  </option>
-                ))}
-            </select>
+            <div className="select-container">
+              <select 
+                value={cashierName} 
+                onChange={(e) => setCashierName(e.target.value)} 
+                className="filter-input cashier-select"
+              >
+                <option value="">All Cashier</option>
+                {accounts
+                  .filter((account) => account.role === "staff")
+                  .map((account) => (
+                    <option key={account.id} value={account.name}>
+                      {account.name}
+                    </option>
+                  ))}
+              </select>
+              <ChevronDown className="chevron-down-icon" />
+            </div>
           </div>
         </div>
 
-        <div className="table">
+        <div className="table-container">
           <table>
             <thead>
               <tr>
@@ -221,15 +220,15 @@ function OwnerTransactions() {
             <tbody>
               {groupedData.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan="9"
-                    style={{ textAlign: "center", padding: "15px" }}
-                  >
-                    <img
-                      src={noTransaction}
-                      alt="No Transactions"
-                      className="noTransaction"
-                    />
+                  <td colSpan="9" className="no-data-cell">
+                    <div className="no-data-content">
+                      <img
+                        src={noTransaction}
+                        alt="No Transactions"
+                        className="noTransaction"
+                      />
+                      <div className="no-data-text">No transactions found</div>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -249,33 +248,24 @@ function OwnerTransactions() {
                         </span>
                         {order.order_id}
                       </td>
-
                       <td>{order.order_type}</td>
                       <td>{order.payment_method}</td>
                       <td>₱{parseFloat(order.total_payment).toFixed(2)}</td>
-
                       <td>₱{parseFloat(order.payment_amount).toFixed(2)}</td>
                       <td>₱{parseFloat(order.change_amount).toFixed(2)}</td>
-
                       <td>{order.cashier_name}</td>
                       <td>
-                        {new Date(order.order_date).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "2-digit",
-                            month: "numeric",
-                            day: "numeric",
-                          }
-                        )}
+                        {new Date(order.order_date).toLocaleDateString("en-US", {
+                          year: "2-digit",
+                          month: "numeric",
+                          day: "numeric",
+                        })}
                       </td>
                       <td>
-                        {new Date(order.order_date).toLocaleTimeString(
-                          "en-US",
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
+                        {new Date(order.order_date).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </td>
                     </tr>
 
@@ -297,9 +287,7 @@ function OwnerTransactions() {
                             <td>Price: ₱{parseFloat(item.price).toFixed(2)}</td>
                             <td colSpan="5">
                               Subtotal: ₱
-                              {(parseFloat(item.price) * item.quantity).toFixed(
-                                2
-                              )}
+                              {(parseFloat(item.price) * item.quantity).toFixed(2)}
                             </td>
                           </tr>
                         ))}

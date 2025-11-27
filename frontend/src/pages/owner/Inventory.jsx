@@ -500,7 +500,7 @@ function Inventory() {
                           </div>
                         ) : low ? (
                           <div className="low-alert">
-                            <AlertTriangle size={20} />
+                           
                             <span>Low Stock!</span>
                           </div>
                         ) : (

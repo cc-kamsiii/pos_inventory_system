@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Trash2, ArchiveIcon } from "lucide-react";
+import { Trash2, ArchiveIcon, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../Style/EditAcc.css";
 
 function EditAcc() {
+  const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -53,39 +55,42 @@ function EditAcc() {
     setShowDeleteModal(true);
   };
 
-const confirmArchive = async () => {
-  try {
-    await axios.delete(`${API_BASE}/auth/archive/${accountToDelete.id}`);
+  const confirmArchive = async () => {
+    try {
+      await axios.delete(`${API_BASE}/auth/archive/${accountToDelete.id}`);
 
-    // Remove from current accounts
-    setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
-    setShowDeleteModal(false);
-    setAccountToDelete(null);
+      // Remove from current accounts
+      setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
+      setShowDeleteModal(false);
+      setAccountToDelete(null);
 
-    // Optional: Show success message
-    alert(`Account ${accountToDelete.username} archived successfully!`);
+      alert(`Account ${accountToDelete.username} archived successfully!`);
 
-  } catch (err) {
-    console.log("Archive error:", err);
-    
-    if (err.response?.status === 500) {
-      const errorMessage = err.response?.data?.message || 
-        `Cannot archive ${accountToDelete.username}. This staff member has transaction records that prevent archiving.`;
-      alert(errorMessage);
-    } else if (err.response?.data?.message) {
-      alert(err.response.data.message);
-    } else {
-      alert("Error archiving account. Please try again.");
+    } catch (err) {
+      console.log("Archive error:", err);
+      
+      if (err.response?.status === 500) {
+        const errorMessage = err.response?.data?.message || 
+          `Cannot archive ${accountToDelete.username}. This staff member has transaction records that prevent archiving.`;
+        alert(errorMessage);
+      } else if (err.response?.data?.message) {
+        alert(err.response.data.message);
+      } else {
+        alert("Error archiving account. Please try again.");
+      }
     }
-  }
-};
-
+  };
 
   return (
     <div className="createacc-container">
+      <button className="btn-back" onClick={() => navigate("/Settings")}>
+        <ArrowLeft size={20} />
+        Back
+      </button>
+
       <div className="createacc-header">
-        <h2>Create Account</h2>
-        <p className="createacc-subtitle">Manage your accounts</p>
+        <h1>Create Account</h1>
+        <p>Manage your accounts</p>
       </div>
 
       <div className="createacc-option">
